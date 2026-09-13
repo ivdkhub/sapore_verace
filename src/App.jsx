@@ -7,6 +7,7 @@ import { Header } from './components/Header/Header';
 import { HeroSection } from './components/Hero/HeroSection';
 import { MenuGrid } from './components/Menu/MenuGrid';
 import { FixedLunchMenuSection } from './components/Features/FixedLunchMenuSection';
+import { EventsSection } from './components/Events/EventsSection';
 import { TestimonialsSection } from './components/Testimonials/TestimonialsSection';
 import { InstagramGrid } from './components/Gallery/InstagramGrid';
 import { FindUsSection } from './components/Location/FindUsSection';
@@ -45,13 +46,16 @@ function MainAppContent() {
         {/* 5. MENÙ FISSO | PRANZO LAVORO (14€) */}
         <FixedLunchMenuSection />
 
-        {/* 6. TESTIMONIALS QUOTE CAROUSEL */}
+        {/* 6. EVENTI & SERATE A TEMA */}
+        <EventsSection />
+
+        {/* 7. TESTIMONIALS QUOTE CAROUSEL */}
         <TestimonialsSection />
 
-        {/* 7. INSTAGRAM GALLERY GRID */}
+        {/* 8. INSTAGRAM GALLERY GRID */}
         <InstagramGrid />
 
-        {/* 8. COME TROVARCI / MAPPA & CONTATTI */}
+        {/* 9. COME TROVARCI / MAPPA & CONTATTI */}
         <FindUsSection />
       </main>
 

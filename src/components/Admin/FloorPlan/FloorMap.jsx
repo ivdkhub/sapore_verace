@@ -214,13 +214,18 @@ export const FloorMap = () => {
         const table = tables.find((t) => t.id === draggedItemId);
         if (!table) return;
 
+        const pX = perimeter?.x || 60;
+        const pY = perimeter?.y || 20;
+        const pW = perimeter?.width || 880;
+        const pH = perimeter?.height || 940;
+
         let newX, newY;
         if (table.type === 'round') {
           const r = table.radius || 30;
-          const minX = 125 + r;
-          const maxX = 995 - r;
-          const minY = 85 + r;
-          const maxY = 955 - r;
+          const minX = pX + 5 + r;
+          const maxX = pX + pW - 5 - r;
+          const minY = pY + 5 + r;
+          const maxY = pY + pH - 5 - r;
           newX = Math.round(Math.max(minX, Math.min(maxX, dragData.current.itemX + dx)));
           newY = Math.round(Math.max(minY, Math.min(maxY, dragData.current.itemY + dy)));
         } else {
@@ -233,10 +238,10 @@ export const FloorMap = () => {
           const halfVisualW = visualW / 2;
           const halfVisualH = visualH / 2;
 
-          const minCenterX = 125 + halfVisualW;
-          const maxCenterX = 995 - halfVisualW;
-          const minCenterY = 85 + halfVisualH;
-          const maxCenterY = 955 - halfVisualH;
+          const minCenterX = pX + 5 + halfVisualW;
+          const maxCenterX = pX + pW - 5 - halfVisualW;
+          const minCenterY = pY + 5 + halfVisualH;
+          const maxCenterY = pY + pH - 5 - halfVisualH;
 
           const desiredCenterX = dragData.current.itemX + w / 2 + dx;
           const desiredCenterY = dragData.current.itemY + h / 2 + dy;
@@ -527,8 +532,8 @@ export const FloorMap = () => {
       >
         <svg
           ref={svgRef}
-          viewBox="100 60 920 920"
-          className={`w-full max-w-[920px] h-auto drop-shadow-2xl font-sans ${
+          viewBox={`${(perimeter?.x || 60) - 20} ${(perimeter?.y || 20) - 15} ${(perimeter?.width || 880) + 40} ${(perimeter?.height || 940) + 30}`}
+          className={`w-full max-w-[960px] h-auto drop-shadow-2xl font-sans ${
             draggedItemId ? 'cursor-grabbing' : isStructureEditMode ? 'cursor-crosshair' : 'cursor-default'
           }`}
           style={{ minWidth: '650px', touchAction: 'none' }}
@@ -1477,7 +1482,7 @@ export const FloorMap = () => {
                         fontSize="7.5"
                         fontWeight="bold"
                       >
-                        {`${table.reservation.clientName} (${table.reservation.guests}p)`}
+                        {`${table.reservation.clientName || table.reservation.name || 'Ospite'} (${table.reservation.guests}p)`}
                       </text>
                     )}
                   </g>
@@ -1519,7 +1524,7 @@ export const FloorMap = () => {
                         fontSize="8"
                         fontWeight="bold"
                       >
-                        {`${table.reservation.clientName} (${table.reservation.guests}p)`}
+                        {`${table.reservation.clientName || table.reservation.name || 'Ospite'} (${table.reservation.guests}p)`}
                       </text>
                     )}
                   </g>

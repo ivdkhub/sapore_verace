@@ -6,98 +6,276 @@ const AdminContext = createContext();
 // DEFAULT TEMPLATE (EXACT REPLICA OF USER REFERENCE IMAGE)
 // ============================================================
 export const INITIAL_TABLES = [
-  // Tavolo 1 in alto a sinistra (4 posti verticale)
+  // --- SALA SINISTRA ---
+  // 1. T10 in alto a sinistra (4 posti quadrato)
   {
-    id: 'T1_TOP_LEFT',
-    name: 'T1',
+    id: 'T10_TOP_LEFT',
+    name: 'T10',
     room: 'left',
-    type: 'rect',
+    type: 'square',
     seats: 4,
-    x: 152,
-    y: 270,
-    width: 50,
-    height: 85,
+    x: 115,
+    y: 205,
+    width: 48,
+    height: 48,
     status: 'disponibile',
     reservation: null,
   },
-  // Tavolo 2 al centro-sinistra sotto T1 (4 posti orizzontale)
+  // 2. T6 a centro-sinistra (2 posti)
   {
-    id: 'T1_MID_LEFT',
-    name: 'T1',
+    id: 'T6_MID_LEFT',
+    name: 'T6',
     room: 'left',
     type: 'rect',
-    seats: 4,
-    x: 152,
-    y: 400,
-    width: 85,
-    height: 50,
+    seats: 2,
+    x: 180,
+    y: 320,
+    width: 48,
+    height: 44,
     status: 'disponibile',
     reservation: null,
   },
-  // Tavolo 3 al centro (6 posti verticale: T4+T4+T4)
+  // 3. T4+T4+T4 al centro-sinistra inferiore (6 posti orizzontale)
   {
-    id: 'T4_CENTER',
+    id: 'T4_MERGED_LEFT',
     name: 'T4+T4+T4',
     room: 'left',
     type: 'rect',
     seats: 6,
-    x: 345,
-    y: 380,
-    width: 55,
-    height: 125,
+    isModular: true,
+    x: 208,
+    y: 525,
+    width: 128,
+    height: 60,
     status: 'disponibile',
     reservation: null,
   },
-  // Tavolo 4 in basso a sinistra (8 posti lungo verticale: T5+T5+T5+T5)
+  // 4. T10 in basso a sinistra (4 posti quadrato)
   {
-    id: 'T5_BOTTOM_LEFT',
+    id: 'T10_BOTTOM_LEFT',
+    name: 'T10',
+    room: 'left',
+    type: 'square',
+    seats: 4,
+    x: 112,
+    y: 655,
+    width: 48,
+    height: 48,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 5. T5+T5+T5+T5 in basso al centro (8 posti orizzontale)
+  {
+    id: 'T5_MERGED_CENTER',
     name: 'T5+T5+T5+T5',
     room: 'left',
     type: 'rect',
     seats: 8,
-    x: 215,
-    y: 570,
-    width: 55,
-    height: 210,
+    isModular: true,
+    x: 320,
+    y: 660,
+    width: 215,
+    height: 65,
     status: 'disponibile',
     reservation: null,
   },
-  // Tavolo 5 nella sala a destra (4 posti orizzontale)
+
+  // --- COLONNA CENTRALE ---
+  // 6. T10 in alto al centro (6 posti orizzontale)
   {
-    id: 'T1_RIGHT',
-    name: 'T1',
+    id: 'T10_CENTER_TOP',
+    name: 'T10',
+    room: 'main',
+    type: 'rect',
+    seats: 6,
+    x: 408,
+    y: 220,
+    width: 125,
+    height: 55,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 7. T10 al centro (4 posti orizzontale)
+  {
+    id: 'T10_CENTER_MID',
+    name: 'T10',
     room: 'main',
     type: 'rect',
     seats: 4,
-    x: 805,
-    y: 460,
+    x: 448,
+    y: 395,
+    width: 85,
+    height: 55,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 8. T10 al centro-basso (PRENOTATO da "czz (3p)", 4 posti orizzontale, arancione)
+  {
+    id: 'T10_CENTER_BOOKED',
+    name: 'T10',
+    room: 'main',
+    type: 'rect',
+    seats: 4,
+    x: 442,
+    y: 525,
+    width: 88,
+    height: 55,
+    status: 'in_corso',
+    colorOverride: '#f59e0b',
+    reservation: {
+      name: 'czz',
+      clientName: 'czz',
+      guests: 3,
+      time: '20:30',
+      status: 'In Attesa',
+      color: '#f59e0b',
+      code: 'SV-7821',
+      phone: '+39 333 4567890',
+      notes: '',
+    },
+  },
+
+  // --- SALA DESTRA ---
+  // 9. T6 rotondo al centro (4 posti rotondo)
+  {
+    id: 'T6_RIGHT_ROUND_MID',
+    name: 'T6',
+    room: 'main',
+    type: 'round',
+    seats: 4,
+    x: 635,
+    y: 422,
+    radius: 30,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 10. T13 in alto a destra (4 posti orizzontale)
+  {
+    id: 'T13_TOP_RIGHT',
+    name: 'T13',
+    room: 'main',
+    type: 'rect',
+    seats: 4,
+    x: 850,
+    y: 285,
     width: 85,
     height: 50,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 11. T13 al centro a destra (4 posti orizzontale)
+  {
+    id: 'T13_MID_RIGHT',
+    name: 'T13',
+    room: 'main',
+    type: 'rect',
+    seats: 4,
+    x: 850,
+    y: 395,
+    width: 85,
+    height: 50,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 12. T13 al centro sotto T6 rotondo (4 posti orizzontale)
+  {
+    id: 'T13_CENTER_RIGHT',
+    name: 'T13',
+    room: 'main',
+    type: 'rect',
+    seats: 4,
+    x: 595,
+    y: 525,
+    width: 85,
+    height: 50,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 13. T13 al centro-basso a destra (4 posti orizzontale)
+  {
+    id: 'T13_LOWER_RIGHT',
+    name: 'T13',
+    room: 'main',
+    type: 'rect',
+    seats: 4,
+    x: 846,
+    y: 532,
+    width: 85,
+    height: 50,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 14. T6+T13 in basso a sinistra della sala destra (4 posti orizzontale modulare)
+  {
+    id: 'T6_T13_MERGED_BOTTOM',
+    name: 'T6+T13',
+    room: 'main',
+    type: 'rect',
+    seats: 4,
+    isModular: true,
+    x: 600,
+    y: 670,
+    width: 85,
+    height: 50,
+    status: 'disponibile',
+    reservation: null,
+  },
+  // 15. T6 rotondo in basso a destra sopra il bagno (4 posti rotondo)
+  {
+    id: 'T6_RIGHT_ROUND_BOTTOM',
+    name: 'T6',
+    room: 'main',
+    type: 'round',
+    seats: 4,
+    x: 868,
+    y: 686,
+    radius: 32,
     status: 'disponibile',
     reservation: null,
   },
 ];
 
-export const INITIAL_ZONE_LABELS = [];
+export const INITIAL_ZONE_LABELS = [
+  {
+    id: 'zone_fumatori',
+    name: 'AREA FUMATORI',
+    subtitle: 'Zona Riservata',
+    x: 302,
+    y: 895,
+    color: '#c084fc',
+  },
+];
 
 export const INITIAL_STRUCTURE = {
   perimeter: {
-    x: 120,
-    y: 80,
+    x: 60,
+    y: 20,
     width: 880,
-    height: 880,
+    height: 940,
     strokeWidth: 9,
     fill: '#151515',
     borderColor: '#404040',
   },
   walls: [
-    // Muro orizzontale cucina (in alto a sinistra sotto il pass)
+    // Muro divisorio superiore tra Pass e Bar
+    {
+      id: 'wall_top_div',
+      name: 'Muro Superiore Divisorio',
+      x: 565,
+      y: 20,
+      width: 10,
+      height: 60,
+      rotation: 0,
+      type: 'wall',
+      color: '#555555',
+    },
+    // Muro orizzontale cucina (in alto a sinistra)
     {
       id: 'wall_cucina_left',
       name: 'Muro Cucina Sinistra',
-      x: 130,
-      y: 220,
-      width: 200,
+      x: 65,
+      y: 165,
+      width: 210,
       height: 10,
       rotation: 0,
       type: 'wall',
@@ -107,9 +285,9 @@ export const INITIAL_STRUCTURE = {
     {
       id: 'wall_cucina_mid',
       name: 'Muro Orizzontale Centro',
-      x: 410,
-      y: 225,
-      width: 205,
+      x: 350,
+      y: 170,
+      width: 215,
       height: 10,
       rotation: 0,
       type: 'wall',
@@ -119,34 +297,58 @@ export const INITIAL_STRUCTURE = {
     {
       id: 'wall_div_top',
       name: 'Muro Divisorio Nord',
-      x: 615,
-      y: 155,
+      x: 565,
+      y: 170,
       width: 10,
-      height: 290,
+      height: 160,
       rotation: 0,
       type: 'wall',
       color: '#555555',
     },
-    // Parete divisoria verticale Centro (tra porta 1 e porta 2)
+    // Parete divisoria verticale Centro 1
     {
-      id: 'wall_div_mid',
-      name: 'Muro Divisorio Centro',
-      x: 615,
-      y: 505,
+      id: 'wall_div_mid1',
+      name: 'Muro Divisorio Centro 1',
+      x: 565,
+      y: 390,
       width: 10,
-      height: 205,
+      height: 65,
       rotation: 0,
       type: 'wall',
       color: '#555555',
     },
-    // Parete divisoria verticale Sud (sotto porta 2 e a sinistra del bagno)
+    // Parete divisoria verticale Centro 2
+    {
+      id: 'wall_div_mid2',
+      name: 'Muro Divisorio Centro 2',
+      x: 565,
+      y: 518,
+      width: 10,
+      height: 65,
+      rotation: 0,
+      type: 'wall',
+      color: '#555555',
+    },
+    // Parete divisoria verticale Sud
     {
       id: 'wall_div_bottom',
       name: 'Muro Divisorio Sud',
-      x: 615,
-      y: 810,
+      x: 565,
+      y: 655,
       width: 10,
-      height: 145,
+      height: 75,
+      rotation: 0,
+      type: 'wall',
+      color: '#555555',
+    },
+    // Parete sinistra del bagno in basso a destra
+    {
+      id: 'wall_bath_left',
+      name: 'Muro Bagno Sinistra',
+      x: 565,
+      y: 805,
+      width: 10,
+      height: 165,
       rotation: 0,
       type: 'wall',
       color: '#555555',
@@ -155,9 +357,33 @@ export const INITIAL_STRUCTURE = {
     {
       id: 'wall_bath_top',
       name: 'Muro Bagno Superiore',
-      x: 625,
-      y: 810,
-      width: 285,
+      x: 565,
+      y: 805,
+      width: 330,
+      height: 10,
+      rotation: 0,
+      type: 'wall',
+      color: '#555555',
+    },
+    // Parete verticale interna bagno destra
+    {
+      id: 'wall_bath_inner_div',
+      name: 'Muro Bagno Destra',
+      x: 870,
+      y: 875,
+      width: 10,
+      height: 95,
+      rotation: 0,
+      type: 'wall',
+      color: '#555555',
+    },
+    // Parete orizzontale in alto a destra sotto ingresso
+    {
+      id: 'wall_top_right_short',
+      name: 'Muro Ingresso Orizzontale',
+      x: 850,
+      y: 195,
+      width: 110,
       height: 10,
       rotation: 0,
       type: 'wall',
@@ -169,51 +395,51 @@ export const INITIAL_STRUCTURE = {
     {
       id: 'door_cucina',
       name: 'Porta Cucina',
-      x: 335,
-      y: 220,
+      x: 280,
+      y: 165,
       width: 55,
       rotation: 0,
       swing: 'left',
     },
-    // Porta divisoria nord
+    // Porta ingresso destra 1
     {
-      id: 'door_mid_1',
-      name: 'Porta Sala Nord',
-      x: 620,
-      y: 445,
-      width: 55,
-      rotation: 0,
-      swing: 'left',
-    },
-    // Porta divisoria sud
-    {
-      id: 'door_mid_2',
-      name: 'Porta Sala Sud',
-      x: 620,
-      y: 710,
-      width: 55,
-      rotation: 0,
-      swing: 'left',
-    },
-    // Porta ingresso / destra in alto
-    {
-      id: 'door_top_right',
-      name: 'Porta Ingresso',
-      x: 995,
-      y: 185,
+      id: 'door_top_right_1',
+      name: 'Porta Ingresso 1',
+      x: 820,
+      y: 130,
       width: 55,
       rotation: 180,
       swing: 'left',
     },
+    // Porta ingresso destra 2
+    {
+      id: 'door_top_right_2',
+      name: 'Porta Ingresso 2',
+      x: 910,
+      y: 130,
+      width: 55,
+      rotation: 180,
+      swing: 'left',
+    },
+    // Porta bagno
+    {
+      id: 'door_bath',
+      name: 'Porta Bagno',
+      x: 870,
+      y: 810,
+      width: 55,
+      rotation: 0,
+      swing: 'left',
+    },
   ],
   windows: [
-    // Vetrata Panoramica in basso a sinistra (tra muro esterno e colonna centrale)
+    // Vetrata Panoramica in basso a sinistra
     {
       id: 'win_vetrata_bottom',
       name: 'Vetrata Panoramica',
-      x: 130,
-      y: 825,
-      width: 485,
+      x: 65,
+      y: 820,
+      width: 495,
       height: 14,
       rotation: 0,
     },
@@ -224,10 +450,10 @@ export const INITIAL_STRUCTURE = {
       id: 'fix_pass_cucina',
       name: 'Pass Cucina',
       type: 'kitchen_pass',
-      x: 140,
-      y: 95,
-      width: 280,
-      height: 38,
+      x: 165,
+      y: 40,
+      width: 285,
+      height: 44,
       rotation: 0,
     },
     // Bancone Bar con Sgabelli (in alto a destra)
@@ -235,9 +461,9 @@ export const INITIAL_STRUCTURE = {
       id: 'fix_bar_topright',
       name: 'Bancone Bar con Sgabelli',
       type: 'bar',
-      x: 770,
-      y: 120,
-      width: 160,
+      x: 640,
+      y: 40,
+      width: 165,
       height: 35,
       rotation: 0,
     },
@@ -246,10 +472,10 @@ export const INITIAL_STRUCTURE = {
       id: 'fix_cassa_reception',
       name: 'Cassa & Reception',
       type: 'counter',
-      x: 705,
-      y: 190,
+      x: 618,
+      y: 182,
       width: 40,
-      height: 115,
+      height: 125,
       rotation: 0,
     },
     // Bagno Singolo (in basso a destra)
@@ -257,9 +483,9 @@ export const INITIAL_STRUCTURE = {
       id: 'fix_bagno_singolo',
       name: 'Bagno Singolo',
       type: 'restroom_single',
-      x: 655,
+      x: 610,
       y: 840,
-      width: 185,
+      width: 175,
       height: 100,
       rotation: 0,
     },
@@ -303,6 +529,82 @@ const cleanupOldDailyConfigs = (configs) => {
   return cleaned;
 };
 
+// ============================================================
+// DEFAULT OPENING HOURS & HOLIDAYS CONFIGURATIONS
+// ============================================================
+export const DEFAULT_OPENING_HOURS = {
+  monday: {
+    key: 'monday',
+    label: 'Lunedì',
+    closed: true,
+    lunch: { open: '12:00', close: '14:30', enabled: false },
+    dinner: { open: '19:00', close: '23:30', enabled: false },
+  },
+  tuesday: {
+    key: 'tuesday',
+    label: 'Martedì',
+    closed: false,
+    lunch: { open: '12:00', close: '14:30', enabled: true },
+    dinner: { open: '19:00', close: '23:30', enabled: true },
+  },
+  wednesday: {
+    key: 'wednesday',
+    label: 'Mercoledì',
+    closed: false,
+    lunch: { open: '12:00', close: '14:30', enabled: true },
+    dinner: { open: '19:00', close: '23:30', enabled: true },
+  },
+  thursday: {
+    key: 'thursday',
+    label: 'Giovedì',
+    closed: false,
+    lunch: { open: '12:00', close: '14:30', enabled: true },
+    dinner: { open: '19:00', close: '23:30', enabled: true },
+  },
+  friday: {
+    key: 'friday',
+    label: 'Venerdì',
+    closed: false,
+    lunch: { open: '12:00', close: '14:30', enabled: true },
+    dinner: { open: '19:00', close: '00:00', enabled: true },
+  },
+  saturday: {
+    key: 'saturday',
+    label: 'Sabato',
+    closed: false,
+    lunch: { open: '12:00', close: '15:00', enabled: true },
+    dinner: { open: '19:00', close: '00:30', enabled: true },
+  },
+  sunday: {
+    key: 'sunday',
+    label: 'Domenica',
+    closed: false,
+    lunch: { open: '12:00', close: '15:00', enabled: true },
+    dinner: { open: '19:00', close: '23:30', enabled: true },
+  },
+};
+
+export const DEFAULT_HOLIDAYS = [
+  {
+    id: 'hol_ferie_estive',
+    name: 'Ferie Estive di Ferragosto',
+    type: 'ferie',
+    startDate: '2026-08-10',
+    endDate: '2026-08-24',
+    notes: 'Riapertura regolare martedì 25 Agosto con il consueto menù estivo.',
+    bannerActive: true,
+  },
+  {
+    id: 'hol_natale',
+    name: 'Festività Natalizie & Santo Stefano',
+    type: 'festivita',
+    startDate: '2026-12-25',
+    endDate: '2026-12-26',
+    notes: 'Chiusura per le festività di Natale e Santo Stefano.',
+    bannerActive: false,
+  },
+];
+
 export const AdminProvider = ({ children }) => {
   const [isAdminView, setIsAdminView] = useState(false);
   const [activeTab, setActiveTab] = useState('tavoli');
@@ -313,10 +615,34 @@ export const AdminProvider = ({ children }) => {
   const [activeShift, setActiveShift] = useState('cena');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
+  // ============================================================
+  // OPENING HOURS & HOLIDAYS / VACATION STATE
+  // ============================================================
+  const [openingHours, setOpeningHours] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sapore_verace_opening_hours_v2');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Error loading opening hours:', e);
+    }
+    return DEFAULT_OPENING_HOURS;
+  });
+
+  const [holidays, setHolidays] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sapore_verace_holidays_v2');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Error loading holidays:', e);
+    }
+    return DEFAULT_HOLIDAYS;
+  });
+
+
   // Daily multi-day table configurations map (keyed by YYYY-MM-DD_shift)
   const [dailyConfigs, setDailyConfigs] = useState(() => {
     try {
-      const saved = localStorage.getItem('sapore_verace_daily_configs_v3');
+      const saved = localStorage.getItem('sapore_verace_daily_configs_v6');
       if (saved) {
         const parsed = JSON.parse(saved);
         return cleanupOldDailyConfigs(parsed);
@@ -401,7 +727,7 @@ export const AdminProvider = ({ children }) => {
   // Real-time synchronization across browser tabs and components via Storage & CustomEvent
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'sapore_verace_daily_configs_v3' && e.newValue) {
+      if (e.key === 'sapore_verace_daily_configs_v6' && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
           setDailyConfigs(parsed);
@@ -487,7 +813,7 @@ export const AdminProvider = ({ children }) => {
       };
       const cleaned = cleanupOldDailyConfigs(updated);
       try {
-        localStorage.setItem('sapore_verace_daily_configs_v3', JSON.stringify(cleaned));
+        localStorage.setItem('sapore_verace_daily_configs_v6', JSON.stringify(cleaned));
       } catch (e) {
         console.error('Error saving daily configs:', e);
       }
@@ -509,7 +835,7 @@ export const AdminProvider = ({ children }) => {
         },
       };
       const cleaned = cleanupOldDailyConfigs(updated);
-      localStorage.setItem('sapore_verace_daily_configs_v3', JSON.stringify(cleaned));
+      localStorage.setItem('sapore_verace_daily_configs_v6', JSON.stringify(cleaned));
       setSaveSuccessMessage(`Configurazione salvata per ${selectedDate} (${activeShift})!`);
       setTimeout(() => setSaveSuccessMessage(''), 3500);
       return true;
@@ -567,7 +893,7 @@ export const AdminProvider = ({ children }) => {
     const cleaned = cleanupOldDailyConfigs(updated);
     setDailyConfigs(cleaned);
     try {
-      localStorage.setItem('sapore_verace_daily_configs_v3', JSON.stringify(cleaned));
+      localStorage.setItem('sapore_verace_daily_configs_v6', JSON.stringify(cleaned));
     } catch (e) {
       console.error(e);
     }
@@ -1267,6 +1593,177 @@ export const AdminProvider = ({ children }) => {
     saveLayout();
   };
 
+  // ============================================================
+  // OPENING HOURS & HOLIDAYS MANAGEMENT HANDLERS
+  // ============================================================
+  const updateDayHours = (dayKey, dayData) => {
+    setOpeningHours((prev) => {
+      const updated = {
+        ...prev,
+        [dayKey]: {
+          ...(prev[dayKey] || {}),
+          ...dayData,
+        },
+      };
+      try {
+        localStorage.setItem('sapore_verace_opening_hours_v2', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Error saving opening hours:', e);
+      }
+      return updated;
+    });
+    setSaveSuccessMessage('Orari di apertura aggiornati con successo!');
+    setTimeout(() => setSaveSuccessMessage(''), 3500);
+  };
+
+  const updateAllOpeningHours = (newHours) => {
+    setOpeningHours(newHours);
+    try {
+      localStorage.setItem('sapore_verace_opening_hours_v2', JSON.stringify(newHours));
+    } catch (e) {
+      console.error('Error saving opening hours:', e);
+    }
+    setSaveSuccessMessage('Tutti gli orari settimanali sono stati salvati!');
+    setTimeout(() => setSaveSuccessMessage(''), 3500);
+  };
+
+  const resetOpeningHours = () => {
+    setOpeningHours(DEFAULT_OPENING_HOURS);
+    try {
+      localStorage.setItem('sapore_verace_opening_hours_v2', JSON.stringify(DEFAULT_OPENING_HOURS));
+    } catch (e) {
+      console.error(e);
+    }
+    setSaveSuccessMessage('Orari ripristinati alla configurazione predefinita!');
+    setTimeout(() => setSaveSuccessMessage(''), 3500);
+  };
+
+  const addHoliday = (holidayData) => {
+    const newHoliday = {
+      id: 'hol_' + Date.now().toString().slice(-6),
+      name: holidayData.name || 'Nuovo Periodo Chiusura',
+      type: holidayData.type || 'ferie',
+      startDate: holidayData.startDate || getTodayDateString(),
+      endDate: holidayData.endDate || holidayData.startDate || getTodayDateString(),
+      notes: holidayData.notes || '',
+      bannerActive: holidayData.bannerActive !== undefined ? holidayData.bannerActive : true,
+      createdAt: new Date().toISOString(),
+    };
+    setHolidays((prev) => {
+      const updated = [newHoliday, ...prev];
+      try {
+        localStorage.setItem('sapore_verace_holidays_v2', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Error saving holidays:', e);
+      }
+      return updated;
+    });
+    setSaveSuccessMessage(`Periodo "${newHoliday.name}" aggiunto con successo!`);
+    setTimeout(() => setSaveSuccessMessage(''), 3500);
+    return newHoliday;
+  };
+
+  const updateHoliday = (id, holidayData) => {
+    setHolidays((prev) => {
+      const updated = prev.map((h) => (h.id === id ? { ...h, ...holidayData } : h));
+      try {
+        localStorage.setItem('sapore_verace_holidays_v2', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      return updated;
+    });
+    setSaveSuccessMessage('Periodo di chiusura/ferie aggiornato!');
+    setTimeout(() => setSaveSuccessMessage(''), 3500);
+  };
+
+  const deleteHoliday = (id) => {
+    setHolidays((prev) => {
+      const updated = prev.filter((h) => h.id !== id);
+      try {
+        localStorage.setItem('sapore_verace_holidays_v2', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      return updated;
+    });
+    setSaveSuccessMessage('Periodo rimosso.');
+    setTimeout(() => setSaveSuccessMessage(''), 3500);
+  };
+
+  const toggleHolidayBanner = (id) => {
+    setHolidays((prev) => {
+      const updated = prev.map((h) =>
+        h.id === id ? { ...h, bannerActive: !h.bannerActive } : h
+      );
+      try {
+        localStorage.setItem('sapore_verace_holidays_v2', JSON.stringify(updated));
+      } catch (e) {
+        console.error(e);
+      }
+      return updated;
+    });
+  };
+
+  const isDateInHoliday = (dateStr) => {
+    if (!dateStr || !holidays || holidays.length === 0) return { isHoliday: false, holiday: null };
+    const target = dateStr;
+    const match = holidays.find((h) => target >= h.startDate && target <= h.endDate);
+    if (match) {
+      return { isHoliday: true, holiday: match };
+    }
+    return { isHoliday: false, holiday: null };
+  };
+
+  const isRestaurantOpenOnDate = (dateStr, shift = 'cena') => {
+    const holCheck = isDateInHoliday(dateStr);
+    if (holCheck.isHoliday) {
+      return {
+        isOpen: false,
+        reason: `Chiuso per ${holCheck.holiday.name} (${holCheck.holiday.notes || 'Ferie / Chiusura programmata'})`,
+        isHoliday: true,
+        holiday: holCheck.holiday,
+      };
+    }
+    if (!dateStr) return { isOpen: true };
+    const parts = dateStr.split('-');
+    const dateObj = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    const dayIndex = dateObj.getDay();
+    const daysKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayKey = daysKeys[dayIndex];
+    const dayConfig = openingHours[dayKey];
+
+    if (!dayConfig || dayConfig.closed) {
+      return {
+        isOpen: false,
+        reason: `${dayConfig?.label || 'Questo giorno'} è il giorno di chiusura settimanale.`,
+        isWeeklyClosed: true,
+      };
+    }
+
+    if (shift === 'pranzo' && !dayConfig.lunch?.enabled) {
+      return {
+        isOpen: false,
+        reason: `Siamo chiusi a pranzo il ${dayConfig.label}. Servizio attivo solo a cena.`,
+        isShiftClosed: true,
+      };
+    }
+
+    if (shift === 'cena' && !dayConfig.dinner?.enabled) {
+      return {
+        isOpen: false,
+        reason: `Siamo chiusi a cena il ${dayConfig.label}. Servizio attivo solo a pranzo.`,
+        isShiftClosed: true,
+      };
+    }
+
+    return {
+      isOpen: true,
+      dayConfig,
+      shiftHours: shift === 'pranzo' ? dayConfig.lunch : dayConfig.dinner,
+    };
+  };
+
   // Statistiche calcolate in tempo reale
   const totalTablesCount = tables.length;
   const occupiedTablesCount = tables.filter((t) => t.status !== 'disponibile').length;
@@ -1342,6 +1839,18 @@ export const AdminProvider = ({ children }) => {
         deleteFixture,
         clearAllLayout,
         resetTables,
+        // Opening hours & Holidays management
+        openingHours,
+        holidays,
+        updateDayHours,
+        updateAllOpeningHours,
+        resetOpeningHours,
+        addHoliday,
+        updateHoliday,
+        deleteHoliday,
+        toggleHolidayBanner,
+        isDateInHoliday,
+        isRestaurantOpenOnDate,
         stats: {
           totalTables: totalTablesCount,
           occupiedTables: occupiedTablesCount,

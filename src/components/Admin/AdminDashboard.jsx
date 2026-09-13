@@ -5,7 +5,8 @@ import { ReservationsSidebar } from './Reservations/ReservationsSidebar';
 import { AdminCalendarModal } from './Calendar/AdminCalendarModal';
 import { AdminMenuManager } from './Menu/AdminMenuManager';
 import { AdminWeeklyProductsManager } from './Weekly/AdminWeeklyProductsManager';
-import { Store, Calendar, Users, Layers, ShieldCheck, ArrowLeft, ChevronLeft, ChevronRight, UtensilsCrossed, LayoutDashboard, Flame, Star } from 'lucide-react';
+import { AdminHoursHolidaysManager } from './Hours/AdminHoursHolidaysManager';
+import { Store, Calendar, Users, Layers, ShieldCheck, ArrowLeft, ChevronLeft, ChevronRight, UtensilsCrossed, LayoutDashboard, Flame, Star, Clock } from 'lucide-react';
 import { MoustacheIcon } from '../common/Icons';
 
 export const AdminDashboard = () => {
@@ -158,6 +159,18 @@ export const AdminDashboard = () => {
               <LayoutDashboard className="w-4 h-4" />
               <span>🪑 Tavoli & Prenotazioni</span>
             </button>
+
+            <button
+              onClick={() => setActiveTab('orari')}
+              className={`px-4 py-2 rounded-xl font-oswald text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'orari'
+                  ? 'bg-gradient-to-r from-[#10b981] to-[#059669] text-white shadow-lg shadow-[#10b981]/30 scale-105'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              <span>⏰ Orari & Ferie</span>
+            </button>
           </div>
 
           {/* Right: Return to Website */}
@@ -193,7 +206,14 @@ export const AdminDashboard = () => {
         )}
 
         {/* ========================================================== */}
-        {/* TAB 3: FLOOR PLAN & TABLE RESERVATIONS                     */}
+        {/* TAB 3: OPENING HOURS & HOLIDAYS MANAGEMENT                 */}
+        {/* ========================================================== */}
+        {activeTab === 'orari' && (
+          <AdminHoursHolidaysManager />
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB 4: FLOOR PLAN & TABLE RESERVATIONS                     */}
         {/* ========================================================== */}
         {activeTab === 'tavoli' && (
           <div className="space-y-6 animate-in fade-in duration-300">

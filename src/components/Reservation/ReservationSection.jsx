@@ -19,7 +19,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { MoustacheIcon } from '../common/Icons';
 
 export const ReservationSection = () => {
-  const { createClientReservation } = useAdmin();
+  const { createClientReservation, isRestaurantOpenOnDate, holidays } = useAdmin();
   const { t, lang } = useLanguage();
 
   const tr = t.reservation || {};
@@ -98,6 +98,14 @@ export const ReservationSection = () => {
     e.preventDefault();
     setErrorMessage('');
 
+    if (isRestaurantOpenOnDate) {
+      const openCheck = isRestaurantOpenOnDate(date, shift);
+      if (!openCheck.isOpen) {
+        setErrorMessage(openCheck.reason || 'Siamo spiacenti, il ristorante è chiuso per la data o turno selezionato.');
+        return;
+      }
+    }
+
     if (!name.trim()) {
       setErrorMessage(tr.errorName || 'Inserisci il tuo nome e cognome.');
       return;
@@ -149,6 +157,9 @@ export const ReservationSection = () => {
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
   };
 
+  const currentOpenCheck = isRestaurantOpenOnDate ? isRestaurantOpenOnDate(date, shift) : { isOpen: true };
+  const activeHolidayBanner = holidays?.find((h) => h.bannerActive);
+
   return (
     <section id="reservation" className="relative py-24 bg-[#111111] overflow-hidden border-t border-white/10 scroll-mt-20">
       {/* Warm Ambient Glow Backdrops */}
@@ -158,52 +169,77 @@ export const ReservationSection = () => {
       <div className="max-w-[1240px] mx-auto px-4 sm:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/5 border border-amber-500/20 mb-4 shadow-lg">
-            <MoustacheIcon className="w-4 h-2 text-[#d2401e]" />
+        <div className="flex flex-col items-center text-center mb-16">
+          <div className="flex items-center gap-2 mb-3">
+            <MoustacheIcon className="w-6 h-3 text-[#d2401e]" />
             <span className="text-xs font-oswald tracking-[0.25em] text-[#ffa323] uppercase font-semibold">
-              {tr.tag || 'PRENOTAZIONE ONLINE ISTANTANEA'}
+              {tr.badge || 'PRENOTA IL TUO TAVOLO'}
             </span>
+            <MoustacheIcon className="w-6 h-3 text-[#d2401e]" />
           </div>
 
-          <h2 className="font-oswald text-3xl sm:text-5xl font-black text-white uppercase tracking-tight mb-4">
-            {tr.title || 'RISERVA IL TUO'} <span className="text-[#d2401e]">{tr.titleHighlight || 'TAVOLO'}</span>
+          <h2 className="font-oswald text-4xl sm:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight text-white mb-4">
+            {tr.title || 'RISERVA IL TUO POSTO DA SAPORE VERACE'}
           </h2>
 
-          <p className="text-sm sm:text-base text-stone-300 font-sans font-light leading-relaxed">
-            {tr.desc || 'Prenota in tempo reale per gustare la vera pizza napoletana a forno a legna. Il nostro sistema assegna automaticamente il tavolo perfetto per te e il tuo gruppo.'}
+          <p className="text-white/70 text-sm sm:text-base font-sans max-w-2xl leading-relaxed">
+            {tr.subtitle ||
+              'Scegli data, orario e numero di ospiti. La conferma è immediata con assegnazione del tavolo in tempo reale.'}
           </p>
+
+          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d2401e] to-transparent mt-6" />
         </div>
+
+        {/* Public Holiday Banner Announcement if active */}
+        {activeHolidayBanner && (
+          <div className="max-w-4xl mx-auto mb-8 bg-gradient-to-r from-amber-600/90 via-[#d2401e]/90 to-amber-700/90 border border-amber-400/40 rounded-3xl p-5 text-white shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 shadow-md">
+                <span className="text-xl">🏖️</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-oswald tracking-widest text-amber-200 uppercase font-bold block">
+                  COMUNICAZIONE UFFICIALE CHIUSURE
+                </span>
+                <h4 className="font-oswald text-base font-bold uppercase tracking-wide">
+                  {activeHolidayBanner.name}
+                </h4>
+                {activeHolidayBanner.notes && (
+                  <p className="text-xs text-white/90 font-sans mt-0.5">
+                    {activeHolidayBanner.notes}
+                  </p>
+                )}
+              </div>
+            </div>
+            <span className="text-xs font-mono font-bold uppercase px-3.5 py-1.5 rounded-full bg-black/40 border border-white/20 shrink-0">
+              {formatDisplayDate(activeHolidayBanner.startDate)} → {formatDisplayDate(activeHolidayBanner.endDate)}
+            </span>
+          </div>
+        )}
 
         {/* ============================================================ */}
         {/* SUCCESS CONFIRMATION RECEIPT CARD                            */}
         {/* ============================================================ */}
         {confirmedBooking ? (
-          <div className="max-w-2xl mx-auto bg-[#181818] border border-amber-500/30 rounded-3xl p-8 sm:p-12 shadow-2xl shadow-black/80 relative overflow-hidden animate-in zoom-in-95 duration-500">
-            {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#ffa323]/10 rounded-full blur-[80px] pointer-events-none" />
-
-            {/* Checkmark Badge */}
-            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#d2401e] to-[#ffa323] p-1 mx-auto mb-6 shadow-xl shadow-[#d2401e]/30 flex items-center justify-center">
-              <div className="w-full h-full rounded-full bg-[#181818] flex items-center justify-center">
-                <CheckCircle2 className="w-10 h-10 text-[#ffa323]" />
-              </div>
+          <div className="max-w-2xl mx-auto bg-[#181818] border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl text-center animate-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/30 shadow-lg shadow-emerald-500/20">
+              <CheckCircle2 className="w-8 h-8" />
             </div>
 
-            <div className="text-center mb-8">
-              <span className="text-xs font-oswald tracking-[0.25em] text-[#ffa323] uppercase font-semibold">
-                {tr.successTag || 'PRENOTAZIONE CONFERMATA CON SUCCESSO'}
-              </span>
-              <h3 className="font-oswald text-2xl sm:text-3xl font-black text-white uppercase mt-1">
-                {tr.successTitle || 'Ti Aspettiamo'}, {confirmedBooking.reservation.name}!
-              </h3>
-              <p className="text-xs text-white/60 mt-1 font-sans">
-                {tr.successDesc || 'La tua prenotazione è stata registrata istantaneamente nella planimetria della sala.'}
-              </p>
-            </div>
+            <span className="text-xs font-oswald text-emerald-400 tracking-[0.2em] uppercase font-bold block mb-1">
+              {tr.successBadge || 'PRENOTAZIONE CONFERMATA CON SUCCESSO!'}
+            </span>
+
+            <h3 className="font-oswald text-2xl sm:text-3xl font-bold uppercase text-white mb-2">
+              {tr.welcomeGreeting || 'Ti aspettiamo'}, {confirmedBooking.reservation.name}!
+            </h3>
+
+            <p className="text-xs text-white/60 mt-1 font-sans">
+              {tr.successDesc || 'La tua prenotazione è stata registrata istantaneamente nella planimetria della sala.'}
+            </p>
 
             {/* Receipt Summary Card */}
-            <div className="bg-[#121212] border border-white/10 rounded-2xl p-6 mb-8 space-y-4 font-sans text-sm">
+            <div className="bg-[#121212] border border-white/10 rounded-2xl p-6 mb-8 mt-6 space-y-4 font-sans text-sm text-left">
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <span className="text-white/60">{tr.bookingCode || 'Codice Prenotazione:'}</span>
                 <span className="font-oswald text-base text-[#ffa323] font-bold tracking-wider">
@@ -284,6 +320,20 @@ export const ReservationSection = () => {
               <div className="mb-6 p-4 rounded-xl bg-red-900/30 border border-red-500/40 text-red-200 text-sm flex items-center gap-3 animate-in shake">
                 <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
                 <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {!currentOpenCheck.isOpen && (
+              <div className="mb-6 p-4 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-white flex items-start gap-3 animate-in fade-in">
+                <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-oswald text-sm font-bold text-rose-300 uppercase tracking-wide">
+                    Servizio non disponibile per questa data o turno
+                  </h4>
+                  <p className="text-xs text-white/80 font-sans mt-0.5">
+                    {currentOpenCheck.reason}
+                  </p>
+                </div>
               </div>
             )}
 
