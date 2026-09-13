@@ -1,0 +1,41 @@
+{
+  "postId": "DWopO73DIfY",
+  "mediaId": "3866521626351536088",
+  "url": "https://www.instagram.com/p/DWopO73DIfY/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Guarda bene…\nserve davvero aggiungere altro? \uD83D\uDC40\uD83C\uDF55\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#pizza #pizzeria #saporeverace #gusto #cena",
+  "tags": [
+    "#cena",
+    "#gusto",
+    "#pizza",
+    "#pizzeria",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-04-02T15:55:54+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-04-02_DWopO73DIfY_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 381737
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.8760168+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

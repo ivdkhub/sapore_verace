@@ -1,0 +1,41 @@
+{
+  "postId": "DTk_ppEjB3N",
+  "mediaId": "3811228652768392978",
+  "url": "https://www.instagram.com/p/DTk_ppEjB3N/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Cremoso, giallo e super saporito \uD83D\uDE0D\uD83E\uDDE1\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#sapore #verace #risotto #cremoso #castellanza",
+  "tags": [
+    "#castellanza",
+    "#cremoso",
+    "#risotto",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-01-16T16:20:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-01-16_DTk_ppEjB3N_2.jpg",
+      "index": 2,
+      "width": 1080,
+      "height": 1349,
+      "originalWidth": 1080,
+      "originalHeight": 1349,
+      "sizeBytes": 267520
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.0692337+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

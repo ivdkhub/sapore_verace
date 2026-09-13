@@ -1,0 +1,41 @@
+{
+  "postId": "DYSIJxWjJx0",
+  "mediaId": "3896212483467943028",
+  "url": "https://www.instagram.com/p/DYSIJxWjJx0/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Croccante fuori, morbida dentro… e con ingredienti che parlano da soli \uD83E\uDD24\n\nLa pizza perfetta esiste, ed è pronta ad aspettarti da noi ❤️\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#saporeverace #pizza #ristorante #gusto #castellanza",
+  "tags": [
+    "#castellanza",
+    "#gusto",
+    "#pizza",
+    "#ristorante",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-05-13T15:05:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-05-13_DYSIJxWjJx0_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 399556
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.7589827+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

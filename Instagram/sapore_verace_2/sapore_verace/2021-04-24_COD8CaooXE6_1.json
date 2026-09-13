@@ -1,0 +1,47 @@
+{
+  "postId": "COD8CaooXE6",
+  "mediaId": "2559153062105149754",
+  "url": "https://www.instagram.com/reel/COD8CaooXE6/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Stiamo arrivando....\nSIETE PRONTI???\n26 APRILE NUOVA APERTURA!!!\uD83E\uDD29\uD83E\uDD29\uD83E\uDD29\n#pizzanapoletana #pizza #pizzalover #amore #passione #foodporn #food #napoli #milano #castellanza #varese",
+  "tags": [
+    "#amore",
+    "#castellanza",
+    "#food",
+    "#foodporn",
+    "#milano",
+    "#napoli",
+    "#passione",
+    "#pizza",
+    "#pizzalover",
+    "#pizzanapoletana",
+    "#varese"
+  ],
+  "location": {
+    "id": "235771705",
+    "name": "Castellanza",
+    "url": "https://www.instagram.com/explore/locations/235771705/castellanza/"
+  },
+  "takenAt": "2021-04-24T20:07:46+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 15,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2021-04-24_COD8CaooXE6_1.mp4",
+      "index": 1,
+      "width": 480,
+      "height": 480,
+      "originalWidth": 480,
+      "originalHeight": 480,
+      "sizeBytes": 689121
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:07.1868857+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,35 @@
+{
+  "postId": "CkGgP-NIKQs",
+  "mediaId": "2956192033919927110",
+  "url": "https://www.instagram.com/p/CkGgP-NIKQs/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "La nostra proposta di oggi , in previsione di giornate uggiose e tristi , è la : \n\n QUATTRO FORMAGGI \n\n-Fior di Latte \n-Mix di Formaggi",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2022-10-24T15:32:53+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 12,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2022-10-24_CkGgP-NIKQs_1.jpg",
+      "index": 1,
+      "width": 950,
+      "height": 641,
+      "originalWidth": 950,
+      "originalHeight": 641,
+      "sizeBytes": 149094
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.44986+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

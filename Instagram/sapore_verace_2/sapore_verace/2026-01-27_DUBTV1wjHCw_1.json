@@ -1,0 +1,41 @@
+{
+  "postId": "DUBTV1wjHCw",
+  "mediaId": "3819419022702440624",
+  "url": "https://www.instagram.com/p/DUBTV1wjHCw/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Freschezza, qualità e stagionalità: i nostri ingredienti migliori. ✨\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#sapore #verace #gusto#crudo #mare",
+  "tags": [
+    "#crudo",
+    "#gusto",
+    "#mare",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-01-27T16:10:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-01-27_DUBTV1wjHCw_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 448625
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.0436837+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

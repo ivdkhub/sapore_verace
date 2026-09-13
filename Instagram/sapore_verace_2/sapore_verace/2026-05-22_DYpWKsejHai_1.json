@@ -1,0 +1,40 @@
+{
+  "postId": "DYpWKsejHai",
+  "mediaId": "3902748044068419234",
+  "url": "https://www.instagram.com/p/DYpWKsejHai/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Venerdì chiama, la pizza risponde \uD83D\uDCDE\uD83C\uDF55\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#saporeverace #pizza #ristorante #pizzeria",
+  "tags": [
+    "#pizza",
+    "#pizzeria",
+    "#ristorante",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-05-22T15:30:01+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-05-22_DYpWKsejHai_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 415898
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.746857+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

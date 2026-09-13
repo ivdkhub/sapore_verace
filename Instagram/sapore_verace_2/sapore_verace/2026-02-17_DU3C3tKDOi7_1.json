@@ -1,0 +1,41 @@
+{
+  "postId": "DU3C3tKDOi7",
+  "mediaId": "3834413830479071431",
+  "url": "https://www.instagram.com/p/DU3C3tKDOi7/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Pizza sì… ma non solo \uD83C\uDF55\uD83C\uDF5D\nLa nostra cucina ti aspetta.\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#sapore#verace#castellanza#cucina#pizza",
+  "tags": [
+    "#castellanza",
+    "#cucina",
+    "#pizza",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-02-17T13:05:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 11,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-02-17_DU3C3tKDOi7_1.jpg",
+      "index": 1,
+      "width": 1080,
+      "height": 1350,
+      "originalWidth": 1080,
+      "originalHeight": 1350,
+      "sizeBytes": 174988
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.9995045+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

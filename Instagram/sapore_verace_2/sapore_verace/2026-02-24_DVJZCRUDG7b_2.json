@@ -1,0 +1,41 @@
+{
+  "postId": "DVJZCRUDG7b",
+  "mediaId": "3835894590339811337",
+  "url": "https://www.instagram.com/p/DVJZCRUDG7b/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Quando la pizza arriva al tavolo, il resto può aspettare\uD83D\uDE0B\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#sapore #verace #pizza #pizzeria #gusto",
+  "tags": [
+    "#gusto",
+    "#pizza",
+    "#pizzeria",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-02-24T16:05:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-02-24_DVJZCRUDG7b_2.jpg",
+      "index": 2,
+      "width": 1080,
+      "height": 1349,
+      "originalWidth": 1080,
+      "originalHeight": 1349,
+      "sizeBytes": 229581
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.9860225+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

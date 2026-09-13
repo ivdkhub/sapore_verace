@@ -1,0 +1,40 @@
+{
+  "postId": "DVtK8QejJ5k",
+  "mediaId": "3849781377797758564",
+  "url": "https://www.instagram.com/p/DVtK8QejJ5k/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "L’arte della semplicità: cibo, vino e buona compagnia✨\uD83C\uDF77\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#saporeverace #castellanza #pasta #vino",
+  "tags": [
+    "#castellanza",
+    "#pasta",
+    "#saporeverace",
+    "#vino"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-03-12T13:35:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-03-12_DVtK8QejJ5k_1.jpg",
+      "index": 1,
+      "width": 1349,
+      "height": 1686,
+      "originalWidth": 1349,
+      "originalHeight": 1686,
+      "sizeBytes": 240459
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.9280556+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,35 @@
+{
+  "postId": "CrL_hcYruPd",
+  "mediaId": "3083837745017054173",
+  "url": "https://www.instagram.com/p/CrL_hcYruPd/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "La nostra proposta del mese di aprile : \n\n- Pomodoro Giallo in cottura \nA seguire in uscita ,\n- Tartare di Tonno Rosso \n- Stracciattella DOCG\n-Datterini confit \n-Pesto home Made \n-Zeste di limone",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2023-04-18T18:22:08+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 14,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2023-04-18_CrL_hcYruPd_1.jpg",
+      "index": 1,
+      "width": 1440,
+      "height": 1572,
+      "originalWidth": 1440,
+      "originalHeight": 1572,
+      "sizeBytes": 288714
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.3105504+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

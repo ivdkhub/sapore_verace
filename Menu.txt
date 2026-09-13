@@ -1,0 +1,58 @@
+## Pizze Classiche
+- **Regina** | 9,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella di bufala Campana DOCG, spolverata di parmigiano, basilico e olio extravergine d'oliva.
+- **Wurstel e Patatine** | 9,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, wurstel, patatine fritte, basilico e olio extravergine d'oliva.
+- **Diavola** | 8,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, spianata piccante di San Pietro, basilico e olio extravergine d'oliva.
+- **Margherita** | 7,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, spolverata di parmigiano, basilico e olio extravergine d'oliva.
+- **Salsiccia e Patatine** | 9,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, salsiccia del Nero Casertano, patatine fritte, basilico e olio extravergine d'oliva.
+- **Parmigiana** | 9,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, melanzane fritte, spolverata di parmigiano, basilico e olio extravergine d'oliva.
+- **Vegetariana** | 8,50 € | Mozzarella fiordilatte del Matese, fantasia di verdure cotte in forno, basilico e olio extravergine d'oliva.
+- **Quattro Formaggi** | 9,00 € | Mozzarella fiordilatte del Matese, fantasia di formaggi e basilico.
+- **Rustica** | 9,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte, spianata piccante, gorgonzola e olive taggiasche.
+- **Dop** | 8,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, caciocavallo dell'Irpinia stagionata in grotta, pomodorino infornato, basilico e olio extravergine d'oliva.
+- **Napoli** | 8,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, acciughe di Cetara, origano, basilico e olio extravergine d'oliva.
+- **Stamm Lontan** | 8,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, cipolla rossa di Tropea, tonno al naturale, basilico e olio extravergine d'oliva.
+- **Quattro Stagioni** | 9,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, prosciutto cotto di alta qualità, carciofino alla romana, funghi champignon freschi, olive taggiasche, basilico e olio extravergine d'oliva.
+- **Romana** | 9,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, acciughe di Cetara, cappero di Pantelleria, olive taggiasche, origano, basilico e olio extravergine d'oliva.
+- **Ardita** | 10,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, salsiccia del Nero Casertano, olive taggiasche, filetto di peperoni, basilico e olio extravergine d'oliva.
+- **Capricciosa** | 9,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, prosciutto cotto di alta qualità, carciofino alla romana, funghi champignon freschi, olive taggiasche, acciughe di Cetara, cappero di Pantelleria, basilico e olio extravergine d'oliva.
+- **Marinara** | 5,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, aglio, origano, basilico e olio extravergine d'oliva.
+- **Cotto** | 8,00 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte del Matese, prosciutto cotto di alta qualità, basilico e olio extravergine d'oliva.
+- **Cotto e Funghi** | 8,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, mozzarella fiordilatte, prosciutto cotto di alta qualità e funghi champignon freschi.
+- **Cosacca** | 7,50 € | Pomodoro San Marzano dell'Agro Sarnese Nocerino, pecorino Romano IGP, spolverata di parmigiano, basilico e olio extravergine d'oliva.
+
+## Pizze Le Veraci (Gourmet)
+- **Casertana** | 11,00 € | Fiordilatte, provola affumicata in paglia, patate al forno, salsiccia del Nero Casertano, pepe nero.
+- **Friarielli & Co** | 11,00 € | Fiordilatte, provola affumicata, salsiccia del Nero Casertano, friarielli napoletani saltati.
+- **Al Quadrato** | 15,00 € | Bordo ripieno di ricotta di bufala e n'duja, fiordilatte, salsiccia di maiale nero, olive taggiasche, pesto fatto in casa, n'duja di Spilinga.
+- **La Crocchè** | 12,00 € | Fiordilatte, cotto, provola affumicata, crocchè di patate sbriciolato, pepe.
+- **Spianata & Co** | 15,00 € | Fiordilatte, n'duja di Spilinga IGP, cipolla rossa di Tropea stufata, spianata piccante, taggiasche, burrata di Murgia IGP.
+- **O' Sole Mio** | 12,00 € | Salsa di pomodoro giallo Vesuviano, acciughe di Cetara, pesto, datterino infornato, mousse di ricotta di Bufala IGP.
+- **Primavera** | 17,00 € | Fiordilatte, crudo di Parma 24 mesi, rughetta croccante, datterino, bocconcini di bufala, scaglie di Parmigiano 18 mesi.
+- **Vesuviana** | 15,00 € | Salsa di pomodoro giallo Vesuviano, crudo di Parma 24 mesi, caciocavallo dell'Irpinia stagionato, gocce di stracciatella Pugliese.
+- **Ionica** | 13,50 € | Fiordilatte, carciofi alla romana, pancetta del maiale nero, n'duja di Spilinga, gocce di stracciatella DOCG.
+- **Mortazza** | 12,00 € | Fiordilatte, mortadella paesana, mousse di ricotta di Bufala DOP, pistacchio di Bronte, zeste di limone.
+- **Bronte** | 15,00 € | Fiordilatte, mortadella paesana, burrata di Murgia IGP, pistacchio di Bronte.
+- **Mimosa** | 11,50 € | Fiordilatte, petali di prosciutto cotto, panna e mais.
+
+## Pizze Ripiene (I Ripieni)
+- **Pizza Fritta (Completa)** | 11,00 € | Fiordilatte del Matese, provola di Agerola affumicata in paglia, salame napoletano di Mugnano del Cardinale, ricotta di bufala IGP.
+- **Pizza Fritta Semplice** | 8,00 € | Pomodoro S. Marzano, fiordilatte, Parmigiano Reggiano, basilico.
+- **Calzone Classico (Al Forno)** | 9,00 € | Pomodoro S. Marzano, fiordilatte, prosciutto cotto di alta qualità, basilico.
+- **Tronchetto Napoletano** | 16,00 € | Fiordilatte, provola, prosciutto cotto, panna, mozzarella di bufala.
+
+## Panuozzi
+- **Panuozzo Campano (Salsiccia e Friarielli)** | 9,00 € | Fiordilatte, provola affumicata, friarielli e salsiccia.
+
+## Dalla Cucina (Fritti e Sfizi)
+- **Patatine Fritte** | 5,00 € | Porzione di patatine fritte.
+- **Patatine Vertigo** | 6,00 € | Patatine con taglio a spirale.
+- **Fritto misto di pesce** | 18,00 € | Misto di pesce fritto.
+- **Crudo e Bufala** | 12,00 € | Prosciutto crudo e mozzarella di bufala.
+- **Crudo e Burrata** | 13,00 € | Prosciutto crudo e burrata.
+- **Prosciutto Crudo e Gnocco fritto** | 10,00 € | Prosciutto crudo servito con gnocco fritto.
+
+## Bevande & Birre
+- **Coca-Cola / Coca-Cola Zero (Lattina 33cl)** | 3,50 € | 
+- **Acqua Naturale / Frizzante (33cl)** | 2,00 € | 
+- **Birra Moretti (Bottiglia 66 cl)** | 6,00 € | 
+"""

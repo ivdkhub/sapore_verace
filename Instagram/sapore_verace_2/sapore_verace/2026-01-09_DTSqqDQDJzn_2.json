@@ -1,0 +1,41 @@
+{
+  "postId": "DTSqqDQDJzn",
+  "mediaId": "3805670139002399415",
+  "url": "https://www.instagram.com/p/DTSqqDQDJzn/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Venerdì con gusto ✨\nSapori autentici, ingredienti speciali e tanta golosità da condividere ❤️\uD83E\uDD24\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#golosità #tagliere #salumi #sapore #verace",
+  "tags": [
+    "#golosità",
+    "#salumi",
+    "#sapore",
+    "#tagliere",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-01-09T13:30:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-01-09_DTSqqDQDJzn_2.jpg",
+      "index": 2,
+      "width": 1080,
+      "height": 1349,
+      "originalWidth": 1080,
+      "originalHeight": 1349,
+      "sizeBytes": 416058
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.0986379+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

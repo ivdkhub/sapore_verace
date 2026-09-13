@@ -1,0 +1,41 @@
+{
+  "postId": "Da28H3uDPmR",
+  "mediaId": "3941082883527818895",
+  "url": "https://www.instagram.com/p/Da28H3uDPmR/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "\uD83C\uDF55✨ Ogni grande pizza nasce da piccoli gesti.\n\nIngredienti selezionati, passione e attenzione ad ogni dettaglio: è così che prendono vita le nostre pizze. ❤️\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#sapore#verace#pizza#pizzeria#ristorante",
+  "tags": [
+    "#pizza",
+    "#pizzeria",
+    "#ristorante",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-07-16T15:15:01+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-07-16_Da28H3uDPmR_2.jpg",
+      "index": 2,
+      "width": 1080,
+      "height": 1350,
+      "originalWidth": 1080,
+      "originalHeight": 1350,
+      "sizeBytes": 214770
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.5952618+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

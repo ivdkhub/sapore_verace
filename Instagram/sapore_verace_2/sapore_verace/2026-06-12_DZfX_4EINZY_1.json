@@ -1,0 +1,41 @@
+{
+  "postId": "DZfX_4EINZY",
+  "mediaId": "3917955745431213656",
+  "url": "https://www.instagram.com/reel/DZfX_4EINZY/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Così cremosa, così buona.\nchi la vuole provare?\uD83D\uDE0B\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#cacio#pepe#sapore#verace#pasta",
+  "tags": [
+    "#cacio",
+    "#pasta",
+    "#pepe",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-06-12T16:54:22+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-06-12_DZfX_4EINZY_1.mp4",
+      "index": 1,
+      "width": 720,
+      "height": 1280,
+      "originalWidth": 720,
+      "originalHeight": 1280,
+      "sizeBytes": 5044923
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.6801174+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

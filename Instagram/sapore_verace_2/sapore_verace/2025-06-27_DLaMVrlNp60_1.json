@@ -1,0 +1,31 @@
+{
+  "postId": "DLaMVrlNp60",
+  "mediaId": "3664295513281699508",
+  "url": "https://www.instagram.com/reel/DLaMVrlNp60/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": null,
+  "tags": [],
+  "location": null,
+  "takenAt": "2025-06-27T15:28:59+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 12,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2025-06-27_DLaMVrlNp60_1.mp4",
+      "index": 1,
+      "width": 360,
+      "height": 640,
+      "originalWidth": 360,
+      "originalHeight": 640,
+      "sizeBytes": 2889064
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.2546671+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

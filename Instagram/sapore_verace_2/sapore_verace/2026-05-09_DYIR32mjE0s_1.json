@@ -1,0 +1,31 @@
+{
+  "postId": "DYIR32mjE0s",
+  "mediaId": "3893440341605147530",
+  "url": "https://www.instagram.com/p/DYIR32mjE0s/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": null,
+  "tags": [],
+  "location": null,
+  "takenAt": "2026-05-09T19:18:14+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 8,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-05-09_DYIR32mjE0s_1.jpg",
+      "index": 1,
+      "width": 1440,
+      "height": 1800,
+      "originalWidth": 1440,
+      "originalHeight": 1800,
+      "sizeBytes": 109241
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.7899619+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

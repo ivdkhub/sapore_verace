@@ -1,0 +1,41 @@
+{
+  "postId": "DVbaAvejOc2",
+  "mediaId": "3844781107078555446",
+  "url": "https://www.instagram.com/reel/DVbaAvejOc2/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Non ci sono altre parole \uD83D\uDE0B\uD83C\uDF55\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#sapore #pizza #verace #pizzeria #castellanza",
+  "tags": [
+    "#castellanza",
+    "#pizza",
+    "#pizzeria",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-03-03T16:00:00+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 16,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-03-03_DVbaAvejOc2_1.mp4",
+      "index": 1,
+      "width": 360,
+      "height": 640,
+      "originalWidth": 360,
+      "originalHeight": 640,
+      "sizeBytes": 2269380
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.9606616+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,31 @@
+{
+  "postId": "DYKdxP5DP50",
+  "mediaId": "3894055504293161507",
+  "url": "https://www.instagram.com/p/DYKdxP5DP50/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": null,
+  "tags": [],
+  "location": null,
+  "takenAt": "2026-05-10T15:40:40+00:00",
+  "kind": "Video",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 15,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-05-10_DYKdxP5DP50_2.mp4",
+      "index": 2,
+      "width": 360,
+      "height": 450,
+      "originalWidth": 360,
+      "originalHeight": 450,
+      "sizeBytes": 4369913
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.7756094+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,40 @@
+{
+  "postId": "DakmgoTsDt_",
+  "mediaId": "3937441342299323263",
+  "url": "https://www.instagram.com/reel/DakmgoTsDt_/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "\uD83C\uDF55 C’è chi la chiama pizza.\nNoi la chiamiamo felicità.\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#pizza #pizzeria #ristorante #saporeverace",
+  "tags": [
+    "#pizza",
+    "#pizzeria",
+    "#ristorante",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-07-09T12:20:09+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-07-09_DakmgoTsDt__1.mp4",
+      "index": 1,
+      "width": 1080,
+      "height": 1920,
+      "originalWidth": 1080,
+      "originalHeight": 1920,
+      "sizeBytes": 6652812
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.6417195+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,35 @@
+{
+  "postId": "COkag-rMLiW",
+  "mediaId": "2568294303037175958",
+  "url": "https://www.instagram.com/p/COkag-rMLiW/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Ragazzi abbiamo aperto il nostro Dehor vi aspettiamo per deliziarvi con le nostre specialità...",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2021-05-07T10:49:20+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 13,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2021-05-07_COkag-rMLiW_1.jpg",
+      "index": 1,
+      "width": 1440,
+      "height": 1440,
+      "originalWidth": 1440,
+      "originalHeight": 1440,
+      "sizeBytes": 197157
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:07.1207503+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

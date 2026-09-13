@@ -1,0 +1,31 @@
+{
+  "postId": "DQM3vtEjL92",
+  "mediaId": "3750616858048089819",
+  "url": "https://www.instagram.com/p/DQM3vtEjL92/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Sapore verace via aspetta per assaggiare là nostra cucina ❤️❤️",
+  "tags": [],
+  "location": null,
+  "takenAt": "2025-10-24T17:54:59+00:00",
+  "kind": "Video",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 14,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2025-10-24_DQM3vtEjL92_1.mp4",
+      "index": 1,
+      "width": 360,
+      "height": 450,
+      "originalWidth": 360,
+      "originalHeight": 450,
+      "sizeBytes": 601949
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.1800046+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

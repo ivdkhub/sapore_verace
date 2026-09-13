@@ -1,0 +1,35 @@
+{
+  "postId": "COVn59xMs52",
+  "mediaId": "2564131070005137014",
+  "url": "https://www.instagram.com/p/COVn59xMs52/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "ED ECCO LA MAGIA DALLE MANI DEL NOSTRO CRISTIAN MOSCHIANO \uD83D\uDE0D\nVI STIAMO ASPETTANDO PER ASPORTO E DOMICILIO\n\uD83D\uDCCDVIA BORSANO, 44, CASTELLANZA\n☎️03311081917",
+  "tags": [],
+  "location": {
+    "id": "235771705",
+    "name": "Castellanza",
+    "url": "https://www.instagram.com/explore/locations/235771705/castellanza/"
+  },
+  "takenAt": "2021-05-01T16:57:44+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 19,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2021-05-01_COVn59xMs52_1.jpg",
+      "index": 1,
+      "width": 1200,
+      "height": 1200,
+      "originalWidth": 1200,
+      "originalHeight": 1200,
+      "sizeBytes": 84382
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:07.149433+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,35 @@
+{
+  "postId": "COfQnS6ssnF",
+  "mediaId": "2566843381740390853",
+  "url": "https://www.instagram.com/p/COfQnS6ssnF/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Giovedì sera Paella!!!\nCosa aspetti a prenotare la tua paella?\n☎️03311081917\n\uD83D\uDCCDVia borsano 44, castellanza",
+  "tags": [],
+  "location": {
+    "id": "235771705",
+    "name": "Castellanza",
+    "url": "https://www.instagram.com/explore/locations/235771705/castellanza/"
+  },
+  "takenAt": "2021-05-05T10:46:37+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 6,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2021-05-05_COfQnS6ssnF_1.jpg",
+      "index": 1,
+      "width": 1080,
+      "height": 1080,
+      "originalWidth": 1080,
+      "originalHeight": 1080,
+      "sizeBytes": 99754
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:07.131521+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

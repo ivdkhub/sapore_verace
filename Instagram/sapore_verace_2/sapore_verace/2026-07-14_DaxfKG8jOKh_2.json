@@ -1,0 +1,41 @@
+{
+  "postId": "DaxfKG8jOKh",
+  "mediaId": "3938067860836627827",
+  "url": "https://www.instagram.com/p/DaxfKG8jOKh/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "I sapori più semplici sono spesso quelli che conquistano di più.\n\nPasta, pizza e ingredienti selezionati: la tradizione che non passa mai di moda\uD83D\uDE0B\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#saporeverace #pizza #primi #piatti #pizzeria",
+  "tags": [
+    "#piatti",
+    "#pizza",
+    "#pizzeria",
+    "#primi",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-07-14T12:25:02+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-07-14_DaxfKG8jOKh_2.jpg",
+      "index": 2,
+      "width": 1080,
+      "height": 1350,
+      "originalWidth": 1080,
+      "originalHeight": 1350,
+      "sizeBytes": 339675
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.6300651+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

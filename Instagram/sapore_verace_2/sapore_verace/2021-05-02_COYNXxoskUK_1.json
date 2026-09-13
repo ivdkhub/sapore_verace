@@ -1,0 +1,35 @@
+{
+  "postId": "COYNXxoskUK",
+  "mediaId": "2564858796236227850",
+  "url": "https://www.instagram.com/p/COYNXxoskUK/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Ed ecco la magia \uD83D\uDE0D\n\uD83D\uDCCDVia Borsano, 44, Castellanza\n☎️03311081917\nVi aspettiamo per asporto o domicilio",
+  "tags": [],
+  "location": {
+    "id": "235771705",
+    "name": "Castellanza",
+    "url": "https://www.instagram.com/explore/locations/235771705/castellanza/"
+  },
+  "takenAt": "2021-05-02T17:03:36+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 11,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2021-05-02_COYNXxoskUK_1.jpg",
+      "index": 1,
+      "width": 738,
+      "height": 738,
+      "originalWidth": 738,
+      "originalHeight": 738,
+      "sizeBytes": 71338
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:07.1378321+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

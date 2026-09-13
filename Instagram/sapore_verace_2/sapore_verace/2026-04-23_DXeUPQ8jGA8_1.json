@@ -1,0 +1,41 @@
+{
+  "postId": "DXeUPQ8jGA8",
+  "mediaId": "3881628938758021180",
+  "url": "https://www.instagram.com/p/DXeUPQ8jGA8/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Pizza sì… ma non solo \uD83C\uDF55\n\nNel nostro menù trovi anche piatti freschi, buoni e preparati al momento, perfetti per ogni occasione.\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#saporeverace #piatti #pesce #secondi #castellanza",
+  "tags": [
+    "#castellanza",
+    "#pesce",
+    "#piatti",
+    "#saporeverace",
+    "#secondi"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-04-23T12:10:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-04-23_DXeUPQ8jGA8_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 555326
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.8194442+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

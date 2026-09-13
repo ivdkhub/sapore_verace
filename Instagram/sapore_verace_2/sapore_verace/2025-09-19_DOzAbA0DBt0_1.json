@@ -1,0 +1,31 @@
+{
+  "postId": "DOzAbA0DBt0",
+  "mediaId": "3725323173064612724",
+  "url": "https://www.instagram.com/p/DOzAbA0DBt0/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "I nostri piatti \uD83E\uDD70",
+  "tags": [],
+  "location": null,
+  "takenAt": "2025-09-19T20:19:10+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 13,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2025-09-19_DOzAbA0DBt0_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 162268
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.1966312+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

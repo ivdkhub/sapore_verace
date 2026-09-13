@@ -1,0 +1,41 @@
+{
+  "postId": "DTIsJMNjD45",
+  "mediaId": "3803381851814132595",
+  "url": "https://www.instagram.com/p/DTIsJMNjD45/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Con questa fantastica pizza vi ricordiamo la nostra apertura speciale di domani, 6 gennaio \uD83C\uDF55\uD83D\uDD25\n\nVi aspettiamo per festeggiare insieme!\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#pizza #sapore #verace #castellanza #epifania",
+  "tags": [
+    "#castellanza",
+    "#epifania",
+    "#pizza",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-01-05T16:30:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-01-05_DTIsJMNjD45_2.jpg",
+      "index": 2,
+      "width": 1080,
+      "height": 1349,
+      "originalWidth": 1080,
+      "originalHeight": 1349,
+      "sizeBytes": 434521
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.1112069+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

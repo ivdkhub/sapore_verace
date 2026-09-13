@@ -1,0 +1,35 @@
+{
+  "postId": "CuZKw-9LQoC",
+  "mediaId": "3141589561665980930",
+  "url": "https://www.instagram.com/p/CuZKw-9LQoC/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Come ogni mese per i nostri fantastici clienti proponiamo una pizza aggiuntiva , la nostra proposta del mese è la seguente : \n\nBordo ripieno di Ricotta di Bufala aromatizzata all’ Nduja.\nAl centro Fior di Latte con Datterini Rossi e Gialli , mentre in uscita pesto Home Made e ciuffettini di Ricotta aromatizzata.",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2023-07-07T10:44:41+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 16,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2023-07-07_CuZKw-9LQoC_1.jpg",
+      "index": 1,
+      "width": 960,
+      "height": 1200,
+      "originalWidth": 960,
+      "originalHeight": 1200,
+      "sizeBytes": 163964
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.2747906+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

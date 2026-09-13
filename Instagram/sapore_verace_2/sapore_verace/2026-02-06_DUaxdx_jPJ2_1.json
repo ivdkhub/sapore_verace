@@ -1,0 +1,40 @@
+{
+  "postId": "DUaxdx_jPJ2",
+  "mediaId": "3826588384228078198",
+  "url": "https://www.instagram.com/reel/DUaxdx_jPJ2/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Non solo pizza, ma anche piatti gustosi\uD83D\uDE0B\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#saporeverace #castellanza #piatti #pesce",
+  "tags": [
+    "#castellanza",
+    "#pesce",
+    "#piatti",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-02-06T13:35:00+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 11,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-02-06_DUaxdx_jPJ2_1.mp4",
+      "index": 1,
+      "width": 360,
+      "height": 640,
+      "originalWidth": 360,
+      "originalHeight": 640,
+      "sizeBytes": 1382283
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.0331798+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

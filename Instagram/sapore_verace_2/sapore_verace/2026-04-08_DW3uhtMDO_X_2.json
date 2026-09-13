@@ -1,0 +1,41 @@
+{
+  "postId": "DW3uhtMDO_X",
+  "mediaId": "3870636123987177051",
+  "url": "https://www.instagram.com/p/DW3uhtMDO_X/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Zoom sulla bontà \uD83D\uDD0D\n\nDettagli che parlano da soli… croccante fuori, tenero dentro \uD83E\uDD24\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#saporeverace #polpo #patate #piatti #secondi",
+  "tags": [
+    "#patate",
+    "#piatti",
+    "#polpo",
+    "#saporeverace",
+    "#secondi"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-04-08T12:30:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-04-08_DW3uhtMDO_X_2.jpg",
+      "index": 2,
+      "width": 1080,
+      "height": 1350,
+      "originalWidth": 1080,
+      "originalHeight": 1350,
+      "sizeBytes": 244240
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.8699642+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,40 @@
+{
+  "postId": "DWRessqjNGN",
+  "mediaId": "3855427188552430582",
+  "url": "https://www.instagram.com/p/DWRessqjNGN/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "La qualità si costruisce dall’inizio \uD83C\uDF55\nImpasti lavorati con attenzione, rispettando tempi e materia prima per ottenere leggerezza e gusto in ogni morso.\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#pizza #impasto #saporeverace #pizzeria",
+  "tags": [
+    "#impasto",
+    "#pizza",
+    "#pizzeria",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-03-24T16:00:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-03-24_DWRessqjNGN_1.jpg",
+      "index": 1,
+      "width": 1080,
+      "height": 1350,
+      "originalWidth": 1080,
+      "originalHeight": 1350,
+      "sizeBytes": 107502
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.8913714+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

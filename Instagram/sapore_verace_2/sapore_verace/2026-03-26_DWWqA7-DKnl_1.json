@@ -1,0 +1,41 @@
+{
+  "postId": "DWWqA7-DKnl",
+  "mediaId": "3861458512862030309",
+  "url": "https://www.instagram.com/p/DWWqA7-DKnl/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Non solo una pizza, ma un mix di consistenze e sapori \uD83D\uDD25\nDal croccante al cremoso, ogni morso sorprende.\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#sapore#verace#pizza#pizzeria#gusto",
+  "tags": [
+    "#gusto",
+    "#pizza",
+    "#pizzeria",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-03-26T16:15:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-03-26_DWWqA7-DKnl_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 402014
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.8831114+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

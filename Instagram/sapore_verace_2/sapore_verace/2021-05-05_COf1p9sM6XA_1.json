@@ -1,0 +1,35 @@
+{
+  "postId": "COf1p9sM6XA",
+  "mediaId": "2567006292827940288",
+  "url": "https://www.instagram.com/p/COf1p9sM6XA/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Da domani riapriamo anche noi con il servizio al tavolo! \uD83E\uDD29\nVi aspettiamo per potervi deliziare con i nostri piatti e le nostre pizze comodamente serviti nel nostro Dehor..\n\uD83D\uDCCDVia borsano, 44, Castellanza\n☎️03311081917",
+  "tags": [],
+  "location": {
+    "id": "235771705",
+    "name": "Castellanza",
+    "url": "https://www.instagram.com/explore/locations/235771705/castellanza/"
+  },
+  "takenAt": "2021-05-05T16:10:18+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 7,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2021-05-05_COf1p9sM6XA_1.jpg",
+      "index": 1,
+      "width": 541,
+      "height": 541,
+      "originalWidth": 541,
+      "originalHeight": 541,
+      "sizeBytes": 46790
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:07.126369+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

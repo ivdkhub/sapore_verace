@@ -1,0 +1,41 @@
+{
+  "postId": "DY4y7hPDKaA",
+  "mediaId": "3907096669204555392",
+  "url": "https://www.instagram.com/p/DY4y7hPDKaA/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Il 2 Giugno saremo aperti vi aspettiamo ✨\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#sapore #verace #festa #ristorante #pizzeria",
+  "tags": [
+    "#festa",
+    "#pizzeria",
+    "#ristorante",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-05-28T15:30:02+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-05-28_DY4y7hPDKaA_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 418501
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.7275211+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

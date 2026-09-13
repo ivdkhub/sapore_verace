@@ -1,0 +1,43 @@
+{
+  "postId": "CQvRo6giYKj",
+  "mediaId": "2607380287663473315",
+  "url": "https://www.instagram.com/reel/CQvRo6giYKj/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Buongiorno \uD83E\uDD29...\nCosa c'è di più bello di tifare gli azzurri mentre mangiamo una buona pizza napoletana...\nVi aspettiamo!!!\nTifiamo insieme gli azzurri...\n#saporeverace #nazionaleitaliana #pizzanapoletana #cucinamediterranea #foodporn #foodlover #pizzalover \uD83D\uDCAA",
+  "tags": [
+    "#cucinamediterranea",
+    "#foodlover",
+    "#foodporn",
+    "#nazionaleitaliana",
+    "#pizzalover",
+    "#pizzanapoletana",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2021-06-30T09:06:53+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 12,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2021-06-30_CQvRo6giYKj_1.mp4",
+      "index": 1,
+      "width": 480,
+      "height": 600,
+      "originalWidth": 480,
+      "originalHeight": 600,
+      "sizeBytes": 606438
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:07.0026348+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

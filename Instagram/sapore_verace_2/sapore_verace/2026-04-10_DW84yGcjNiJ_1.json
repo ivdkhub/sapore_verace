@@ -1,0 +1,41 @@
+{
+  "postId": "DW84yGcjNiJ",
+  "mediaId": "3870637033178025561",
+  "url": "https://www.instagram.com/p/DW84yGcjNiJ/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Cremoso, avvolgente, deciso.\n\nUn risotto che lascia il segno al primo assaggio ✨\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#saporeverace #castellanza #piatti #risotto #cucina",
+  "tags": [
+    "#castellanza",
+    "#cucina",
+    "#piatti",
+    "#risotto",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-04-10T12:35:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-04-10_DW84yGcjNiJ_1.jpg",
+      "index": 1,
+      "width": 1080,
+      "height": 1350,
+      "originalWidth": 1080,
+      "originalHeight": 1350,
+      "sizeBytes": 429552
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.8472551+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

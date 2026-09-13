@@ -1,0 +1,41 @@
+{
+  "postId": "DS43QwFjGL0",
+  "mediaId": "3798957350057709216",
+  "url": "https://www.instagram.com/p/DS43QwFjGL0/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "\uD83C\uDF55Non solo pizza, ma vera cucina di gusto\uD83C\uDF5D\n\nPiatti di cucina curati, ingredienti scelti e sapori che parlano chiaro.\n\nDal mare alla tradizione, ogni proposta è un incontro tra creatività, qualità e buon gusto\uD83D\uDE0D\n\n\uD83D\uDCCDVia Borsani 44 - Castellanza\n\n#sapore #verace #cucina #piatti #pizzeria",
+  "tags": [
+    "#cucina",
+    "#piatti",
+    "#pizzeria",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2025-12-30T13:00:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 3,
+  "files": [
+    {
+      "path": "2025-12-30_DS43QwFjGL0_1.jpg",
+      "index": 1,
+      "width": 1080,
+      "height": 1350,
+      "originalWidth": 1080,
+      "originalHeight": 1350,
+      "sizeBytes": 365562
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.1303035+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

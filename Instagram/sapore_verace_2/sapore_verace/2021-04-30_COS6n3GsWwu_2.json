@@ -1,0 +1,35 @@
+{
+  "postId": "COS6n3GsWwu",
+  "mediaId": "2563368956068084031",
+  "url": "https://www.instagram.com/p/COS6n3GsWwu/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Avete mai visto una pizza quadrata? \uD83E\uDD2A\nSOLO DA SAPORE VERACE LA PUOI TROVARE \uD83D\uDE0D\n\uD83D\uDCCDVIA BORSANO, 44, CASTELLANZA\n☎️ 03311081917\nSIAMO ATTIVI CON ASPORTO E DOMICILIO \uD83D\uDE97",
+  "tags": [],
+  "location": {
+    "id": "235771705",
+    "name": "Castellanza",
+    "url": "https://www.instagram.com/explore/locations/235771705/castellanza/"
+  },
+  "takenAt": "2021-04-30T15:43:33+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 15,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2021-04-30_COS6n3GsWwu_2.jpg",
+      "index": 2,
+      "width": 738,
+      "height": 738,
+      "originalWidth": 738,
+      "originalHeight": 738,
+      "sizeBytes": 54267
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:07.1619286+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

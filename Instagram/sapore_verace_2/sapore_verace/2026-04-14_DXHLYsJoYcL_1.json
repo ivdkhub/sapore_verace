@@ -1,0 +1,41 @@
+{
+  "postId": "DXHLYsJoYcL",
+  "mediaId": "3875116079560886027",
+  "url": "https://www.instagram.com/reel/DXHLYsJoYcL/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Il nostro risotto al nero di seppia \uD83D\uDE0B\n\nNon ti resta che venirlo a provare✨\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#sapore #verace #risotto #primi #castellanza",
+  "tags": [
+    "#castellanza",
+    "#primi",
+    "#risotto",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-04-14T12:30:00+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-04-14_DXHLYsJoYcL_1.mp4",
+      "index": 1,
+      "width": 720,
+      "height": 1280,
+      "originalWidth": 720,
+      "originalHeight": 1280,
+      "sizeBytes": 8350745
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.8412709+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

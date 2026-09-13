@@ -1,0 +1,35 @@
+{
+  "postId": "Co2KW9ZIxeG",
+  "mediaId": "3041664148613161172",
+  "url": "https://www.instagram.com/p/Co2KW9ZIxeG/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Oggi vogliamo consigliarvi una nostra pizza forte , la : \n\nBRONTE 2.0\n\n- Mortadella \n-Burrata \n-Pistacchio",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2023-02-19T13:50:43+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 13,
+  "commentCount": null,
+  "mediaCount": 3,
+  "files": [
+    {
+      "path": "2023-02-19_Co2KW9ZIxeG_2.jpg",
+      "index": 2,
+      "width": 1440,
+      "height": 1367,
+      "originalWidth": 1440,
+      "originalHeight": 1367,
+      "sizeBytes": 195999
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.3611419+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

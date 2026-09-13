@@ -1,0 +1,41 @@
+{
+  "postId": "DU8gYuXDAf2",
+  "mediaId": "3836083419147405302",
+  "url": "https://www.instagram.com/reel/DU8gYuXDAf2/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Non puoi resistere davanti a questo piatto di pasta \uD83C\uDF5D\n\nTi aspettiamo \uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#pasta #sapore #verace #primi #gusto",
+  "tags": [
+    "#gusto",
+    "#pasta",
+    "#primi",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-02-19T16:00:00+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-02-19_DU8gYuXDAf2_1.mp4",
+      "index": 1,
+      "width": 720,
+      "height": 1280,
+      "originalWidth": 720,
+      "originalHeight": 1280,
+      "sizeBytes": 8945904
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.9927237+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

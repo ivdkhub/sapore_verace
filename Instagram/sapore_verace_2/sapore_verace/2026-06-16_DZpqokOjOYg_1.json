@@ -1,0 +1,40 @@
+{
+  "postId": "DZpqokOjOYg",
+  "mediaId": "3920627936978046297",
+  "url": "https://www.instagram.com/p/DZpqokOjOYg/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "\uD83D\uDD25 Il segreto di una buona pizza?\n\nIngredienti di qualità, mani esperte e tanta passione\uD83C\uDF55\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#pizza #pizzeria #saporeverace #ristorante",
+  "tags": [
+    "#pizza",
+    "#pizzeria",
+    "#ristorante",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-06-16T15:00:03+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2026-06-16_DZpqokOjOYg_1.jpg",
+      "index": 1,
+      "width": 1080,
+      "height": 1350,
+      "originalWidth": 1080,
+      "originalHeight": 1350,
+      "sizeBytes": 210308
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.6633065+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

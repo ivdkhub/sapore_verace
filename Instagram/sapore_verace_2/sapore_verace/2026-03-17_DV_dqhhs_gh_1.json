@@ -1,0 +1,40 @@
+{
+  "postId": "DV_dqhhs_gh",
+  "mediaId": "3854930271618201633",
+  "url": "https://www.instagram.com/reel/DV_dqhhs_gh/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Vieni a scoprire tutte le nostre specialità dalla Pizza fino ai nostri primi e secondi piatti\uD83D\uDE0B\n\nCosa aspetti? passa a trovarci!\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza \n\n#castellanza #saporeverace #pizza #piatti",
+  "tags": [
+    "#castellanza",
+    "#piatti",
+    "#pizza",
+    "#saporeverace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-03-17T16:05:00+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-03-17_DV_dqhhs_gh_1.mp4",
+      "index": 1,
+      "width": 720,
+      "height": 1280,
+      "originalWidth": 720,
+      "originalHeight": 1280,
+      "sizeBytes": 3713512
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:05.921463+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

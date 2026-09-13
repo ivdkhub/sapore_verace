@@ -1,0 +1,35 @@
+{
+  "postId": "CpfzI9-LQD-",
+  "mediaId": "3053383989049753854",
+  "url": "https://www.instagram.com/p/CpfzI9-LQD-/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "La nostra proposta del mese di marzo : \n\nI 4 sapori di Marzo\n\n-1) Montanarina classica pomodoro e parmigiano \n\n-1)Mini pizza fritta ripiena con fiordilatte provola ricotta e salame maiale nero \n\n-1)Ripieno classico al forno con pomodoro fiordilatte e salsiccia \n\n-1)Ripieno classico al forno con fiordilatte e cotto",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2023-03-07T17:55:57+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 12,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2023-03-07_CpfzI9-LQD-_1.jpg",
+      "index": 1,
+      "width": 1347,
+      "height": 1082,
+      "originalWidth": 1347,
+      "originalHeight": 1082,
+      "sizeBytes": 148311
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.3403349+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

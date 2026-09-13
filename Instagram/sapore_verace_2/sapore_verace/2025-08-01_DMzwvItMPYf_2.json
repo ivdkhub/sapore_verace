@@ -1,0 +1,35 @@
+{
+  "postId": "DMzwvItMPYf",
+  "mediaId": "3689499314271485462",
+  "url": "https://www.instagram.com/p/DMzwvItMPYf/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "⚠️New arrival⚠️ Bordo ripieno con crema di patate e cozze.  Base crema di zucchine, funghi trifolati e fior di latte del matese e gamberetti.  In uscita un gamberone alla griglia e 4 code di gamberi e a ginire zucchine grigliate.  Venite a scoprire l’ultimo ingrediente segreto.  Vi aspettiamo",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2025-08-01T10:18:33+00:00",
+  "kind": "Video",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 22,
+  "commentCount": null,
+  "mediaCount": 2,
+  "files": [
+    {
+      "path": "2025-08-01_DMzwvItMPYf_2.mp4",
+      "index": 2,
+      "width": 720,
+      "height": 960,
+      "originalWidth": 720,
+      "originalHeight": 960,
+      "sizeBytes": 6429141
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.2096256+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

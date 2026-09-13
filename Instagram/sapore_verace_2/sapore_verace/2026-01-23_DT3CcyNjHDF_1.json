@@ -1,0 +1,41 @@
+{
+  "postId": "DT3CcyNjHDF",
+  "mediaId": "3816529983372554437",
+  "url": "https://www.instagram.com/p/DT3CcyNjHDF/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Si chiama pizza, ma si legge: felicità pura \uD83D\uDE0D\uD83C\uDF55\n\n\uD83D\uDCCDVia Borsano 44 - Castellanza\n\n#pizza #sapore #verace #pizzeria #gusto",
+  "tags": [
+    "#gusto",
+    "#pizza",
+    "#pizzeria",
+    "#sapore",
+    "#verace"
+  ],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2026-01-23T16:30:00+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 3,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2026-01-23_DT3CcyNjHDF_1.jpg",
+      "index": 1,
+      "width": 1350,
+      "height": 1688,
+      "originalWidth": 1350,
+      "originalHeight": 1688,
+      "sizeBytes": 367819
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.0490992+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

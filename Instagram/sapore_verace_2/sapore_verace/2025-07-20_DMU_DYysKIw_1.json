@@ -1,0 +1,31 @@
+{
+  "postId": "DMU_DYysKIw",
+  "mediaId": "3680844105177408048",
+  "url": "https://www.instagram.com/reel/DMU_DYysKIw/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Sapore verace vi aspetto con riapertura cucina",
+  "tags": [],
+  "location": null,
+  "takenAt": "2025-07-20T11:27:33+00:00",
+  "kind": "Reel",
+  "postType": "reel",
+  "durationSeconds": null,
+  "likeCount": 18,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2025-07-20_DMU_DYysKIw_1.mp4",
+      "index": 1,
+      "width": 720,
+      "height": 1280,
+      "originalWidth": 720,
+      "originalHeight": 1280,
+      "sizeBytes": 611620
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.2171682+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

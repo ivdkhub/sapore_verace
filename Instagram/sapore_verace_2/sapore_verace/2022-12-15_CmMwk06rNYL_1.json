@@ -1,0 +1,35 @@
+{
+  "postId": "CmMwk06rNYL",
+  "mediaId": "2993981489247213067",
+  "url": "https://www.instagram.com/p/CmMwk06rNYL/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "Oggi vogliamo proporvi a tutti i  nostri magnifici clienti la nostra proposta del mese di dicembre , un mix di piacere tra colori e sapori :\n\nPizza di Dicembre \n\n-Fior di latte \n-Panna in uscita \n-Salmone affumicato \n-Rughetta croccante \n-Datterino Rosso",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2022-12-15T18:53:48+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 10,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2022-12-15_CmMwk06rNYL_1.jpg",
+      "index": 1,
+      "width": 869,
+      "height": 985,
+      "originalWidth": 869,
+      "originalHeight": 985,
+      "sizeBytes": 166297
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.4215105+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,35 @@
+{
+  "postId": "CsL6-5rop3a",
+  "mediaId": "3101832177615281626",
+  "url": "https://www.instagram.com/p/CsL6-5rop3a/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": "La nostra proposta del mese di Maggio è la seguente : \n\n-Pomodoro San Marzano \n-Melanzana fritta \n-Spolverata di Pecorino Romano\n\nA seguire in uscita \n\n-Polpette home Made \n-Gocce di pesto home Made \n-Burratina affumicata \n-Spolverativa aggiuntiva di Pecorino Romano",
+  "tags": [],
+  "location": {
+    "id": "112084650971514",
+    "name": "Sapore Verace",
+    "url": "https://www.instagram.com/explore/locations/112084650971514/sapore-verace/"
+  },
+  "takenAt": "2023-05-13T14:13:51+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 22,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2023-05-13_CsL6-5rop3a_1.jpg",
+      "index": 1,
+      "width": 751,
+      "height": 751,
+      "originalWidth": 751,
+      "originalHeight": 751,
+      "sizeBytes": 166589
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.2980606+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}

@@ -1,0 +1,31 @@
+{
+  "postId": "DLfsfYdsB5J",
+  "mediaId": "3665844292321025609",
+  "url": "https://www.instagram.com/p/DLfsfYdsB5J/",
+  "uploader": "sapore_verace",
+  "uploaderFullName": "Sapore_verace",
+  "ownerId": "47049911564",
+  "caption": null,
+  "tags": [],
+  "location": null,
+  "takenAt": "2025-06-29T18:45:15+00:00",
+  "kind": "Image",
+  "postType": "post",
+  "durationSeconds": null,
+  "likeCount": 7,
+  "commentCount": null,
+  "mediaCount": 1,
+  "files": [
+    {
+      "path": "2025-06-29_DLfsfYdsB5J_1.webp",
+      "index": 1,
+      "width": 1080,
+      "height": 1080,
+      "originalWidth": 1080,
+      "originalHeight": 1080,
+      "sizeBytes": 81848
+    }
+  ],
+  "downloadedAt": "2026-09-13T17:31:06.2229207+00:00",
+  "extractorVersion": "1.32.12:2026.09.13"
+}
