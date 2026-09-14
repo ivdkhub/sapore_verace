@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Menu, X, ChevronDown, Phone, Bike, Calendar } from 'lucide-react';
+import { ShoppingCart, Menu, X, ChevronDown, Phone, Bike, Calendar } from 'lucide-react';
 import { MoustacheIcon } from '../common/Icons';
 import { SideDrawer } from './SideDrawer';
 import { LanguageSwitcher } from '../common/Flags';
+import { AnimatedLogoSvg } from '../common/AnimatedLogoSvg';
 import { useLanguage } from '../../context/LanguageContext';
 import { useCart } from '../../context/CartContext';
+import { useAdmin } from '../../context/AdminContext';
 
 export const Header = () => {
   const { t } = useLanguage();
   const { totalItemsCount, setIsCartOpen, activeOrder, setIsTrackingOpen } = useCart();
+  const { setIsBookingModalOpen } = useAdmin();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -42,54 +45,47 @@ export const Header = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-400 ease-in-out ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out ${
           isScrolled
-            ? 'bg-[#121212]/95 backdrop-blur-md shadow-2xl py-3 border-b border-white/10'
-            : 'bg-transparent py-4 lg:py-6'
+            ? 'bg-[#121212]/95 backdrop-blur-md shadow-2xl py-2.5 border-b border-white/10'
+            : 'bg-gradient-to-b from-[#0d0d0d]/90 via-[#0d0d0d]/70 to-transparent backdrop-blur-[2px] py-3.5 lg:py-4 border-b border-white/5'
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8">
           <div className="flex items-center justify-between">
             {/* LEFT WIDGET: ORDER IN NOW / PHONE */}
             <div className="hidden xl:flex items-center gap-3 w-[260px]">
-              <div className="w-11 h-11 rounded-full bg-[#d2401e] flex items-center justify-center text-white shrink-0 shadow-lg shadow-[#d2401e]/30">
-                <Phone className="w-5 h-5 fill-current" />
+              <div className="w-10 h-10 rounded-full bg-[#d2401e] flex items-center justify-center text-white shrink-0 shadow-lg shadow-[#d2401e]/30">
+                <Phone className="w-4 h-4 fill-current" />
               </div>
               <div>
-                <span className="block text-[11px] font-oswald text-white/80 tracking-[0.2em] uppercase leading-none mb-1">
+                <span className="block text-[10px] font-oswald text-white/80 tracking-[0.2em] uppercase leading-none mb-1">
                   {t.orderInNow || 'ORDINA ORA'}
                 </span>
                 <a
                   href="tel:03311081917"
-                  className="font-oswald text-xl text-white font-semibold hover:text-[#d2401e] transition-colors leading-none tracking-wide"
+                  className="font-oswald text-lg text-white font-semibold hover:text-[#d2401e] transition-colors leading-none tracking-wide"
                 >
                   0331 108 1917
                 </a>
               </div>
             </div>
 
-            {/* MOBILE LOGO */}
-            <div className="flex items-center gap-1 sm:gap-3 xl:hidden flex-1 overflow-hidden py-1">
+            {/* MOBILE HAMBURGER BUTTON */}
+            <div className="flex items-center lg:hidden py-1">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-white hover:text-[#d2401e] transition-colors p-1 shrink-0 cursor-pointer"
+                className="text-white hover:text-[#d2401e] transition-colors p-1.5 rounded-lg hover:bg-white/5 shrink-0 cursor-pointer"
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
               </button>
-              <a href="#" className="flex items-center flex-1 min-w-0 pr-2">
-                <img
-                  src="/images/logo4.png"
-                  alt="Sapore Verace"
-                  className="h-24 sm:h-32 w-auto max-w-[320px] sm:max-w-[440px] object-contain filter drop-shadow-lg -my-2 transform scale-110 sm:scale-125 origin-left"
-                />
-              </a>
             </div>
 
             {/* CENTER: DIVIDED NAVIGATION BAR WITH CENTRAL LOGO */}
             <nav className="hidden lg:flex items-center justify-center flex-1">
               {/* Left Menu Items */}
-              <ul className="flex items-center gap-7 lg:gap-9">
+              <ul className="flex items-center gap-6 lg:gap-8">
                 {NAV_ITEMS_LEFT.map((item) => {
                   const isActive = activeItem === item.key;
                   return (
@@ -97,47 +93,42 @@ export const Header = () => {
                       <a
                         href={item.href}
                         onClick={() => setActiveItem(item.key)}
-                        className={`flex flex-col items-center py-2 transition-colors duration-200 ${
+                        className={`flex flex-col items-center py-2 transition-colors duration-200 relative ${
                           isActive ? 'text-[#d2401e]' : 'text-white hover:text-[#d2401e]'
                         }`}
                       >
-                        {/* Signature Moustache above hovered/active menu item */}
-                        <div
-                          className={`h-3 flex items-center justify-center transition-all duration-300 ${
-                            isActive
-                              ? 'opacity-100 transform translate-y-0'
-                              : 'opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0'
-                          }`}
-                        >
-                          <MoustacheIcon className="w-5 h-2.5 text-[#d2401e]" />
-                        </div>
-                        <span className="font-oswald text-[13px] tracking-[0.18em] font-medium flex items-center gap-1">
+                        <span className="font-oswald text-xs lg:text-[13px] tracking-[0.18em] font-medium flex items-center gap-1">
                           {item.label}
                           {item.hasSub && (
                             <ChevronDown className="w-3 h-3 opacity-60 group-hover:rotate-180 transition-transform duration-200" />
                           )}
                         </span>
+                        {/* Clean Underline indicator on active/hover */}
+                        <span
+                          className={`h-0.5 bg-[#d2401e] rounded-full transition-all duration-300 ${
+                            isActive ? 'w-full opacity-100 mt-1' : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100 mt-1'
+                          }`}
+                        />
                       </a>
                     </li>
                   );
                 })}
               </ul>
 
-              {/* Central Logo (logo4.png) */}
-              <div className="mx-6 xl:mx-10 shrink-0 py-1">
+              {/* Central Logo (Animated SVG) */}
+              <div className="mx-6 xl:mx-8 shrink-0 py-1">
                 <a href="#" className="flex flex-col items-center group">
-                  <img
-                    src="/images/logo4.png"
-                    alt="Sapore Verace Pizzeria Napoletana"
-                    className={`w-auto object-contain transition-all duration-300 group-hover:scale-105 filter drop-shadow-2xl ${
-                      isScrolled ? 'h-24 lg:h-28' : 'h-32 sm:h-40 lg:h-48 xl:h-52'
+                  <AnimatedLogoSvg
+                    className={`w-auto object-contain transition-all duration-300 group-hover:scale-105 ${
+                      isScrolled ? 'h-16 lg:h-20' : 'h-20 sm:h-24 lg:h-28 xl:h-32'
                     }`}
+                    strokeWidth={2.5}
                   />
                 </a>
               </div>
 
               {/* Right Menu Items */}
-              <ul className="flex items-center gap-7 lg:gap-9">
+              <ul className="flex items-center gap-6 lg:gap-8">
                 {NAV_ITEMS_RIGHT.map((item) => {
                   const isActive = activeItem === item.key;
                   return (
@@ -145,25 +136,22 @@ export const Header = () => {
                       <a
                         href={item.href}
                         onClick={() => setActiveItem(item.key)}
-                        className={`flex flex-col items-center py-2 transition-colors duration-200 ${
+                        className={`flex flex-col items-center py-2 transition-colors duration-200 relative ${
                           isActive ? 'text-[#d2401e]' : 'text-white hover:text-[#d2401e]'
                         }`}
                       >
-                        <div
-                          className={`h-3 flex items-center justify-center transition-all duration-300 ${
-                            isActive
-                              ? 'opacity-100 transform translate-y-0'
-                              : 'opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0'
-                          }`}
-                        >
-                          <MoustacheIcon className="w-5 h-2.5 text-[#d2401e]" />
-                        </div>
-                        <span className="font-oswald text-[13px] tracking-[0.18em] font-medium flex items-center gap-1">
+                        <span className="font-oswald text-xs lg:text-[13px] tracking-[0.18em] font-medium flex items-center gap-1">
                           {item.label}
                           {item.hasSub && (
                             <ChevronDown className="w-3 h-3 opacity-60 group-hover:rotate-180 transition-transform duration-200" />
                           )}
                         </span>
+                        {/* Clean Underline indicator on active/hover */}
+                        <span
+                          className={`h-0.5 bg-[#d2401e] rounded-full transition-all duration-300 ${
+                            isActive ? 'w-full opacity-100 mt-1' : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100 mt-1'
+                          }`}
+                        />
                       </a>
                     </li>
                   );
@@ -202,7 +190,7 @@ export const Header = () => {
                 className="relative text-white/90 hover:text-[#d2401e] transition-colors cursor-pointer p-1"
                 aria-label={t.cart?.title || 'Carrello'}
               >
-                <ShoppingBag className="w-5 h-5" />
+                <ShoppingCart className="w-5 h-5" />
                 {totalItemsCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#d2401e] text-white text-[10px] font-oswald font-bold rounded-full flex items-center justify-center animate-in zoom-in">
                     {totalItemsCount}
@@ -236,6 +224,18 @@ export const Header = () => {
               <LanguageSwitcher />
             </div>
 
+            {/* Quick Table Reservation Trigger for Mobile */}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsBookingModalOpen(true);
+              }}
+              className="w-full mb-3 py-3 rounded-xl bg-gradient-to-r from-[#d2401e] to-[#ffa323] text-white font-oswald text-xs tracking-wider uppercase font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#d2401e]/30 cursor-pointer active:scale-95 transition-transform"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>{t.bookNow || 'PRENOTA UN TAVOLO ORA'}</span>
+            </button>
+
             {/* Mobile Tracking Shortcut */}
             {activeOrder && (
               <button
@@ -243,14 +243,14 @@ export const Header = () => {
                   setIsTrackingOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full mb-4 py-2.5 bg-[#d2401e] text-white rounded-lg font-oswald text-xs tracking-wider uppercase flex items-center justify-center gap-2"
+                className="w-full mb-3 py-2.5 bg-[#d2401e] text-white rounded-xl font-oswald text-xs tracking-wider uppercase flex items-center justify-center gap-2 animate-bounce"
               >
                 <Bike className="w-4 h-4" />
                 <span>{t.tracking?.tag || 'LIVE ORDER TRACKING'}</span>
               </button>
             )}
 
-            <ul className="space-y-4">
+            <ul className="space-y-3 pt-2">
               {[...NAV_ITEMS_LEFT, ...NAV_ITEMS_RIGHT].map((item) => (
                 <li key={item.key}>
                   <a
@@ -259,25 +259,37 @@ export const Header = () => {
                       setActiveItem(item.key);
                       setIsMobileMenuOpen(false);
                     }}
-                    className="font-oswald text-base tracking-widest text-white hover:text-[#d2401e] block py-1"
+                    className="font-oswald text-base tracking-widest text-white hover:text-[#d2401e] block py-1.5 border-b border-white/5"
                   >
                     {item.label}
                   </a>
                 </li>
               ))}
             </ul>
-            <div className="mt-6 pt-6 border-t border-white/10 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#d2401e] flex items-center justify-center text-white shrink-0">
-                <Phone className="w-4 h-4" />
+
+            <div className="mt-5 pt-5 border-t border-white/10 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#d2401e] flex items-center justify-center text-white shrink-0 shadow-md">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="block text-[10px] font-oswald text-white/70 tracking-widest uppercase">
+                    {t.orderInNow || 'ORDINA ORA'}
+                  </span>
+                  <a href="tel:03311081917" className="font-oswald text-lg text-white font-bold hover:text-[#d2401e] transition-colors">
+                    0331 108 1917
+                  </a>
+                </div>
               </div>
-              <div>
-                <span className="block text-[10px] font-oswald text-white/70 tracking-widest uppercase">
-                  {t.orderInNow || 'ORDINA ORA'}
-                </span>
-                <a href="tel:03311081917" className="font-oswald text-lg text-white font-bold hover:text-[#d2401e] transition-colors">
-                  0331 108 1917
-                </a>
-              </div>
+
+              <a
+                href="https://wa.me/3903311081917"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-2 rounded-lg bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 font-oswald text-xs uppercase tracking-wider font-semibold hover:bg-emerald-600 hover:text-white transition-all"
+              >
+                WhatsApp
+              </a>
             </div>
           </div>
         )}

@@ -16,9 +16,8 @@ import {
 } from 'lucide-react';
 import { useAdmin, getTodayDateString } from '../../context/AdminContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { MoustacheIcon } from '../common/Icons';
 
-export const ReservationSection = () => {
+export const ReservationSection = ({ isModal = false }) => {
   const { createClientReservation, isRestaurantOpenOnDate, holidays } = useAdmin();
   const { t, lang } = useLanguage();
 
@@ -160,35 +159,27 @@ export const ReservationSection = () => {
   const currentOpenCheck = isRestaurantOpenOnDate ? isRestaurantOpenOnDate(date, shift) : { isOpen: true };
   const activeHolidayBanner = holidays?.find((h) => h.bannerActive);
 
-  return (
-    <section id="reservation" className="relative py-24 bg-[#111111] overflow-hidden border-t border-white/10 scroll-mt-20">
-      {/* Warm Ambient Glow Backdrops */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-[#d2401e]/10 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-[#ffa323]/8 rounded-full blur-[140px] pointer-events-none" />
-
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-8 relative z-10">
-        
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-16">
-          <div className="flex items-center gap-2 mb-3">
-            <MoustacheIcon className="w-6 h-3 text-[#d2401e]" />
-            <span className="text-xs font-oswald tracking-[0.25em] text-[#ffa323] uppercase font-semibold">
-              {tr.badge || 'PRENOTA IL TUO TAVOLO'}
-            </span>
-            <MoustacheIcon className="w-6 h-3 text-[#d2401e]" />
-          </div>
-
-          <h2 className="font-oswald text-4xl sm:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight text-white mb-4">
-            {tr.title || 'RISERVA IL TUO POSTO DA SAPORE VERACE'}
-          </h2>
-
-          <p className="text-white/70 text-sm sm:text-base font-sans max-w-2xl leading-relaxed">
-            {tr.subtitle ||
-              'Scegli data, orario e numero di ospiti. La conferma è immediata con assegnazione del tavolo in tempo reale.'}
-          </p>
-
-          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d2401e] to-transparent mt-6" />
+  const mainContent = (
+    <div className={isModal ? "max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-6 relative z-10" : "max-w-[1240px] mx-auto px-4 sm:px-8 relative z-10"}>
+      {/* Section Header */}
+      <div className={`flex flex-col items-center text-center ${isModal ? 'mb-6 sm:mb-8 pt-2 pr-8 sm:pr-0' : 'mb-14 sm:mb-16'}`}>
+        <div className="flex items-center gap-2 mb-2 sm:mb-3">
+          <span className="text-xs font-oswald tracking-[0.25em] text-[#ffa323] uppercase font-semibold">
+            {tr.badge || 'PRENOTA IL TUO TAVOLO'}
+          </span>
         </div>
+
+        <h2 className={`font-oswald ${isModal ? 'text-2xl sm:text-4xl' : 'text-3xl sm:text-5xl lg:text-6xl'} font-extrabold uppercase tracking-tight text-white mb-2 sm:mb-4`}>
+          {tr.title || 'RISERVA IL TUO POSTO DA SAPORE VERACE'}
+        </h2>
+
+        <p className="text-white/70 text-xs sm:text-base font-sans max-w-2xl leading-relaxed">
+          {tr.subtitle ||
+            'Scegli data, orario e numero di ospiti. La conferma è immediata con assegnazione del tavolo in tempo reale.'}
+        </p>
+
+        {!isModal && <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d2401e] to-transparent mt-6" />}
+      </div>
 
         {/* Public Holiday Banner Announcement if active */}
         {activeHolidayBanner && (
@@ -257,7 +248,7 @@ export const ReservationSection = () => {
                 <div>
                   <span className="text-xs text-white/50 block">{tr.timeShiftLabel || 'Orario & Turno'}</span>
                   <span className="font-oswald text-base text-white font-bold">
-                    {confirmedBooking.time} ({confirmedBooking.shift === 'cena' ? `🌙 ${tr.dinnerShift?.split(' ')[1] || 'Cena'}` : `☀️ ${tr.lunchShift?.split(' ')[1] || 'Pranzo'}`})
+                    {confirmedBooking.time} ({confirmedBooking.shift === 'cena' ? (tr.dinnerShift?.replace(/[☀️🌙]/g, '').trim().split(' ')[1] || 'Cena') : (tr.lunchShift?.replace(/[☀️🌙]/g, '').trim().split(' ')[1] || 'Pranzo')})
                   </span>
                 </div>
                 <div>
@@ -344,8 +335,8 @@ export const ReservationSection = () => {
                 {tr.step1 || '1. Scegli il Giorno'}
               </label>
 
-              {/* 7 Quick Days Pills */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 mb-3">
+              {/* 7 Quick Days Pills (Responsive Grid with touch-friendly pills) */}
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-2.5 mb-3">
                 {upcomingDays.map((item) => {
                   const isSelected = date === item.dateStr;
                   return (
@@ -353,19 +344,19 @@ export const ReservationSection = () => {
                       key={item.dateStr}
                       type="button"
                       onClick={() => setDate(item.dateStr)}
-                      className={`p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                      className={`p-2.5 sm:p-3 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center active:scale-95 ${
                         isSelected
                           ? 'bg-gradient-to-b from-[#d2401e] to-[#b83314] border-[#d2401e] text-white shadow-lg shadow-[#d2401e]/40 scale-105'
                           : 'bg-[#121212] border-white/10 text-white/70 hover:border-white/30 hover:text-white'
                       }`}
                     >
-                      <span className="text-[11px] uppercase font-oswald tracking-wider block opacity-80">
+                      <span className="text-[10px] sm:text-[11px] uppercase font-oswald tracking-wider block opacity-80">
                         {item.label}
                       </span>
-                      <span className="text-xl font-oswald font-black leading-tight">
+                      <span className="text-lg sm:text-xl font-oswald font-black leading-tight">
                         {item.dayNum}
                       </span>
-                      <span className="text-[10px] uppercase font-sans text-white/60">
+                      <span className="text-[9px] sm:text-[10px] uppercase font-sans text-white/60">
                         {item.month}
                       </span>
                     </button>
@@ -374,14 +365,14 @@ export const ReservationSection = () => {
               </div>
 
               {/* Custom Date Input for Future Dates */}
-              <div className="flex items-center justify-end gap-2 text-xs text-white/60 font-sans">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-2 text-xs text-white/60 font-sans mt-2">
                 <span>{tr.customDateText || 'Oppure seleziona una data specifica:'}</span>
                 <input
                   type="date"
                   min={getTodayDateString()}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="bg-[#121212] border border-white/15 rounded-lg px-3 py-1.5 text-xs text-white font-sans focus:border-[#ffa323] outline-none"
+                  className="bg-[#121212] border border-white/15 rounded-xl px-3 py-2 text-sm text-white font-sans focus:border-[#ffa323] outline-none"
                 />
               </div>
             </div>
@@ -394,33 +385,33 @@ export const ReservationSection = () => {
               </label>
 
               {/* Shift Switcher */}
-              <div className="inline-flex bg-[#121212] p-1 rounded-2xl border border-white/10 mb-4 font-oswald text-xs tracking-wider uppercase">
+              <div className="grid grid-cols-2 sm:inline-flex bg-[#202020] p-1.5 rounded-2xl border border-white/20 mb-4 font-oswald text-xs sm:text-sm tracking-wider uppercase w-full sm:w-auto gap-1.5 shadow-inner">
                 <button
                   type="button"
                   onClick={() => setShift('pranzo')}
-                  className={`px-5 py-2.5 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                  className={`py-3 px-4 sm:px-6 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center text-center ${
                     shift === 'pranzo'
-                      ? 'bg-[#ffa323] text-black shadow-md shadow-[#ffa323]/30'
-                      : 'text-white/60 hover:text-white'
+                      ? 'bg-[#ffa323] text-black shadow-lg shadow-[#ffa323]/30 border border-[#ffa323] font-extrabold'
+                      : 'bg-[#2a2a2a] text-white hover:bg-[#353535] border border-white/10 hover:border-white/25'
                   }`}
                 >
-                  <span>{tr.lunchShift || '☀️ Turno Pranzo (12:00 - 14:30)'}</span>
+                  <span>{tr.lunchShift ? tr.lunchShift.replace(/[☀️🌙]/g, '').trim() : 'Turno Pranzo (12:00 - 14:30)'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setShift('cena')}
-                  className={`px-5 py-2.5 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                  className={`py-3 px-4 sm:px-6 rounded-xl font-bold transition-all cursor-pointer flex items-center justify-center text-center ${
                     shift === 'cena'
-                      ? 'bg-[#d2401e] text-white shadow-md shadow-[#d2401e]/30'
-                      : 'text-white/60 hover:text-white'
+                      ? 'bg-[#d2401e] text-white shadow-lg shadow-[#d2401e]/30 border border-[#d2401e] font-extrabold'
+                      : 'bg-[#2a2a2a] text-white hover:bg-[#353535] border border-white/10 hover:border-white/25'
                   }`}
                 >
-                  <span>{tr.dinnerShift || '🌙 Turno Cena (19:00 - 23:00)'}</span>
+                  <span>{tr.dinnerShift ? tr.dinnerShift.replace(/[☀️🌙]/g, '').trim() : 'Turno Cena (19:00 - 23:00)'}</span>
                 </button>
               </div>
 
               {/* Time Slot Pills */}
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-2 sm:gap-2.5">
                 {(shift === 'cena' ? DINNER_SLOTS : LUNCH_SLOTS).map((slot) => {
                   const isSelected = time === slot;
                   return (
@@ -428,10 +419,10 @@ export const ReservationSection = () => {
                       key={slot}
                       type="button"
                       onClick={() => setTime(slot)}
-                      className={`px-4 py-2.5 rounded-xl font-oswald text-sm font-semibold tracking-wider transition-all cursor-pointer ${
+                      className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-oswald text-xs sm:text-sm font-semibold tracking-wider transition-all cursor-pointer active:scale-95 ${
                         isSelected
                           ? 'bg-[#ffa323] text-black border border-[#ffa323] shadow-md shadow-[#ffa323]/30 scale-105 font-bold'
-                          : 'bg-[#121212] border border-white/10 text-white/80 hover:border-white/30 hover:text-white'
+                          : 'bg-[#242424] border border-white/15 text-white hover:border-white/40 hover:bg-[#303030]'
                       }`}
                     >
                       {slot}
@@ -449,7 +440,7 @@ export const ReservationSection = () => {
               </label>
 
               {/* Guest count selector pills with avatars */}
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-2 sm:gap-2.5">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12].map((num) => {
                   const isSelected = guests === num;
                   return (
@@ -457,14 +448,14 @@ export const ReservationSection = () => {
                       key={num}
                       type="button"
                       onClick={() => setGuests(num)}
-                      className={`px-4 py-2.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-2 ${
+                      className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 active:scale-95 ${
                         isSelected
                           ? 'bg-gradient-to-r from-[#d2401e] to-[#ff5722] border-[#d2401e] text-white shadow-lg shadow-[#d2401e]/30 scale-105 font-bold'
                           : 'bg-[#121212] border-white/10 text-white/70 hover:border-white/30 hover:text-white'
                       }`}
                     >
-                      <span className="font-oswald text-base">{num}</span>
-                      <span className="text-[11px] font-sans text-white/60">
+                      <span className="font-oswald text-sm sm:text-base">{num}</span>
+                      <span className="text-[10px] sm:text-[11px] font-sans text-white/60">
                         {num === 1 ? (tr.personSingle || 'persona') : (tr.personPlural || 'persone')}
                       </span>
                     </button>
@@ -494,7 +485,7 @@ export const ReservationSection = () => {
                       placeholder={tr.namePlaceholder || 'es. Marco Rossi'}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-[#121212] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white font-sans placeholder-white/30 focus:border-[#ffa323] outline-none transition-colors"
+                      className="w-full bg-[#121212] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-base sm:text-sm text-white font-sans placeholder-white/30 focus:border-[#ffa323] outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -512,7 +503,7 @@ export const ReservationSection = () => {
                       placeholder={tr.phonePlaceholder || 'es. 333 1234567'}
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full bg-[#121212] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white font-sans placeholder-white/30 focus:border-[#ffa323] outline-none transition-colors"
+                      className="w-full bg-[#121212] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-base sm:text-sm text-white font-sans placeholder-white/30 focus:border-[#ffa323] outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -531,7 +522,7 @@ export const ReservationSection = () => {
                       placeholder={tr.emailPlaceholder || 'es. marco.rossi@email.it'}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[#121212] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white font-sans placeholder-white/30 focus:border-[#ffa323] outline-none transition-colors"
+                      className="w-full bg-[#121212] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-base sm:text-sm text-white font-sans placeholder-white/30 focus:border-[#ffa323] outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -547,7 +538,7 @@ export const ReservationSection = () => {
                       placeholder={tr.notesPlaceholder || 'es. 1 seggiolone bimbo, compleanno...'}
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      className="w-full bg-[#121212] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-sm text-white font-sans placeholder-white/30 focus:border-[#ffa323] outline-none transition-colors"
+                      className="w-full bg-[#121212] border border-white/15 rounded-xl pl-10 pr-4 py-3 text-base sm:text-sm text-white font-sans placeholder-white/30 focus:border-[#ffa323] outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -578,7 +569,23 @@ export const ReservationSection = () => {
             </div>
           </form>
         )}
+    </div>
+  );
+
+  if (isModal) {
+    return (
+      <div className="relative w-full">
+        {mainContent}
       </div>
+    );
+  }
+
+  return (
+    <section id="reservation" className="relative py-16 sm:py-24 bg-[#111111] overflow-hidden border-t border-white/10 scroll-mt-20">
+      {/* Warm Ambient Glow Backdrops */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-[#d2401e]/10 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-[#ffa323]/8 rounded-full blur-[140px] pointer-events-none" />
+      {mainContent}
     </section>
   );
 };

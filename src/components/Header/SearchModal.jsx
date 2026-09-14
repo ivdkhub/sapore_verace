@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X, ShoppingBag } from 'lucide-react';
+import { Search, X, ShoppingCart } from 'lucide-react';
 import { useMenu } from '../../context/MenuContext';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -104,7 +104,7 @@ export const SearchModal = ({ isOpen, onClose }) => {
                     className="p-2.5 rounded-xl bg-[#d2401e] hover:bg-[#b83314] text-white transition-all shadow-md cursor-pointer"
                     title={t.menu?.addToCart || 'Aggiungi al carrello'}
                   >
-                    <ShoppingBag className="w-4 h-4" />
+                    <ShoppingCart className="w-4 h-4" />
                   </button>
                 </div>
               </div>

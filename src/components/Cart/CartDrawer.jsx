@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -45,7 +45,7 @@ export const CartDrawer = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#d2401e] flex items-center justify-center text-white shadow-lg shadow-[#d2401e]/30">
-                <ShoppingBag className="w-5 h-5" />
+                <ShoppingCart className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-oswald text-xl font-bold tracking-wider text-white uppercase">
@@ -98,7 +98,7 @@ export const CartDrawer = () => {
           {cartItems.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8">
               <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/40 mb-4">
-                <ShoppingBag className="w-8 h-8" />
+                <ShoppingCart className="w-8 h-8" />
               </div>
               <h4 className="font-oswald text-xl text-white font-bold tracking-wider uppercase mb-2">
                 {t.cart?.emptyTitle || 'IL CARRELLO È VUOTO'}

@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { MoustacheIcon } from '../common/Icons';
 
 const STEP_DEFINITIONS = [
   { id: 'received', icon: CheckCircle2, progress: 15 },
@@ -66,6 +65,19 @@ export const OrderTrackingModal = () => {
     return () => clearInterval(timer);
   }, [activeOrder, isTrackingOpen, simulationSpeed]);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsTrackingOpen(false);
+      }
+    };
+    if (isTrackingOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isTrackingOpen, setIsTrackingOpen]);
+
   if (!isTrackingOpen || !activeOrder) return null;
 
   const currentDef = STEP_DEFINITIONS[currentStepIndex] || STEP_DEFINITIONS[0];
@@ -86,25 +98,34 @@ export const OrderTrackingModal = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-6 overflow-y-auto animate-in fade-in">
-      <div className="relative w-full max-w-3xl bg-[#181818] border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-10 my-8 overflow-hidden">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 sm:p-6 overflow-y-auto animate-in fade-in"
+      onClick={() => setIsTrackingOpen(false)}
+    >
+      <div
+        className="relative w-full max-w-3xl bg-[#181818] border border-white/10 rounded-2xl shadow-2xl p-6 sm:p-10 my-8 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Background ambient lighting */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#d2401e]/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Close Button */}
         <button
-          onClick={() => setIsTrackingOpen(false)}
-          className="absolute top-6 right-6 text-white/60 hover:text-white transition-colors p-2 cursor-pointer z-10"
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsTrackingOpen(false);
+          }}
+          className="absolute top-4 sm:top-6 right-4 sm:right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all cursor-pointer z-50 shadow-md active:scale-95"
           aria-label="Close tracking"
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-white/10 relative z-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-white/10 relative z-10 pr-10 sm:pr-0">
           <div>
             <div className="inline-flex items-center gap-2 mb-1.5">
-              <MoustacheIcon className="w-5 h-2.5 text-[#d2401e]" />
               <span className="text-xs font-oswald tracking-[0.25em] text-[#ffa323] uppercase font-bold">
                 {trk.tag || 'LIVE ORDER TRACKING'}
               </span>

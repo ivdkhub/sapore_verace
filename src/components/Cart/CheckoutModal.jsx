@@ -104,7 +104,7 @@ export const CheckoutModal = () => {
                 placeholder="Mario Rossi"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-lg text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
+                className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-xl text-base sm:text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
               />
             </div>
 
@@ -118,7 +118,7 @@ export const CheckoutModal = () => {
                 placeholder="333 1234567"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-lg text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
+                className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-xl text-base sm:text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
               />
             </div>
           </div>
@@ -136,7 +136,7 @@ export const CheckoutModal = () => {
                   placeholder="Via Borsano 44, Scala B, Int. 3"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-lg text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
+                  className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-xl text-base sm:text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
                 />
               </div>
 
@@ -149,7 +149,7 @@ export const CheckoutModal = () => {
                     type="text"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-lg text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
+                    className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-xl text-base sm:text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
                   />
                 </div>
                 <div>
@@ -160,7 +160,7 @@ export const CheckoutModal = () => {
                     type="text"
                     value={formData.postalCode}
                     onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-lg text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
+                    className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-xl text-base sm:text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors"
                   />
                 </div>
               </div>
@@ -197,7 +197,7 @@ export const CheckoutModal = () => {
               }
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-lg text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors resize-none"
+              className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-xl text-base sm:text-sm font-sans focus:outline-none focus:border-[#d2401e] transition-colors resize-none"
             />
           </div>
 

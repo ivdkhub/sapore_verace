@@ -19,6 +19,8 @@ import { ReservationSection } from './components/Reservation/ReservationSection'
 import { ClientReservationModal } from './components/Reservation/ClientReservationModal';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { AdminToggleFloating } from './components/Admin/AdminToggleFloating';
+import { MobileBottomNav } from './components/common/MobileBottomNav';
+import { ScrollToTop } from './components/common/ScrollToTop';
 
 function MainAppContent() {
   const { isAdminView } = useAdmin();
@@ -28,7 +30,7 @@ function MainAppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] text-white flex flex-col selection:bg-[#d2401e] selection:text-white">
+    <div className="min-h-screen bg-[#121212] text-white flex flex-col selection:bg-[#d2401e] selection:text-white pb-16 md:pb-0">
       {/* 1. STICKY DIVIDED HEADER */}
       <Header />
 
@@ -62,14 +64,17 @@ function MainAppContent() {
       {/* 9. MULTI-COLUMN FOOTER & BOTTOM BAR */}
       <Footer />
 
+      {/* 10. MOBILE STICKY BOTTOM ACTION BAR (SMARTPHONES/TABLETS) */}
+      <MobileBottomNav />
+
+      {/* 11. MINIMAL FLOATING BACK TO TOP BUTTON */}
+      <ScrollToTop />
+
       {/* SHOPPING CART, CHECKOUT, BOOKING & LIVE ORDER TRACKING MODALS */}
       <CartDrawer />
       <CheckoutModal />
       <OrderTrackingModal />
       <ClientReservationModal />
-
-      {/* FLOATING ADMIN QUICK TOGGLE */}
-      <AdminToggleFloating />
     </div>
   );
 }

@@ -4,10 +4,16 @@ import { InstagramIcon, FacebookIcon, TwitterIcon } from '../common/Icons';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAdmin } from '../../context/AdminContext';
 import { LanguageSwitcher } from '../common/Flags';
+import { AnimatedLogoSvg } from '../common/AnimatedLogoSvg';
 
 export const SideDrawer = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
-  const { setIsAdminView } = useAdmin();
+  const { setIsAdminView, setIsBookingModalOpen } = useAdmin();
+
+  const handleOpenReservation = () => {
+    onClose();
+    setIsBookingModalOpen(true);
+  };
 
   return (
     <>
@@ -44,10 +50,9 @@ export const SideDrawer = ({ isOpen, onClose }) => {
 
         {/* Brand Logo */}
         <div className="flex flex-col items-center justify-center mb-8">
-          <img
-            src="/images/logo4.png"
-            alt="Sapore Verace Pizzeria Napoletana"
-            className="h-36 sm:h-44 w-auto object-contain filter drop-shadow-xl mb-3"
+          <AnimatedLogoSvg
+            className="h-36 sm:h-44 w-auto object-contain mb-3"
+            strokeWidth={2.5}
           />
           <p className="text-xs text-[#ffa323] font-oswald tracking-[0.2em] uppercase">
             Pizzeria Napoletana con Piccola Cucina
@@ -60,13 +65,13 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             {t.footer?.crewDesc}
           </p>
 
-          <a
-            href="#reservation"
-            onClick={onClose}
-            className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#d2401e] to-[#ffa323] hover:from-[#b83314] hover:to-[#d2401e] text-white font-oswald text-xs tracking-[0.2em] font-bold uppercase transition-all shadow-lg shadow-[#d2401e]/30 flex items-center justify-center gap-2"
+          <button
+            type="button"
+            onClick={handleOpenReservation}
+            className="w-full py-3.5 px-6 rounded-2xl bg-[#b84a28] hover:bg-[#a33e1e] text-white font-oswald text-xs sm:text-sm tracking-[0.2em] font-bold uppercase transition-all duration-300 shadow-lg shadow-[#b84a28]/25 border border-white/10 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
           >
             <span>{t.drawer?.bookTableBtn || 'PRENOTA UN TAVOLO'}</span>
-          </a>
+          </button>
         </div>
 
         {/* Info list */}

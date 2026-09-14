@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Flame, ShoppingBag, Check } from 'lucide-react';
-import { MoustacheIcon } from '../common/Icons';
+import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Flame, ShoppingCart, Check } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useMenu } from '../../context/MenuContext';
 import { useCart } from '../../context/CartContext';
+import { AnimatedLogoSvg } from '../common/AnimatedLogoSvg';
 
 export const HeroSection = () => {
   const { t } = useLanguage();
@@ -81,14 +81,14 @@ export const HeroSection = () => {
 
   return (
     <section
-      className="relative min-h-screen flex items-center justify-center bg-[#0d0d0d] pt-28 pb-16 overflow-hidden select-none"
+      className="relative min-h-screen flex items-center justify-center bg-[#0d0d0d] pt-24 sm:pt-32 lg:pt-48 pb-16 lg:pb-24 overflow-hidden select-none"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Toast Alert for Direct Order from Hero */}
+      {/* Toast Alert for Direct Order from Hero (Mobile friendly) */}
       {addedToast && (
-        <div className="fixed bottom-8 right-8 z-50 flex items-center gap-3 bg-[#d2401e] text-white px-6 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-5 font-oswald tracking-wider uppercase text-sm border border-white/20">
-          <Check className="w-5 h-5 stroke-[2.5]" />
+        <div className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 z-50 flex items-center gap-3 bg-[#d2401e] text-white px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-5 font-oswald tracking-wider uppercase text-xs sm:text-sm border border-white/20 whitespace-nowrap">
+          <Check className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
           <span>{addedToast} Aggiunto al Carrello!</span>
         </div>
       )}
@@ -102,50 +102,40 @@ export const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0d0d0d]/80 via-transparent to-[#0d0d0d] pointer-events-none" />
 
       {/* Main Content Container */}
-      <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-12 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-[580px]">
+      <div className="max-w-[1440px] w-full mx-auto px-5 sm:px-12 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center min-h-[520px] sm:min-h-[580px]">
           
           {/* ======================================================== */}
           {/* LEFT COLUMN: BRAND STORY, HEADLINE & CTAS                */}
           {/* ======================================================== */}
           <div
             key={`hero-text-block-${slide.id || currentSlide}`}
-            className="lg:col-span-7 text-center lg:text-left pt-4 lg:pt-0"
+            className="lg:col-span-7 text-center lg:text-left pt-2 lg:pt-0"
           >
-            
-            {/* Top Badge: PRODOTTO DELLA SETTIMANA / DEL MESE */}
-            <div
-              style={{ animationDelay: '60ms' }}
-              className="animate-hero-text inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#d2401e]/25 to-[#ffa323]/20 border border-[#ffa323]/40 shadow-lg shadow-[#d2401e]/20 mb-4"
-            >
-              <Flame className="w-4 h-4 text-[#ffa323] animate-pulse" />
-              <span className="text-[11px] sm:text-xs font-oswald tracking-[0.25em] text-[#ffa323] uppercase font-black">
-                {slide.badge || 'PRODOTTO DELLA SETTIMANA'}
-              </span>
-              {totalSlides > 1 && (
-                <span className="text-[10px] font-oswald bg-[#ffa323] text-black font-extrabold px-2 py-0.2 rounded-full uppercase ml-1">
-                  {currentSlide + 1} di {totalSlides}
-                </span>
-              )}
-              <MoustacheIcon className="w-4 h-2 text-[#d2401e] hidden sm:inline" />
+            {/* MOBILE ONLY: PROMINENT LARGE ANIMATED SVG LOGO */}
+            <div className="flex lg:hidden items-center justify-center mb-6 sm:mb-8 w-full">
+              <AnimatedLogoSvg
+                className="h-48 sm:h-64 md:h-72 w-auto max-w-[90vw] sm:max-w-[480px]"
+                strokeWidth={3}
+              />
             </div>
 
             {/* Subtitle / Category */}
             <div
               style={{ animationDelay: '140ms' }}
-              className="animate-hero-text flex items-center justify-center lg:justify-start gap-2 mb-3"
+              className="animate-hero-text flex items-center justify-center lg:justify-start gap-2 mb-2 sm:mb-3"
             >
-              <span className="h-px w-6 bg-[#d2401e]/60 hidden sm:inline-block" />
-              <h4 className="text-xs sm:text-sm font-oswald tracking-[0.3em] text-white/80 uppercase font-medium">
+              <span className="h-px w-4 sm:w-6 bg-[#d2401e]/60 hidden sm:inline-block" />
+              <h4 className="text-[11px] sm:text-sm font-oswald tracking-[0.25em] sm:tracking-[0.3em] text-white/80 uppercase font-medium">
                 {slide.subtitle || 'PIZZERIA NAPOLETANA & PICCOLA CUCINA'}
               </h4>
-              <span className="h-px w-6 bg-[#d2401e]/60 hidden sm:inline-block" />
+              <span className="h-px w-4 sm:w-6 bg-[#d2401e]/60 hidden sm:inline-block" />
             </div>
 
             {/* Grand Headline with Warm Italian Gradient Accent */}
             <h1
               style={{ animationDelay: '220ms' }}
-              className="animate-hero-text font-oswald text-4xl sm:text-6xl md:text-7xl xl:text-8xl font-black text-white uppercase tracking-tight leading-[0.98] mb-4 drop-shadow-2xl"
+              className="animate-hero-text font-oswald text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white uppercase tracking-tight leading-[1.02] sm:leading-[0.98] mb-3 sm:mb-4 drop-shadow-2xl"
             >
               {slide.titlePrefix && <span>{slide.titlePrefix} </span>}
               <span className="bg-gradient-to-r from-[#ff7a45] via-[#ffa323] to-[#d2401e] bg-clip-text text-transparent">
@@ -156,53 +146,50 @@ export const HeroSection = () => {
             {/* Special Price Tag */}
             <div
               style={{ animationDelay: '300ms' }}
-              className="animate-hero-text inline-flex items-center gap-3 bg-[#181818]/90 border border-white/10 rounded-2xl px-4 py-2 mb-5 backdrop-blur-md shadow-lg"
+              className="animate-hero-text inline-flex items-center gap-2.5 sm:gap-3 bg-[#181818]/90 border border-white/10 rounded-2xl px-3.5 sm:px-4 py-1.5 sm:py-2 mb-4 sm:mb-5 backdrop-blur-md shadow-lg"
             >
-              <span className="text-xs font-oswald text-white/50 tracking-wider uppercase">
+              <span className="text-[11px] sm:text-xs font-oswald text-white/50 tracking-wider uppercase">
                 Prezzo Speciale:
               </span>
-              <span className="font-oswald text-2xl font-black text-[#d2401e]">
+              <span className="font-oswald text-xl sm:text-2xl font-black text-[#d2401e]">
                 {slide.price}
               </span>
               {slide.oldPrice && (
-                <span className="font-oswald text-sm text-white/40 line-through">
+                <span className="font-oswald text-xs sm:text-sm text-white/40 line-through">
                   {slide.oldPrice}
                 </span>
               )}
-              <span className="text-[10px] font-oswald font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded">
-                Offerta Speciale
-              </span>
             </div>
 
             {/* Atmospheric Description */}
             <p
               style={{ animationDelay: '380ms' }}
-              className="animate-hero-text text-sm sm:text-base md:text-lg text-stone-300/90 max-w-xl mx-auto lg:mx-0 leading-relaxed font-sans font-light mb-8"
+              className="animate-hero-text text-xs sm:text-base md:text-lg text-stone-300/90 max-w-xl mx-auto lg:mx-0 leading-relaxed font-sans font-light mb-6 sm:mb-8 px-2 sm:px-0"
             >
               {slide.desc}
             </p>
 
-            {/* Action Buttons */}
+            {/* Action Buttons styled like the Price Card Control */}
             <div
               style={{ animationDelay: '460ms' }}
-              className="animate-hero-text flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-5"
+              className="animate-hero-text flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 max-w-md mx-auto lg:mx-0"
             >
               {/* Order Now (Direct Cart Action) */}
               <button
                 onClick={handleOrderWeeklyItem}
-                className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#d2401e] to-[#ff5722] hover:from-[#b83314] hover:to-[#e64a19] text-white font-oswald text-sm tracking-[0.18em] font-semibold uppercase transition-all duration-300 shadow-[0_10px_28px_rgba(210,64,30,0.35)] hover:shadow-[0_15px_35px_rgba(210,64,30,0.5)] hover:-translate-y-0.5 cursor-pointer"
+                className="group relative inline-flex items-center justify-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-[#181818]/90 hover:bg-[#d2401e] border border-[#d2401e]/60 hover:border-[#d2401e] text-white font-oswald text-xs sm:text-sm tracking-[0.16em] font-bold uppercase backdrop-blur-md shadow-lg shadow-black/50 hover:shadow-[#d2401e]/30 transition-all duration-300 active:scale-[0.98] cursor-pointer"
               >
-                <ShoppingBag className="w-4 h-4" />
+                <ShoppingCart className="w-4 h-4 text-[#d2401e] group-hover:text-white transition-colors" />
                 <span>{slide.primaryBtn || 'ORDINA ORA'}</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-white transition-transform duration-300 group-hover:translate-x-1" />
               </button>
 
               {/* Reserve Table */}
               <a
                 href="#reservation"
-                className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/20 hover:border-[#ffa323] backdrop-blur-sm font-oswald text-sm tracking-[0.18em] font-medium uppercase transition-all duration-300 hover:-translate-y-0.5"
+                className="group inline-flex items-center justify-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-[#181818]/90 hover:bg-[#202020] hover:border-[#ffa323] border border-white/15 text-white font-oswald text-xs sm:text-sm tracking-[0.16em] font-bold uppercase backdrop-blur-md shadow-lg shadow-black/50 hover:shadow-[#ffa323]/20 transition-all duration-300 active:scale-[0.98]"
               >
-                <Sparkles className="w-4 h-4 text-[#ffa323] opacity-80 group-hover:opacity-100" />
+                <Sparkles className="w-4 h-4 text-[#ffa323] transition-transform duration-300 group-hover:scale-110" />
                 <span>{slide.secondaryBtn || 'PRENOTA UN TAVOLO'}</span>
               </a>
             </div>
@@ -212,15 +199,15 @@ export const HeroSection = () => {
           {/* ======================================================== */}
           {/* RIGHT COLUMN: FLOATING FOOD SHOWCASE (WITH EXACT EFFECT) */}
           {/* ======================================================== */}
-          <div className="lg:col-span-5 relative flex items-center justify-center">
-            <div className="relative w-full max-w-[460px] xl:max-w-[520px] aspect-square flex items-center justify-center">
+          <div className="lg:col-span-5 relative flex items-center justify-center w-full my-2 lg:my-0">
+            <div className="relative w-full max-w-[340px] sm:max-w-[420px] lg:max-w-[460px] xl:max-w-[520px] aspect-square flex items-center justify-center mx-auto">
               
               {/* Radial back glow */}
               <div className="absolute inset-4 rounded-full bg-[#d2401e]/20 blur-3xl pointer-events-none" />
 
               {/* Main Product Showcase Image with signature Floating & 3D Drop Shadow Effect */}
               {slide.image && (slide.image.endsWith('.jpg') || slide.image.endsWith('.jpeg') || slide.image.endsWith('.webp')) ? (
-                <div className="w-72 sm:w-88 md:w-96 aspect-square rounded-full overflow-hidden border-4 border-white/10 shadow-[0_30px_50px_rgba(0,0,0,0.95)] animate-float transition-all duration-700 hover:scale-105 select-none relative z-10 bg-black/40">
+                <div className="w-64 sm:w-80 md:w-96 aspect-square rounded-full overflow-hidden border-4 border-white/10 shadow-[0_30px_50px_rgba(0,0,0,0.95)] animate-float transition-all duration-700 hover:scale-105 select-none relative z-10 bg-black/40 mx-auto">
                   <img
                     key={`main-${slide.id}-${slide.image}`}
                     src={slide.image}
@@ -229,19 +216,21 @@ export const HeroSection = () => {
                   />
                 </div>
               ) : (
-                <img
-                  key={`main-${slide.id}-${slide.image}`}
-                  src={slide.image || '/images/hero_section_1.png'}
-                  alt={slide.name || 'Prodotto della settimana'}
-                  className="w-full h-full object-contain filter drop-shadow-[0_30px_45px_rgba(0,0,0,0.95)] animate-float transition-all duration-700 hover:scale-105 select-none relative z-10"
-                />
+                <div className="w-64 sm:w-80 md:w-96 aspect-square flex items-center justify-center mx-auto relative z-10">
+                  <img
+                    key={`main-${slide.id}-${slide.image}`}
+                    src={slide.image || '/images/hero_section_1.png'}
+                    alt={slide.name || 'Prodotto della settimana'}
+                    className="w-full h-full object-contain filter drop-shadow-[0_30px_45px_rgba(0,0,0,0.95)] animate-float transition-all duration-700 hover:scale-105 select-none"
+                  />
+                </div>
               )}
 
               {/* Floating Previous Product in Small (Always animated with the previous product) */}
               {totalSlides > 1 && previousProduct && (
                 <div
                   onClick={prevSlide}
-                  className="absolute -bottom-6 -left-6 sm:-left-10 w-36 sm:w-48 aspect-square animate-float [animation-delay:2s] z-20 cursor-pointer group/prev transition-all duration-300 hover:scale-110"
+                  className="absolute -bottom-2 sm:-bottom-6 left-0 sm:-left-6 md:-left-10 w-24 sm:w-36 md:w-44 aspect-square animate-float [animation-delay:2s] z-20 cursor-pointer group/prev transition-all duration-300 hover:scale-110"
                   title={`Prodotto precedente: ${previousProduct.name || 'Speciale'}`}
                 >
                   {previousProduct.image && (previousProduct.image.endsWith('.jpg') || previousProduct.image.endsWith('.jpeg') || previousProduct.image.endsWith('.webp')) ? (
@@ -278,10 +267,10 @@ export const HeroSection = () => {
         {/* SLIDER CONTROLS & UP TO 3 WEEKLY PRODUCT SELECTOR CARDS   */}
         {/* ========================================================== */}
         {totalSlides > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 pt-6 border-t border-white/10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-8 sm:mt-12 pt-6 border-t border-white/10">
             
-            {/* 3 Weekly Product Mini-Chips / Buttons */}
-            <div className="flex items-center flex-wrap gap-2.5 sm:gap-3">
+            {/* 3 Weekly Product Selector Chips (Hidden on Mobile) */}
+            <div className="hidden md:flex items-center flex-wrap sm:flex-nowrap gap-2.5 sm:gap-3 py-1">
               {slides.map((s, idx) => {
                 const isActive = currentSlide === idx;
                 const displayName = s.titleHighlight || s.name || `Prodotto ${idx + 1}`;
@@ -289,21 +278,21 @@ export const HeroSection = () => {
                   <button
                     key={s.id || idx}
                     onClick={() => setCurrentSlide(idx)}
-                    className={`group flex items-center gap-2.5 px-4 py-2 rounded-xl transition-all duration-300 cursor-pointer border ${
+                    className={`group flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-300 cursor-pointer border shrink-0 ${
                       isActive
-                        ? 'bg-white/15 border-[#ffa323] shadow-lg shadow-[#ffa323]/20 scale-105'
-                        : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20 opacity-70 hover:opacity-100'
+                        ? 'bg-white/15 border-[#ffa323] shadow-lg shadow-[#ffa323]/25 text-white'
+                        : 'bg-[#181818]/90 border-white/10 hover:bg-white/10 hover:border-white/20 text-white/70 hover:text-white'
                     }`}
                   >
                     <div
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        isActive ? 'bg-[#ffa323] scale-125 animate-pulse' : 'bg-white/30'
+                      className={`w-2 h-2 rounded-full shrink-0 transition-all ${
+                        isActive ? 'bg-[#ffa323] shadow-[0_0_8px_#ffa323]' : 'bg-white/30'
                       }`}
                     />
-                    <span className="font-oswald text-xs tracking-wider uppercase font-bold text-white">
-                      0{idx + 1} • {displayName.length > 20 ? displayName.slice(0, 20) + '...' : displayName}
+                    <span className="font-oswald text-xs tracking-wider uppercase font-bold text-white whitespace-nowrap">
+                      0{idx + 1} • {displayName}
                     </span>
-                    <span className="font-oswald text-xs font-bold text-[#d2401e] hidden md:inline">
+                    <span className="font-oswald text-xs font-bold text-[#ffa323] ml-1 whitespace-nowrap">
                       {s.price}
                     </span>
                   </button>
@@ -312,17 +301,17 @@ export const HeroSection = () => {
             </div>
 
             {/* Prev / Next Glass Arrow Buttons */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center justify-center md:justify-end gap-2 shrink-0 w-full md:w-auto">
               <button
                 onClick={prevSlide}
-                className="w-11 h-11 rounded-full border border-white/15 bg-white/5 hover:bg-[#d2401e] hover:border-[#d2401e] flex items-center justify-center text-white/70 hover:text-white transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[#d2401e]/30"
+                className="w-11 h-11 rounded-full border border-white/15 bg-white/5 hover:bg-[#d2401e] hover:border-[#d2401e] flex items-center justify-center text-white/70 hover:text-white transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[#d2401e]/30 active:scale-95"
                 aria-label="Previous weekly product"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={nextSlide}
-                className="w-11 h-11 rounded-full border border-white/15 bg-white/5 hover:bg-[#d2401e] hover:border-[#d2401e] flex items-center justify-center text-white/70 hover:text-white transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[#d2401e]/30"
+                className="w-11 h-11 rounded-full border border-white/15 bg-white/5 hover:bg-[#d2401e] hover:border-[#d2401e] flex items-center justify-center text-white/70 hover:text-white transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[#d2401e]/30 active:scale-95"
                 aria-label="Next weekly product"
               >
                 <ChevronRight className="w-5 h-5" />
