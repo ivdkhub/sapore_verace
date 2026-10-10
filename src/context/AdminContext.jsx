@@ -1,497 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { notifyNewReservation } from '../services/notificationService';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { INITIAL_TABLES, INITIAL_ZONE_LABELS, INITIAL_STRUCTURE } from '../data/defaultLayout';
+import { DEFAULT_OPENING_HOURS, DEFAULT_HOLIDAYS } from '../data/defaultSchedule';
+import { api } from '../services/api';
+import { buildSlots } from '../utils/schedule';
 
 const AdminContext = createContext();
 
-// ============================================================
-// DEFAULT TEMPLATE (EXACT REPLICA OF USER REFERENCE IMAGE)
-// ============================================================
-export const INITIAL_TABLES = [
-  // --- SALA SINISTRA ---
-  // 1. T10 in alto a sinistra (4 posti quadrato)
-  {
-    id: 'T10_TOP_LEFT',
-    name: 'T10',
-    room: 'left',
-    type: 'square',
-    seats: 4,
-    x: 115,
-    y: 205,
-    width: 48,
-    height: 48,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 2. T6 a centro-sinistra (2 posti)
-  {
-    id: 'T6_MID_LEFT',
-    name: 'T6',
-    room: 'left',
-    type: 'rect',
-    seats: 2,
-    x: 180,
-    y: 320,
-    width: 48,
-    height: 44,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 3. T4+T4+T4 al centro-sinistra inferiore (6 posti orizzontale)
-  {
-    id: 'T4_MERGED_LEFT',
-    name: 'T4+T4+T4',
-    room: 'left',
-    type: 'rect',
-    seats: 6,
-    isModular: true,
-    x: 208,
-    y: 525,
-    width: 128,
-    height: 60,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 4. T10 in basso a sinistra (4 posti quadrato)
-  {
-    id: 'T10_BOTTOM_LEFT',
-    name: 'T10',
-    room: 'left',
-    type: 'square',
-    seats: 4,
-    x: 112,
-    y: 655,
-    width: 48,
-    height: 48,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 5. T5+T5+T5+T5 in basso al centro (8 posti orizzontale)
-  {
-    id: 'T5_MERGED_CENTER',
-    name: 'T5+T5+T5+T5',
-    room: 'left',
-    type: 'rect',
-    seats: 8,
-    isModular: true,
-    x: 320,
-    y: 660,
-    width: 215,
-    height: 65,
-    status: 'disponibile',
-    reservation: null,
-  },
-
-  // --- COLONNA CENTRALE ---
-  // 6. T10 in alto al centro (6 posti orizzontale)
-  {
-    id: 'T10_CENTER_TOP',
-    name: 'T10',
-    room: 'main',
-    type: 'rect',
-    seats: 6,
-    x: 408,
-    y: 220,
-    width: 125,
-    height: 55,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 7. T10 al centro (4 posti orizzontale)
-  {
-    id: 'T10_CENTER_MID',
-    name: 'T10',
-    room: 'main',
-    type: 'rect',
-    seats: 4,
-    x: 448,
-    y: 395,
-    width: 85,
-    height: 55,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 8. T10 al centro-basso (PRENOTATO da "czz (3p)", 4 posti orizzontale, arancione)
-  {
-    id: 'T10_CENTER_BOOKED',
-    name: 'T10',
-    room: 'main',
-    type: 'rect',
-    seats: 4,
-    x: 442,
-    y: 525,
-    width: 88,
-    height: 55,
-    status: 'in_corso',
-    colorOverride: '#f59e0b',
-    reservation: {
-      name: 'czz',
-      clientName: 'czz',
-      guests: 3,
-      time: '20:30',
-      status: 'In Attesa',
-      color: '#f59e0b',
-      code: 'SV-7821',
-      phone: '+39 333 4567890',
-      notes: '',
-    },
-  },
-
-  // --- SALA DESTRA ---
-  // 9. T6 rotondo al centro (4 posti rotondo)
-  {
-    id: 'T6_RIGHT_ROUND_MID',
-    name: 'T6',
-    room: 'main',
-    type: 'round',
-    seats: 4,
-    x: 635,
-    y: 422,
-    radius: 30,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 10. T13 in alto a destra (4 posti orizzontale)
-  {
-    id: 'T13_TOP_RIGHT',
-    name: 'T13',
-    room: 'main',
-    type: 'rect',
-    seats: 4,
-    x: 850,
-    y: 285,
-    width: 85,
-    height: 50,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 11. T13 al centro a destra (4 posti orizzontale)
-  {
-    id: 'T13_MID_RIGHT',
-    name: 'T13',
-    room: 'main',
-    type: 'rect',
-    seats: 4,
-    x: 850,
-    y: 395,
-    width: 85,
-    height: 50,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 12. T13 al centro sotto T6 rotondo (4 posti orizzontale)
-  {
-    id: 'T13_CENTER_RIGHT',
-    name: 'T13',
-    room: 'main',
-    type: 'rect',
-    seats: 4,
-    x: 595,
-    y: 525,
-    width: 85,
-    height: 50,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 13. T13 al centro-basso a destra (4 posti orizzontale)
-  {
-    id: 'T13_LOWER_RIGHT',
-    name: 'T13',
-    room: 'main',
-    type: 'rect',
-    seats: 4,
-    x: 846,
-    y: 532,
-    width: 85,
-    height: 50,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 14. T6+T13 in basso a sinistra della sala destra (4 posti orizzontale modulare)
-  {
-    id: 'T6_T13_MERGED_BOTTOM',
-    name: 'T6+T13',
-    room: 'main',
-    type: 'rect',
-    seats: 4,
-    isModular: true,
-    x: 600,
-    y: 670,
-    width: 85,
-    height: 50,
-    status: 'disponibile',
-    reservation: null,
-  },
-  // 15. T6 rotondo in basso a destra sopra il bagno (4 posti rotondo)
-  {
-    id: 'T6_RIGHT_ROUND_BOTTOM',
-    name: 'T6',
-    room: 'main',
-    type: 'round',
-    seats: 4,
-    x: 868,
-    y: 686,
-    radius: 32,
-    status: 'disponibile',
-    reservation: null,
-  },
-];
-
-export const INITIAL_ZONE_LABELS = [
-  {
-    id: 'zone_fumatori',
-    name: 'AREA FUMATORI',
-    subtitle: 'Zona Riservata',
-    x: 302,
-    y: 895,
-    color: '#c084fc',
-  },
-];
-
-export const INITIAL_STRUCTURE = {
-  perimeter: {
-    x: 60,
-    y: 20,
-    width: 880,
-    height: 940,
-    strokeWidth: 9,
-    fill: '#151515',
-    borderColor: '#404040',
-  },
-  walls: [
-    // Muro divisorio superiore tra Pass e Bar
-    {
-      id: 'wall_top_div',
-      name: 'Muro Superiore Divisorio',
-      x: 565,
-      y: 20,
-      width: 10,
-      height: 60,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Muro orizzontale cucina (in alto a sinistra)
-    {
-      id: 'wall_cucina_left',
-      name: 'Muro Cucina Sinistra',
-      x: 65,
-      y: 165,
-      width: 210,
-      height: 10,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Muro orizzontale centro (di fronte alla porta cucina)
-    {
-      id: 'wall_cucina_mid',
-      name: 'Muro Orizzontale Centro',
-      x: 350,
-      y: 170,
-      width: 215,
-      height: 10,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Parete divisoria verticale Nord (sopra porta 1)
-    {
-      id: 'wall_div_top',
-      name: 'Muro Divisorio Nord',
-      x: 565,
-      y: 170,
-      width: 10,
-      height: 160,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Parete divisoria verticale Centro 1
-    {
-      id: 'wall_div_mid1',
-      name: 'Muro Divisorio Centro 1',
-      x: 565,
-      y: 390,
-      width: 10,
-      height: 65,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Parete divisoria verticale Centro 2
-    {
-      id: 'wall_div_mid2',
-      name: 'Muro Divisorio Centro 2',
-      x: 565,
-      y: 518,
-      width: 10,
-      height: 65,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Parete divisoria verticale Sud
-    {
-      id: 'wall_div_bottom',
-      name: 'Muro Divisorio Sud',
-      x: 565,
-      y: 655,
-      width: 10,
-      height: 75,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Parete sinistra del bagno in basso a destra
-    {
-      id: 'wall_bath_left',
-      name: 'Muro Bagno Sinistra',
-      x: 565,
-      y: 805,
-      width: 10,
-      height: 165,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Parete orizzontale sopra il bagno in basso a destra
-    {
-      id: 'wall_bath_top',
-      name: 'Muro Bagno Superiore',
-      x: 565,
-      y: 805,
-      width: 330,
-      height: 10,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Parete verticale interna bagno destra
-    {
-      id: 'wall_bath_inner_div',
-      name: 'Muro Bagno Destra',
-      x: 870,
-      y: 875,
-      width: 10,
-      height: 95,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-    // Parete orizzontale in alto a destra sotto ingresso
-    {
-      id: 'wall_top_right_short',
-      name: 'Muro Ingresso Orizzontale',
-      x: 850,
-      y: 195,
-      width: 110,
-      height: 10,
-      rotation: 0,
-      type: 'wall',
-      color: '#555555',
-    },
-  ],
-  doors: [
-    // Porta battente cucina sinistra
-    {
-      id: 'door_cucina',
-      name: 'Porta Cucina',
-      x: 280,
-      y: 165,
-      width: 55,
-      rotation: 0,
-      swing: 'left',
-    },
-    // Porta ingresso destra 1
-    {
-      id: 'door_top_right_1',
-      name: 'Porta Ingresso 1',
-      x: 820,
-      y: 130,
-      width: 55,
-      rotation: 180,
-      swing: 'left',
-    },
-    // Porta ingresso destra 2
-    {
-      id: 'door_top_right_2',
-      name: 'Porta Ingresso 2',
-      x: 910,
-      y: 130,
-      width: 55,
-      rotation: 180,
-      swing: 'left',
-    },
-    // Porta bagno
-    {
-      id: 'door_bath',
-      name: 'Porta Bagno',
-      x: 870,
-      y: 810,
-      width: 55,
-      rotation: 0,
-      swing: 'left',
-    },
-  ],
-  windows: [
-    // Vetrata Panoramica in basso a sinistra
-    {
-      id: 'win_vetrata_bottom',
-      name: 'Vetrata Panoramica',
-      x: 65,
-      y: 820,
-      width: 495,
-      height: 14,
-      rotation: 0,
-    },
-  ],
-  fixtures: [
-    // Pass Cucina (in alto a sinistra)
-    {
-      id: 'fix_pass_cucina',
-      name: 'Pass Cucina',
-      type: 'kitchen_pass',
-      x: 165,
-      y: 40,
-      width: 285,
-      height: 44,
-      rotation: 0,
-    },
-    // Bancone Bar con Sgabelli (in alto a destra)
-    {
-      id: 'fix_bar_topright',
-      name: 'Bancone Bar con Sgabelli',
-      type: 'bar',
-      x: 640,
-      y: 40,
-      width: 165,
-      height: 35,
-      rotation: 0,
-    },
-    // Cassa & Reception (verticale, sotto il bar)
-    {
-      id: 'fix_cassa_reception',
-      name: 'Cassa & Reception',
-      type: 'counter',
-      x: 618,
-      y: 182,
-      width: 40,
-      height: 125,
-      rotation: 0,
-    },
-    // Bagno Singolo (in basso a destra)
-    {
-      id: 'fix_bagno_singolo',
-      name: 'Bagno Singolo',
-      type: 'restroom_single',
-      x: 610,
-      y: 840,
-      width: 175,
-      height: 100,
-      rotation: 0,
-    },
-  ],
-};
+export { INITIAL_TABLES, INITIAL_ZONE_LABELS, INITIAL_STRUCTURE, DEFAULT_OPENING_HOURS, DEFAULT_HOLIDAYS };
 
 // Helper: Determina se un tavolo è modulare da 2 persone (o unito da tavoli da 2)
 export const isModularTable = (table) => {
@@ -503,8 +18,7 @@ export const isModularTable = (table) => {
   return false;
 };
 
-export const getTodayDateString = () => {
-  const d = new Date();
+export const getTodayDateString = (d = new Date()) => {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -530,84 +44,15 @@ const cleanupOldDailyConfigs = (configs) => {
   return cleaned;
 };
 
-// ============================================================
-// DEFAULT OPENING HOURS & HOLIDAYS CONFIGURATIONS
-// ============================================================
-export const DEFAULT_OPENING_HOURS = {
-  monday: {
-    key: 'monday',
-    label: 'Lunedì',
-    closed: true,
-    lunch: { open: '12:00', close: '14:30', enabled: false },
-    dinner: { open: '19:00', close: '23:30', enabled: false },
-  },
-  tuesday: {
-    key: 'tuesday',
-    label: 'Martedì',
-    closed: false,
-    lunch: { open: '12:00', close: '14:30', enabled: true },
-    dinner: { open: '19:00', close: '23:30', enabled: true },
-  },
-  wednesday: {
-    key: 'wednesday',
-    label: 'Mercoledì',
-    closed: false,
-    lunch: { open: '12:00', close: '14:30', enabled: true },
-    dinner: { open: '19:00', close: '23:30', enabled: true },
-  },
-  thursday: {
-    key: 'thursday',
-    label: 'Giovedì',
-    closed: false,
-    lunch: { open: '12:00', close: '14:30', enabled: true },
-    dinner: { open: '19:00', close: '23:30', enabled: true },
-  },
-  friday: {
-    key: 'friday',
-    label: 'Venerdì',
-    closed: false,
-    lunch: { open: '12:00', close: '14:30', enabled: true },
-    dinner: { open: '19:00', close: '00:00', enabled: true },
-  },
-  saturday: {
-    key: 'saturday',
-    label: 'Sabato',
-    closed: false,
-    lunch: { open: '12:00', close: '15:00', enabled: true },
-    dinner: { open: '19:00', close: '00:30', enabled: true },
-  },
-  sunday: {
-    key: 'sunday',
-    label: 'Domenica',
-    closed: false,
-    lunch: { open: '12:00', close: '15:00', enabled: true },
-    dinner: { open: '19:00', close: '23:30', enabled: true },
-  },
-};
-
-export const DEFAULT_HOLIDAYS = [
-  {
-    id: 'hol_ferie_estive',
-    name: 'Ferie Estive di Ferragosto',
-    type: 'ferie',
-    startDate: '2026-08-10',
-    endDate: '2026-08-24',
-    notes: 'Riapertura regolare martedì 25 Agosto con il consueto menù estivo.',
-    bannerActive: true,
-  },
-  {
-    id: 'hol_natale',
-    name: 'Festività Natalizie & Santo Stefano',
-    type: 'festivita',
-    startDate: '2026-12-25',
-    endDate: '2026-12-26',
-    notes: 'Chiusura per le festività di Natale e Santo Stefano.',
-    bannerActive: false,
-  },
-];
 
 export const AdminProvider = ({ children }) => {
-  const [isAdminView, setIsAdminView] = useState(false);
+  // ============================================================
+  // ACCESSO ADMIN (sessione sul server PHP)
+  // ============================================================
+  const [isAdminView, setIsAdminViewState] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
   const [activeTab, setActiveTab] = useState('tavoli');
   const [isStructureEditMode, setIsStructureEditMode] = useState(false);
   const [selectedStructureItem, setSelectedStructureItem] = useState(null);
@@ -616,41 +61,98 @@ export const AdminProvider = ({ children }) => {
   const [activeShift, setActiveShift] = useState('cena');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  // ============================================================
-  // OPENING HOURS & HOLIDAYS / VACATION STATE
-  // ============================================================
-  const [openingHours, setOpeningHours] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sapore_verace_opening_hours_v2');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Error loading opening hours:', e);
+  // Aprire l'area admin richiede il login; chiuderla no
+  const setIsAdminView = (value) => {
+    if (!value) {
+      setIsAdminViewState(false);
+      return;
     }
-    return DEFAULT_OPENING_HOURS;
-  });
+    if (isAuthenticated) setIsAdminViewState(true);
+    else setIsLoginOpen(true);
+  };
 
-  const [holidays, setHolidays] = useState(() => {
+  const login = async (password) => {
+    await api.post('auth.php', { password });
+    setIsAuthenticated(true);
+    setIsLoginOpen(false);
+    setIsAdminViewState(true);
+  };
+
+  const logout = async () => {
     try {
-      const saved = localStorage.getItem('sapore_verace_holidays_v2');
-      if (saved) return JSON.parse(saved);
+      await api.del('auth.php');
     } catch (e) {
-      console.error('Error loading holidays:', e);
+      // la sessione verrà comunque chiusa lato client
     }
-    return DEFAULT_HOLIDAYS;
-  });
+    setIsAuthenticated(false);
+    setIsAdminViewState(false);
+  };
 
+  useEffect(() => {
+    api
+      .get('auth.php')
+      .then((res) => {
+        setIsAuthenticated(!!res.authenticated);
+        if (window.location.hash === '#admin') {
+          if (res.authenticated) setIsAdminViewState(true);
+          else setIsLoginOpen(true);
+        }
+      })
+      .catch(() => {
+        if (window.location.hash === '#admin') setIsLoginOpen(true);
+      });
+  }, []);
 
-  // Daily multi-day table configurations map (keyed by YYYY-MM-DD_shift)
+  // ============================================================
+  // OPENING HOURS & HOLIDAYS / VACATION STATE (pubblici, salvati sul server)
+  // ============================================================
+  const [openingHours, setOpeningHoursState] = useState(DEFAULT_OPENING_HOURS);
+  const [holidays, setHolidaysState] = useState(DEFAULT_HOLIDAYS);
+  const scheduleDirtyRef = useRef({ hours: false, holidays: false });
+  const setOpeningHours = (updater) => {
+    scheduleDirtyRef.current.hours = true;
+    setOpeningHoursState(updater);
+  };
+  const setHolidays = (updater) => {
+    scheduleDirtyRef.current.holidays = true;
+    setHolidaysState(updater);
+  };
+
+  useEffect(() => {
+    api
+      .get('state.php?keys=opening_hours,holidays')
+      .then(({ data }) => {
+        if (data.opening_hours && data.opening_hours.monday) setOpeningHoursState(data.opening_hours);
+        if (Array.isArray(data.holidays)) setHolidaysState(data.holidays);
+      })
+      .catch((err) => console.warn('Orari: uso i valori predefiniti, server non raggiungibile.', err.message));
+  }, []);
+
+  useEffect(() => {
+    if (!scheduleDirtyRef.current.hours) return;
+    scheduleDirtyRef.current.hours = false;
+    api.put('state.php', { key: 'opening_hours', value: openingHours }).catch((err) => {
+      scheduleDirtyRef.current.hours = true;
+      setSaveSuccessMessage(`⚠️ Orari NON salvati sul server: ${err.message}`);
+      setTimeout(() => setSaveSuccessMessage(''), 5000);
+    });
+  }, [openingHours]);
+
+  useEffect(() => {
+    if (!scheduleDirtyRef.current.holidays) return;
+    scheduleDirtyRef.current.holidays = false;
+    api.put('state.php', { key: 'holidays', value: holidays }).catch((err) => {
+      scheduleDirtyRef.current.holidays = true;
+      setSaveSuccessMessage(`⚠️ Ferie NON salvate sul server: ${err.message}`);
+      setTimeout(() => setSaveSuccessMessage(''), 5000);
+    });
+  }, [holidays]);
+
+  // ============================================================
+  // CONFIGURAZIONI GIORNALIERE DELLA SALA (solo admin, sul server)
+  // ============================================================
+  // Mappa "YYYY-MM-DD_turno" -> { tables, zoneLabels, structure }
   const [dailyConfigs, setDailyConfigs] = useState(() => {
-    try {
-      const saved = localStorage.getItem('sapore_verace_daily_configs_v6');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return cleanupOldDailyConfigs(parsed);
-      }
-    } catch (e) {
-      console.error('Error loading daily configs:', e);
-    }
     const today = getTodayDateString();
     return {
       [`${today}_cena`]: {
@@ -661,6 +163,14 @@ export const AdminProvider = ({ children }) => {
       },
     };
   });
+  const dailyConfigsRef = useRef(dailyConfigs);
+  dailyConfigsRef.current = dailyConfigs;
+
+  // Versione sul server di ogni configurazione (0 = non ancora salvata)
+  const versionsRef = useRef({});
+  // Codici delle prenotazioni già viste, per avvisare solo di quelle nuove
+  const knownReservationCodesRef = useRef(null);
+  const lastSyncRef = useRef('');
 
   // Current active tables, zoneLabels, and structure for the selectedDate and activeShift
   const currentKey = `${selectedDate}_${activeShift}`;
@@ -683,11 +193,21 @@ export const AdminProvider = ({ children }) => {
     return INITIAL_STRUCTURE;
   });
 
+  // Ultimo stato caricato (dal server o dal cambio data): se tables/zone/struttura sono
+  // ancora questi oggetti, non c'è nessuna modifica dell'admin da salvare.
+  const loadedSnapshotRef = useRef({ key: currentKey, tables, zoneLabels, structure });
+  const skipNextSaveRef = useRef(true);
+
   const [selectedTable, setSelectedTable] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState('');
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [newReservationToast, setNewReservationToast] = useState(null);
+
+  const flashMessage = (msg, ms = 3500) => {
+    setSaveSuccessMessage(msg);
+    setTimeout(() => setSaveSuccessMessage(''), ms);
+  };
 
   // Play subtle bell notification chime via Web Audio API
   const playNotificationChime = () => {
@@ -696,7 +216,7 @@ export const AdminProvider = ({ children }) => {
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
       const now = ctx.currentTime;
-      
+
       // Note 1 (D5 - 587.33 Hz)
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
@@ -725,49 +245,137 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
-  // Real-time synchronization across browser tabs and components via Storage & CustomEvent
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'sapore_verace_daily_configs_v6' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          setDailyConfigs(parsed);
-          const currentKey = `${selectedDate}_${activeShift}`;
-          if (parsed[currentKey] && parsed[currentKey].tables) {
-            setTables(parsed[currentKey].tables);
-          }
-        } catch (err) {
-          console.error('Error syncing daily configs from storage:', err);
+  // Applica una configurazione arrivata dal server alla vista corrente (senza risalvarla)
+  const applyServerConfigToView = (key, data) => {
+    if (key !== `${selectedDateRef.current}_${activeShiftRef.current}`) return;
+    const nextTables = data.tables || INITIAL_TABLES;
+    const nextZones = data.zoneLabels || INITIAL_ZONE_LABELS;
+    const nextStructure = data.structure || INITIAL_STRUCTURE;
+    loadedSnapshotRef.current = { key, tables: nextTables, zoneLabels: nextZones, structure: nextStructure };
+    setTables(nextTables);
+    setZoneLabels(nextZones);
+    setStructure(nextStructure);
+  };
+
+  const selectedDateRef = useRef(selectedDate);
+  const activeShiftRef = useRef(activeShift);
+  selectedDateRef.current = selectedDate;
+  activeShiftRef.current = activeShift;
+  const pendingSaveRef = useRef(null); // { key, timer }
+
+  // Scarica dal server le configurazioni (tutte, o solo quelle cambiate) e segnala le nuove prenotazioni online
+  const syncConfigsFromServer = async ({ full = false } = {}) => {
+    const since = full ? '' : lastSyncRef.current;
+    const res = await api.get(`configs.php${since ? `?since=${encodeURIComponent(since)}` : ''}`);
+    lastSyncRef.current = res.serverTime;
+    const incoming = res.configs || {};
+    const changedKeys = Object.keys(incoming).filter(
+      (key) => incoming[key].version !== versionsRef.current[key]
+    );
+    if (changedKeys.length === 0 && knownReservationCodesRef.current) return;
+
+    const isFirstSync = knownReservationCodesRef.current === null;
+    if (isFirstSync) knownReservationCodesRef.current = new Set();
+    const newOnline = [];
+
+    changedKeys.forEach((key) => {
+      versionsRef.current[key] = incoming[key].version;
+      (incoming[key].data?.tables || []).forEach((t) => {
+        const code = t.reservation?.code;
+        if (!code || knownReservationCodesRef.current.has(code)) return;
+        knownReservationCodesRef.current.add(code);
+        if (!isFirstSync && t.reservation.source === 'online_client') {
+          const [date, shift] = key.split('_');
+          newOnline.push({ id: `${code}_${Date.now()}`, reservation: t.reservation, table: t, date, shift });
         }
-      }
-    };
-
-    const handleCustomNewReservation = (e) => {
-      const detail = e.detail || {};
-      playNotificationChime();
-      setNewReservationToast({
-        id: Date.now(),
-        reservation: detail.reservation,
-        table: detail.table,
-        date: detail.date,
-        shift: detail.shift,
       });
-    };
+    });
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('sapore_verace_new_reservation', handleCustomNewReservation);
+    if (changedKeys.length > 0) {
+      setDailyConfigs((prev) => {
+        const next = { ...prev };
+        changedKeys.forEach((key) => {
+          next[key] = incoming[key].data;
+        });
+        return cleanupOldDailyConfigs(next);
+      });
+      // Non sovrascrivere la vista se l'admin ha una modifica in attesa di salvataggio
+      const viewKey = `${selectedDateRef.current}_${activeShiftRef.current}`;
+      if (incoming[viewKey] && changedKeys.includes(viewKey) && pendingSaveRef.current?.key !== viewKey) {
+        applyServerConfigToView(viewKey, incoming[viewKey].data);
+      }
+    }
+
+    if (newOnline.length > 0) {
+      playNotificationChime();
+      setNewReservationToast(newOnline[newOnline.length - 1]);
+    }
+  };
+
+  // Primo caricamento e aggiornamento periodico mentre l'admin è autenticato
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let stopped = false;
+    syncConfigsFromServer({ full: true }).catch((err) => {
+      if (err.status === 401) setIsAuthenticated(false);
+      else flashMessage(`⚠️ Impossibile caricare la sala dal server: ${err.message}`, 6000);
+    });
+    const interval = setInterval(() => {
+      if (stopped || document.hidden) return;
+      syncConfigsFromServer().catch((err) => {
+        if (err.status === 401) {
+          setIsAuthenticated(false);
+          setIsAdminViewState(false);
+        }
+      });
+    }, 15000);
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('sapore_verace_new_reservation', handleCustomNewReservation);
+      stopped = true;
+      clearInterval(interval);
     };
-  }, [selectedDate, activeShift]);
+  }, [isAuthenticated]);
+
+  // Salva una configurazione sul server; in caso di conflitto carica la versione del server
+  const putConfig = async (key, data) => {
+    try {
+      const res = await api.put('configs.php', {
+        key,
+        data: { tables: data.tables, zoneLabels: data.zoneLabels, structure: data.structure },
+        baseVersion: versionsRef.current[key] || 0,
+      });
+      versionsRef.current[key] = res.version;
+      (data.tables || []).forEach((t) => t.reservation?.code && knownReservationCodesRef.current?.add(t.reservation.code));
+      return true;
+    } catch (err) {
+      if (err.status === 409 && err.data?.current) {
+        const current = err.data.current;
+        versionsRef.current[key] = current.version;
+        setDailyConfigs((prev) => ({ ...prev, [key]: current.data }));
+        applyServerConfigToView(key, current.data);
+        flashMessage('⚠️ È arrivata una prenotazione online mentre modificavi: la sala è stata aggiornata, ripeti l\'ultima modifica.', 7000);
+      } else if (err.status === 401) {
+        setIsAuthenticated(false);
+        setIsAdminViewState(false);
+      } else {
+        flashMessage(`⚠️ Modifica NON salvata sul server: ${err.message}`, 6000);
+      }
+      return false;
+    }
+  };
 
   // When selectedDate or activeShift changes, load that day's setup or create a fresh standard setup
   useEffect(() => {
     const targetKey = `${selectedDate}_${activeShift}`;
     const existing = dailyConfigs[targetKey];
+    skipNextSaveRef.current = true;
 
     if (existing && existing.tables) {
+      loadedSnapshotRef.current = {
+        key: targetKey,
+        tables: existing.tables,
+        zoneLabels: existing.zoneLabels || INITIAL_ZONE_LABELS,
+        structure: existing.structure || INITIAL_STRUCTURE,
+      };
       setTables(existing.tables);
       setZoneLabels(existing.zoneLabels || INITIAL_ZONE_LABELS);
       setStructure(existing.structure || INITIAL_STRUCTURE);
@@ -779,6 +387,7 @@ export const AdminProvider = ({ children }) => {
         reservation: null,
         colorOverride: null,
       }));
+      loadedSnapshotRef.current = { key: targetKey, tables: freshTables, zoneLabels: INITIAL_ZONE_LABELS, structure: INITIAL_STRUCTURE };
       setTables(freshTables);
       setZoneLabels(INITIAL_ZONE_LABELS);
       setStructure(INITIAL_STRUCTURE);
@@ -799,51 +408,42 @@ export const AdminProvider = ({ children }) => {
     setSelectedTable(null);
   }, [selectedDate, activeShift]);
 
-  // Auto-save active day's layout & reservations into dailyConfigs and localStorage
+  // Auto-save: ogni modifica dell'admin alla sala del giorno/turno attivo viene salvata sul server
   useEffect(() => {
+    if (skipNextSaveRef.current) {
+      // render del cambio data/turno: tables contiene ancora i dati del giorno precedente
+      skipNextSaveRef.current = false;
+      return;
+    }
     const targetKey = `${selectedDate}_${activeShift}`;
-    setDailyConfigs((prev) => {
-      const updated = {
-        ...prev,
-        [targetKey]: {
-          tables,
-          zoneLabels,
-          structure,
-          updatedAt: new Date().toISOString(),
-        },
-      };
-      const cleaned = cleanupOldDailyConfigs(updated);
-      try {
-        localStorage.setItem('sapore_verace_daily_configs_v6', JSON.stringify(cleaned));
-      } catch (e) {
-        console.error('Error saving daily configs:', e);
-      }
-      return cleaned;
-    });
+    const snap = loadedSnapshotRef.current;
+    if (snap.key === targetKey && snap.tables === tables && snap.zoneLabels === zoneLabels && snap.structure === structure) {
+      return; // nessuna modifica rispetto a quanto caricato
+    }
+
+    const data = { tables, zoneLabels, structure, updatedAt: new Date().toISOString() };
+    setDailyConfigs((prev) => cleanupOldDailyConfigs({ ...prev, [targetKey]: data }));
+    loadedSnapshotRef.current = { key: targetKey, tables, zoneLabels, structure };
+
+    if (!isAuthenticated) return;
+    if (pendingSaveRef.current) clearTimeout(pendingSaveRef.current.timer);
+    const timer = setTimeout(() => {
+      pendingSaveRef.current = null;
+      putConfig(targetKey, data);
+    }, 700);
+    pendingSaveRef.current = { key: targetKey, timer, data };
   }, [tables, zoneLabels, structure, selectedDate, activeShift]);
 
   // Esplicito salvataggio manuale del layout con feedback toast
-  const saveLayout = () => {
-    try {
-      const targetKey = `${selectedDate}_${activeShift}`;
-      const updated = {
-        ...dailyConfigs,
-        [targetKey]: {
-          tables,
-          zoneLabels,
-          structure,
-          updatedAt: new Date().toISOString(),
-        },
-      };
-      const cleaned = cleanupOldDailyConfigs(updated);
-      localStorage.setItem('sapore_verace_daily_configs_v6', JSON.stringify(cleaned));
-      setSaveSuccessMessage(`Configurazione salvata per ${selectedDate} (${activeShift})!`);
-      setTimeout(() => setSaveSuccessMessage(''), 3500);
-      return true;
-    } catch (e) {
-      console.error('Errore durante il salvataggio:', e);
-      return false;
+  const saveLayout = async () => {
+    const targetKey = `${selectedDate}_${activeShift}`;
+    if (pendingSaveRef.current) {
+      clearTimeout(pendingSaveRef.current.timer);
+      pendingSaveRef.current = null;
     }
+    const ok = await putConfig(targetKey, { tables, zoneLabels, structure });
+    if (ok) flashMessage(`Configurazione salvata per ${selectedDate} (${activeShift})!`);
+    return ok;
   };
 
   // Helper: Ottieni riassunto prenotazioni e configurazione per una data
@@ -872,6 +472,15 @@ export const AdminProvider = ({ children }) => {
     const sourceConfig = dailyConfigs[sourceKey];
     if (!sourceConfig || !sourceConfig.tables) return false;
 
+    const targetKey = `${targetDate}_${shift}`;
+    const targetConfig = dailyConfigs[targetKey];
+    // Le prenotazioni già presenti nel giorno di destinazione non vanno perse
+    const targetReservations = (targetConfig?.tables || []).filter((t) => t.reservation);
+    if (targetReservations.length > 0) {
+      flashMessage(`⚠️ Il ${targetDate} ha già ${targetReservations.length} prenotazioni: sposta o cancella prima quelle prenotazioni.`, 6000);
+      return false;
+    }
+
     // Clona i tavoli azzerando le prenotazioni passate
     const clonedTables = sourceConfig.tables.map((t) => ({
       ...t,
@@ -880,33 +489,24 @@ export const AdminProvider = ({ children }) => {
       colorOverride: null,
     }));
 
-    const targetKey = `${targetDate}_${shift}`;
-    const updated = {
-      ...dailyConfigs,
-      [targetKey]: {
-        tables: clonedTables,
-        zoneLabels: sourceConfig.zoneLabels || INITIAL_ZONE_LABELS,
-        structure: sourceConfig.structure || INITIAL_STRUCTURE,
-        updatedAt: new Date().toISOString(),
-      },
+    const data = {
+      tables: clonedTables,
+      zoneLabels: sourceConfig.zoneLabels || INITIAL_ZONE_LABELS,
+      structure: sourceConfig.structure || INITIAL_STRUCTURE,
+      updatedAt: new Date().toISOString(),
     };
 
-    const cleaned = cleanupOldDailyConfigs(updated);
-    setDailyConfigs(cleaned);
-    try {
-      localStorage.setItem('sapore_verace_daily_configs_v6', JSON.stringify(cleaned));
-    } catch (e) {
-      console.error(e);
-    }
+    setDailyConfigs((prev) => cleanupOldDailyConfigs({ ...prev, [targetKey]: data }));
+    putConfig(targetKey, data);
 
     if (targetDate === selectedDate && shift === activeShift) {
-      setTables(clonedTables);
-      setZoneLabels(sourceConfig.zoneLabels || INITIAL_ZONE_LABELS);
-      setStructure(sourceConfig.structure || INITIAL_STRUCTURE);
+      loadedSnapshotRef.current = { key: targetKey, tables: data.tables, zoneLabels: data.zoneLabels, structure: data.structure };
+      setTables(data.tables);
+      setZoneLabels(data.zoneLabels);
+      setStructure(data.structure);
     }
 
-    setSaveSuccessMessage(`Disposizione copiata da ${sourceDate} al ${targetDate}!`);
-    setTimeout(() => setSaveSuccessMessage(''), 3500);
+    flashMessage(`Disposizione copiata da ${sourceDate} al ${targetDate}!`);
     return true;
   };
 
@@ -942,171 +542,27 @@ export const AdminProvider = ({ children }) => {
     return sortedByLargest[0] || null;
   };
 
-  // Helper: verifica disponibilità e crea prenotazione lato cliente online con auto-assegnazione e real-time sync
-  const createClientReservation = (data) => {
-    const {
-      name,
-      phone,
-      email = '',
-      date,
-      time,
-      guests,
-      notes = '',
-      tablePreference = 'any',
-    } = data;
-
-    const numGuests = Number(guests) || 2;
-    const hour = parseInt((time || '20:00').split(':')[0], 10);
-    const shift = hour < 16 ? 'pranzo' : 'cena';
-    const targetKey = `${date}_${shift}`;
-
-    // 1. Carica la configurazione del giorno/turno target
-    let targetConfig = dailyConfigs[targetKey];
-    let targetTables;
-    if (targetConfig && targetConfig.tables) {
-      targetTables = targetConfig.tables;
-    } else {
-      targetTables = INITIAL_TABLES.map((t) => ({
-        ...t,
-        status: 'disponibile',
-        reservation: null,
-        colorOverride: null,
-      }));
-    }
-
-    // 2. Trova il miglior tavolo libero
-    const bestTable = findBestFreeTable(numGuests, null, targetTables);
-    if (!bestTable) {
-      return {
-        success: false,
-        message: `Siamo spiacenti, non ci sono tavoli disponibili per ${numGuests} persone per il turno di ${shift} (${time}) del ${date}. Prova un altro orario o un'altra data.`,
-      };
-    }
-
-    // 3. Genera codice prenotazione univoco
-    const bookingCode = 'SV-' + Math.floor(1000 + Math.random() * 9000);
-
-    const newResObj = {
-      name: (name || 'Ospite').trim(),
-      phone: (phone || '').trim(),
-      email: (email || '').trim(),
-      time,
-      guests: numGuests,
-      status: 'In Attesa',
-      notes: (notes || '').trim(),
-      color: '#f59e0b',
-      code: bookingCode,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      source: 'online_client',
-    };
-
-    // 4. Assegna la prenotazione al tavolo
-    const updatedTables = targetTables.map((t) =>
-      t.id === bestTable.id
-        ? {
-            ...t,
-            status: 'in_corso',
-            colorOverride: '#f59e0b',
-            reservation: newResObj,
-          }
-        : t
-    );
-
-    // 5. Salva in dailyConfigs e localStorage
-    const updatedDailyConfigs = {
-      ...dailyConfigs,
-      [targetKey]: {
-        tables: updatedTables,
-        zoneLabels: targetConfig?.zoneLabels || INITIAL_ZONE_LABELS,
-        structure: targetConfig?.structure || INITIAL_STRUCTURE,
-        updatedAt: new Date().toISOString(),
-      },
-    };
-
-    setDailyConfigs(updatedDailyConfigs);
+  // Prenotazione online del cliente: il server verifica orari, ferie e tavoli liberi,
+  // assegna il tavolo in modo atomico e avvisa il ristorante.
+  const createClientReservation = async (data) => {
     try {
-      localStorage.setItem('sapore_verace_daily_configs_v3', JSON.stringify(updatedDailyConfigs));
-    } catch (e) {
-      console.error('Error saving new client reservation:', e);
+      const result = await api.post('reservations.php', data);
+      return { ...result, success: true };
+    } catch (err) {
+      return { success: false, message: err.message };
     }
-
-    // 6. Se l'admin sta guardando la stessa data e turno, aggiorna lo stato tavoli istantaneamente
-    if (selectedDate === date && activeShift === shift) {
-      setTables(updatedTables);
-    }
-
-    // 7. Notifica sonora e toast real-time per la dashboard admin
-    playNotificationChime();
-    setNewReservationToast({
-      id: Date.now(),
-      reservation: newResObj,
-      table: bestTable,
-      date,
-      shift,
-    });
-
-    // 8. Trigger custom event per altre schede aperte
-    try {
-      window.dispatchEvent(
-        new CustomEvent('sapore_verace_new_reservation', {
-          detail: {
-            reservation: newResObj,
-            table: bestTable,
-            date,
-            shift,
-          },
-        })
-      );
-    } catch (e) {}
-
-    // 9. Invia notifiche multicanale (Email, Telegram, WhatsApp)
-    try {
-      notifyNewReservation({
-        code: bookingCode,
-        name: newResObj.name,
-        guests: newResObj.guests,
-        date,
-        time,
-        shift,
-        phone: newResObj.phone,
-        email: newResObj.email,
-        tableName: bestTable.name,
-        notes: newResObj.notes,
-      });
-    } catch (notifErr) {
-      console.warn('Errore invio notifiche prenotazione:', notifErr);
-    }
-
-    return {
-      success: true,
-      bookingCode,
-      table: bestTable,
-      reservation: newResObj,
-      date,
-      shift,
-      time,
-    };
   };
 
-  // Helper: ottieni disponibilità fasce orarie e turni per una data
-  const getAvailableSlotsForDate = (date, guests = 2) => {
-    const numGuests = Number(guests) || 2;
-    const pranzoKey = `${date}_pranzo`;
-    const cenaKey = `${date}_cena`;
-
-    const getFreeCount = (key) => {
-      const cfg = dailyConfigs[key];
-      const tableList = cfg?.tables || INITIAL_TABLES;
-      const fitting = tableList.filter((t) => t.reservation === null && (t.seats || 4) >= numGuests);
-      return fitting.length;
-    };
-
+  // Disponibilità (fasce orarie e tavoli liberi) per una data, letta dal server
+  const getAvailableSlotsForDate = async (date, guests = 2) => {
+    const res = await api.get(`reservations.php?date=${encodeURIComponent(date)}&guests=${Number(guests) || 2}`);
     return {
-      pranzoAvailable: getFreeCount(pranzoKey) > 0,
-      cenaAvailable: getFreeCount(cenaKey) > 0,
-      pranzoTablesFree: getFreeCount(pranzoKey),
-      cenaTablesFree: getFreeCount(cenaKey),
+      pranzoAvailable: res.pranzo.open && res.pranzo.tablesFree > 0,
+      cenaAvailable: res.cena.open && res.cena.tablesFree > 0,
+      pranzoTablesFree: res.pranzo.tablesFree,
+      cenaTablesFree: res.cena.tablesFree,
+      pranzoSlots: res.pranzo.slots,
+      cenaSlots: res.cena.slots,
     };
   };
 
@@ -1624,11 +1080,6 @@ export const AdminProvider = ({ children }) => {
           ...dayData,
         },
       };
-      try {
-        localStorage.setItem('sapore_verace_opening_hours_v2', JSON.stringify(updated));
-      } catch (e) {
-        console.error('Error saving opening hours:', e);
-      }
       return updated;
     });
     setSaveSuccessMessage('Orari di apertura aggiornati con successo!');
@@ -1637,22 +1088,12 @@ export const AdminProvider = ({ children }) => {
 
   const updateAllOpeningHours = (newHours) => {
     setOpeningHours(newHours);
-    try {
-      localStorage.setItem('sapore_verace_opening_hours_v2', JSON.stringify(newHours));
-    } catch (e) {
-      console.error('Error saving opening hours:', e);
-    }
     setSaveSuccessMessage('Tutti gli orari settimanali sono stati salvati!');
     setTimeout(() => setSaveSuccessMessage(''), 3500);
   };
 
   const resetOpeningHours = () => {
     setOpeningHours(DEFAULT_OPENING_HOURS);
-    try {
-      localStorage.setItem('sapore_verace_opening_hours_v2', JSON.stringify(DEFAULT_OPENING_HOURS));
-    } catch (e) {
-      console.error(e);
-    }
     setSaveSuccessMessage('Orari ripristinati alla configurazione predefinita!');
     setTimeout(() => setSaveSuccessMessage(''), 3500);
   };
@@ -1670,11 +1111,6 @@ export const AdminProvider = ({ children }) => {
     };
     setHolidays((prev) => {
       const updated = [newHoliday, ...prev];
-      try {
-        localStorage.setItem('sapore_verace_holidays_v2', JSON.stringify(updated));
-      } catch (e) {
-        console.error('Error saving holidays:', e);
-      }
       return updated;
     });
     setSaveSuccessMessage(`Periodo "${newHoliday.name}" aggiunto con successo!`);
@@ -1685,11 +1121,6 @@ export const AdminProvider = ({ children }) => {
   const updateHoliday = (id, holidayData) => {
     setHolidays((prev) => {
       const updated = prev.map((h) => (h.id === id ? { ...h, ...holidayData } : h));
-      try {
-        localStorage.setItem('sapore_verace_holidays_v2', JSON.stringify(updated));
-      } catch (e) {
-        console.error(e);
-      }
       return updated;
     });
     setSaveSuccessMessage('Periodo di chiusura/ferie aggiornato!');
@@ -1699,11 +1130,6 @@ export const AdminProvider = ({ children }) => {
   const deleteHoliday = (id) => {
     setHolidays((prev) => {
       const updated = prev.filter((h) => h.id !== id);
-      try {
-        localStorage.setItem('sapore_verace_holidays_v2', JSON.stringify(updated));
-      } catch (e) {
-        console.error(e);
-      }
       return updated;
     });
     setSaveSuccessMessage('Periodo rimosso.');
@@ -1715,11 +1141,6 @@ export const AdminProvider = ({ children }) => {
       const updated = prev.map((h) =>
         h.id === id ? { ...h, bannerActive: !h.bannerActive } : h
       );
-      try {
-        localStorage.setItem('sapore_verace_holidays_v2', JSON.stringify(updated));
-      } catch (e) {
-        console.error(e);
-      }
       return updated;
     });
   };
@@ -1783,6 +1204,13 @@ export const AdminProvider = ({ children }) => {
     };
   };
 
+  // Fasce orarie prenotabili per data e turno (stessa regola del server)
+  const getBookingSlots = (dateStr, shift = 'cena') => {
+    const check = isRestaurantOpenOnDate(dateStr, shift);
+    if (!check.isOpen) return [];
+    return buildSlots(check.shiftHours);
+  };
+
   // Statistiche calcolate in tempo reale
   const totalTablesCount = tables.length;
   const occupiedTablesCount = tables.filter((t) => t.status !== 'disponibile').length;
@@ -1795,6 +1223,12 @@ export const AdminProvider = ({ children }) => {
       value={{
         isAdminView,
         setIsAdminView,
+        isAuthenticated,
+        isLoginOpen,
+        setIsLoginOpen,
+        login,
+        logout,
+        getBookingSlots,
         activeTab,
         setActiveTab,
         isStructureEditMode,

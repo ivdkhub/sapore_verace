@@ -1,60 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MENU_ITEMS as DEFAULT_MENU_ITEMS, CATEGORIES as DEFAULT_CATEGORIES } from '../data/menuData';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { MENU_ITEMS as DEFAULT_MENU_ITEMS } from '../data/menuData';
+import { DEFAULT_WEEKLY_PRODUCTS } from '../data/weeklyData';
+import { api } from '../services/api';
 
 const MenuContext = createContext();
-const MENU_STORAGE_KEY = 'sapore_verace_menu_items_v1';
-const WEEKLY_STORAGE_KEY = 'sapore_verace_weekly_products_v1';
 
-export const DEFAULT_WEEKLY_PRODUCTS = [
-  {
-    id: 'weekly_1',
-    badge: 'PRODOTTO DELLA SETTIMANA',
-    subtitle: 'PIZZERIA NAPOLETANA & PICCOLA CUCINA',
-    titlePrefix: "L'ARTE DELLA",
-    titleHighlight: 'VERA PIZZA',
-    name: "L'Arte della Vera Pizza",
-    desc: 'Impasto ad alta idratazione con lievitazione naturale di 48 ore, pomodoro San Marzano DOP, mozzarella di bufala campana e cottura rapida a 450°C.',
-    price: '11,50 €',
-    oldPrice: '13,50 €',
-    numericPrice: 11.5,
-    primaryBtn: 'ORDINA ORA',
-    secondaryBtn: 'PRENOTA UN TAVOLO',
-    image: '/images/hero_section_1.png',
-    floatingImage: '/images/hero_section_2.png',
-  },
-  {
-    id: 'weekly_2',
-    badge: 'SPECIALITÀ DELLA SETTIMANA',
-    subtitle: 'TRADIZIONE, PASSIONE & QUALITÀ',
-    titlePrefix: 'SAPORE',
-    titleHighlight: 'VERACE GOURMET',
-    name: 'Sapore Verace Gourmet',
-    desc: 'Croccante alla base e straordinariamente soffice all’interno. Scopri il vero gusto della pizza napoletana a Castellanza con ingredienti selezionati.',
-    price: '13,50 €',
-    oldPrice: '15,50 €',
-    numericPrice: 13.5,
-    primaryBtn: 'ORDINA ORA',
-    secondaryBtn: 'PRENOTA UN TAVOLO',
-    image: '/images/hero_section_2.png',
-    floatingImage: '/images/hero_section_1.png',
-  },
-  {
-    id: 'weekly_3',
-    badge: 'CREAZIONE DELLO CHEF',
-    subtitle: 'PICCOLA CUCINA & SFIZI VERACI',
-    titlePrefix: 'CUOPPO',
-    titleHighlight: 'FRITTI NAPOLETANI',
-    name: 'Cuoppo Fritti Napoletani',
-    desc: 'Frittura mista della tradizione partenopea con crocchè di patate, arancini al ragù, zeppoline alle alghe e montanarine calde.',
-    price: '9,00 €',
-    oldPrice: '11,00 €',
-    numericPrice: 9.0,
-    primaryBtn: 'ORDINA ORA',
-    secondaryBtn: 'PRENOTA UN TAVOLO',
-    image: '/images/cucina_cuoppo.jpg',
-    floatingImage: '/images/hero_section_1.png',
-  },
-];
+export { DEFAULT_WEEKLY_PRODUCTS };
 
 // Format numeric price to Italian display string (e.g. 9.5 -> '9,00 €' or '9,50 €')
 export const formatPriceString = (val) => {
@@ -72,35 +23,21 @@ export const parseNumericPrice = (val) => {
 };
 
 export const MenuProvider = ({ children }) => {
-  const [menuItems, setMenuItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem(MENU_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.error('Error loading menu items from storage:', e);
-    }
-    return DEFAULT_MENU_ITEMS;
-  });
+  // Valori iniziali dal codice (render immediato), poi sostituiti da quelli salvati sul server
+  const [menuItems, setMenuItemsState] = useState(DEFAULT_MENU_ITEMS);
+  const [weeklyProducts, setWeeklyProductsState] = useState(DEFAULT_WEEKLY_PRODUCTS);
+  const [isMenuLoaded, setIsMenuLoaded] = useState(false);
 
-  const [weeklyProducts, setWeeklyProducts] = useState(() => {
-    try {
-      const saved = localStorage.getItem(WEEKLY_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.slice(0, 3);
-        }
-      }
-    } catch (e) {
-      console.error('Error loading weekly products from storage:', e);
-    }
-    return DEFAULT_WEEKLY_PRODUCTS;
-  });
+  // Solo le modifiche fatte dall'admin vengono salvate sul server
+  const dirtyRef = useRef({ menu: false, weekly: false });
+  const setMenuItems = (updater) => {
+    dirtyRef.current.menu = true;
+    setMenuItemsState(updater);
+  };
+  const setWeeklyProducts = (updater) => {
+    dirtyRef.current.weekly = true;
+    setWeeklyProductsState(updater);
+  };
 
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -111,51 +48,49 @@ export const MenuProvider = ({ children }) => {
     }, 3500);
   };
 
-  // Save menuItems to localStorage
+  // Carica menu e prodotti della settimana dal server
   useEffect(() => {
-    try {
-      localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(menuItems));
-    } catch (e) {
-      console.error('Error saving menu items to localStorage:', e);
-    }
+    let cancelled = false;
+    api
+      .get('state.php?keys=menu_items,weekly_products')
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (Array.isArray(data.menu_items) && data.menu_items.length > 0) setMenuItemsState(data.menu_items);
+        if (Array.isArray(data.weekly_products) && data.weekly_products.length > 0) {
+          setWeeklyProductsState(data.weekly_products.slice(0, 3));
+        }
+      })
+      .catch((err) => console.warn('Menu: uso i dati predefiniti, server non raggiungibile.', err.message))
+      .finally(() => !cancelled && setIsMenuLoaded(true));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Salvataggio sul server (con piccolo ritardo per raggruppare modifiche ravvicinate)
+  useEffect(() => {
+    if (!dirtyRef.current.menu) return;
+    const timer = setTimeout(() => {
+      dirtyRef.current.menu = false;
+      api.put('state.php', { key: 'menu_items', value: menuItems }).catch((err) => {
+        dirtyRef.current.menu = true;
+        showToast(`Menù NON salvato sul server: ${err.message}`, 'delete');
+      });
+    }, 500);
+    return () => clearTimeout(timer);
   }, [menuItems]);
 
-  // Save weeklyProducts to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem(WEEKLY_STORAGE_KEY, JSON.stringify(weeklyProducts));
-    } catch (e) {
-      console.error('Error saving weekly products to localStorage:', e);
-    }
+    if (!dirtyRef.current.weekly) return;
+    const timer = setTimeout(() => {
+      dirtyRef.current.weekly = false;
+      api.put('state.php', { key: 'weekly_products', value: weeklyProducts }).catch((err) => {
+        dirtyRef.current.weekly = true;
+        showToast(`Prodotti della settimana NON salvati sul server: ${err.message}`, 'delete');
+      });
+    }, 500);
+    return () => clearTimeout(timer);
   }, [weeklyProducts]);
-
-  // Sync across tabs
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === MENU_STORAGE_KEY && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setMenuItems(parsed);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === WEEKLY_STORAGE_KEY && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setWeeklyProducts(parsed.slice(0, 3));
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
 
   // Compute dynamic categories and item counts
   const categories = React.useMemo(() => {
@@ -299,9 +234,6 @@ export const MenuProvider = ({ children }) => {
   // RESET TO FACTORY DEFAULT
   const resetMenuToDefault = () => {
     setMenuItems(DEFAULT_MENU_ITEMS);
-    try {
-      localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(DEFAULT_MENU_ITEMS));
-    } catch (e) {}
     showToast(`Menù ripristinato ai prodotti di fabbrica iniziali.`);
   };
 
@@ -389,9 +321,6 @@ export const MenuProvider = ({ children }) => {
   // RESET WEEKLY PRODUCTS TO DEFAULT
   const resetWeeklyProductsToDefault = () => {
     setWeeklyProducts(DEFAULT_WEEKLY_PRODUCTS);
-    try {
-      localStorage.setItem(WEEKLY_STORAGE_KEY, JSON.stringify(DEFAULT_WEEKLY_PRODUCTS));
-    } catch (e) {}
     showToast('Prodotti della settimana ripristinati ai valori iniziali.');
   };
 
@@ -399,6 +328,7 @@ export const MenuProvider = ({ children }) => {
     <MenuContext.Provider
       value={{
         menuItems,
+        isMenuLoaded,
         categories,
         weeklyProducts,
         addMenuItem,

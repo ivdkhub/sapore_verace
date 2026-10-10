@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useMenu } from '../../../context/MenuContext';
+import { api } from '../../../services/api';
 import {
   Plus,
   Edit,
@@ -134,12 +135,16 @@ export const AdminWeeklyProductsManager = () => {
       setErrorMessage('Seleziona un\'immagine valida.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImage(e.target.result);
-      setErrorMessage('');
-    };
-    reader.readAsDataURL(file);
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('L\'immagine è troppo grande (max 5MB).');
+      return;
+    }
+    // Caricata sul server: nei dati resta solo il percorso del file
+    setErrorMessage('');
+    api
+      .upload('upload.php', file)
+      .then(({ url }) => setImage(url))
+      .catch((err) => setErrorMessage(`Caricamento immagine non riuscito: ${err.message}`));
   };
 
   const handleSaveModal = (e) => {

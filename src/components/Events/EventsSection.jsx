@@ -3,6 +3,8 @@ import { Calendar, Clock, MapPin, Sparkles, Users, ArrowRight, X, Flame, Check, 
 import { MoustacheIcon } from '../common/Icons';
 import ParallaxCard from '../common/ParallaxCard';
 import { useLanguage } from '../../context/LanguageContext';
+import { api } from '../../services/api';
+import { PrivacyConsent } from '../Legal/PrivacyConsent';
 
 export const EVENTS_DATA = [
   {
@@ -135,19 +137,37 @@ export const EventsSection = () => {
     eventType: 'Compleanno / Festa Privata',
     date: '',
     guests: '20',
-    notes: ''
+    notes: '',
+    privacyAccepted: false
   });
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
+  const [inquiryError, setInquiryError] = useState('');
+  const [isSendingInquiry, setIsSendingInquiry] = useState(false);
 
   const filteredEvents = selectedFilter === 'all'
     ? EVENTS_DATA
     : EVENTS_DATA.filter(ev => ev.category === selectedFilter);
 
-  const handleInquirySubmit = (e) => {
+  // La richiesta viene salvata sul server e notificata al ristorante
+  const handleInquirySubmit = async (e) => {
     e.preventDefault();
-    if (!inquiryForm.name || !inquiryForm.phone) {
-      alert('Per favore compila il tuo nome e recapito telefonico.');
+    setInquiryError('');
+    if (!inquiryForm.name.trim() || !inquiryForm.phone.trim()) {
+      setInquiryError(t.events?.errorContact || 'Per favore compila il tuo nome e recapito telefonico.');
       return;
+    }
+    if (!inquiryForm.privacyAccepted) {
+      setInquiryError(t.legal?.consentRequired || "Per continuare accetta l'informativa privacy.");
+      return;
+    }
+    setIsSendingInquiry(true);
+    try {
+      await api.post('inquiries.php', inquiryForm);
+    } catch (err) {
+      setInquiryError(err.message);
+      return;
+    } finally {
+      setIsSendingInquiry(false);
     }
     setInquirySubmitted(true);
     setTimeout(() => {
@@ -159,7 +179,8 @@ export const EventsSection = () => {
         eventType: 'Compleanno / Festa Privata',
         date: '',
         guests: '20',
-        notes: ''
+        notes: '',
+        privacyAccepted: false
       });
     }, 4500);
   };
@@ -437,11 +458,24 @@ export const EventsSection = () => {
                     />
                   </div>
 
+                  <PrivacyConsent
+                    id="inquiry-privacy"
+                    checked={inquiryForm.privacyAccepted}
+                    onChange={(v) => setInquiryForm({ ...inquiryForm, privacyAccepted: v })}
+                  />
+
+                  {inquiryError && (
+                    <p role="alert" className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
+                      {inquiryError}
+                    </p>
+                  )}
+
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#d2401e] to-[#ff5722] hover:from-[#b83314] hover:to-[#e64a19] text-white font-oswald text-sm font-bold tracking-[0.18em] uppercase transition-all duration-300 shadow-lg shadow-[#d2401e]/30 cursor-pointer flex items-center justify-center gap-2"
+                    disabled={isSendingInquiry}
+                    className="disabled:opacity-50 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#d2401e] to-[#ff5722] hover:from-[#b83314] hover:to-[#e64a19] text-white font-oswald text-sm font-bold tracking-[0.18em] uppercase transition-all duration-300 shadow-lg shadow-[#d2401e]/30 cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <span>INVIA RICHIESTA PREVENTIVO</span>
+                    <span>{isSendingInquiry ? (t.events?.sending || 'INVIO IN CORSO...') : (t.events?.submitInquiry || 'INVIA RICHIESTA PREVENTIVO')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>

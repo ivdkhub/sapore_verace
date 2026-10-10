@@ -1,40 +1,92 @@
-import React, { useState } from 'react';
-import { X, MapPin, Phone, User, Store, Bike, Banknote, CreditCard, ShieldCheck } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
+import React, { useMemo, useState } from 'react';
+import { X, MapPin, Phone, User, Store, Bike, Banknote, CreditCard, ShieldCheck, Clock } from 'lucide-react';
+import { useCart, DELIVERY_FEE } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAdmin, getTodayDateString } from '../../context/AdminContext';
+import { timeToMinutes, minutesToTime } from '../../utils/schedule';
+import { PrivacyConsent } from '../Legal/PrivacyConsent';
 import { MoustacheIcon } from '../common/Icons';
+
+const PREP_MINUTES = 20; // come 'orders.prep_minutes' in api/config.php
+
+// Orari ordinabili per oggi, ogni 15 minuti, dalle fasce di apertura impostate in admin
+const useTodayOrderTimes = (isOpenModal) => {
+  const { isRestaurantOpenOnDate, openingHours, holidays } = useAdmin();
+  return useMemo(() => {
+    const today = getTodayDateString();
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const times = [];
+    let openNow = false;
+    ['pranzo', 'cena'].forEach((shift) => {
+      const check = isRestaurantOpenOnDate(today, shift);
+      if (!check.isOpen) return;
+      const open = timeToMinutes(check.shiftHours?.open);
+      let close = timeToMinutes(check.shiftHours?.close);
+      if (open === null || close === null) return;
+      if (close <= open) close += 24 * 60;
+      if (nowMin >= open && nowMin <= close - 15) openNow = true;
+      const start = Math.max(open, Math.ceil((nowMin + PREP_MINUTES) / 15) * 15);
+      for (let m = start; m <= close; m += 15) times.push(minutesToTime(m));
+    });
+    return { times, openNow };
+    // ricalcolato a ogni apertura del checkout e quando cambiano orari/ferie
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpenModal, openingHours, holidays]);
+};
 
 export const CheckoutModal = () => {
   const { isCheckoutOpen, setIsCheckoutOpen, totalPrice, orderType, setOrderType, placeOrder } = useCart();
   const { t } = useLanguage();
+  const { times: orderTimes, openNow } = useTodayOrderTimes(isCheckoutOpen);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const tc = t.checkout || {};
 
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
-    address: 'Via Borsano, ',
+    address: '',
     city: 'Castellanza',
     postalCode: '21053',
     notes: '',
-    pickupTime: '20:00',
+    pickupTime: 'asap',
     deliveryTime: 'asap',
     paymentMethod: 'cash',
+    privacyAccepted: false,
   });
 
   if (!isCheckoutOpen) return null;
 
-  const handleSubmit = (e) => {
+  const timeKey = orderType === 'delivery' ? 'deliveryTime' : 'pickupTime';
+  // Se adesso siamo chiusi, "prima possibile" non vale: si usa il primo orario disponibile
+  const selectedTime = !openNow && formData[timeKey] === 'asap' ? orderTimes[0] || 'asap' : formData[timeKey];
+  const noTimesToday = !openNow && orderTimes.length === 0;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.phone) {
-      alert(tc.alertContact || 'Per favore compila il tuo nome e numero di telefono.');
+    setErrorMessage('');
+    if (!formData.fullName.trim() || !formData.phone.trim()) {
+      setErrorMessage(tc.alertContact || 'Per favore compila il tuo nome e numero di telefono.');
       return;
     }
-    if (orderType === 'delivery' && !formData.address) {
-      alert(tc.alertAddress || "Per favore inserisci l'indirizzo di consegna.");
+    if (orderType === 'delivery' && !/[0-9]/.test(formData.address)) {
+      setErrorMessage(tc.alertAddress || "Per favore inserisci l'indirizzo di consegna con il numero civico.");
       return;
     }
-    placeOrder({ ...formData, orderType });
+    if (!formData.privacyAccepted) {
+      setErrorMessage(t.legal?.consentRequired || "Per continuare accetta l'informativa privacy.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await placeOrder({ ...formData, [timeKey]: selectedTime, orderType });
+    } catch (err) {
+      setErrorMessage(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -201,6 +253,31 @@ export const CheckoutModal = () => {
             />
           </div>
 
+          {/* Orario di consegna / ritiro (solo oggi, durante l'apertura) */}
+          <div>
+            <label htmlFor="order-time" className="block text-xs font-oswald tracking-wider uppercase text-white/70 mb-1.5 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#d2401e]" />
+              {orderType === 'delivery' ? (tc.deliveryTimeLabel || 'ORARIO DI CONSEGNA') : (tc.pickupTimeLabel || 'ORARIO DI RITIRO')}
+            </label>
+            {noTimesToday ? (
+              <p className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+                {tc.closedToday || 'Per oggi gli ordini online sono chiusi. Puoi prenotare un tavolo o chiamarci.'}
+              </p>
+            ) : (
+              <select
+                id="order-time"
+                value={selectedTime}
+                onChange={(e) => setFormData({ ...formData, [timeKey]: e.target.value })}
+                className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-xl text-base sm:text-sm focus:outline-none focus:border-[#d2401e]"
+              >
+                {openNow && <option value="asap">{tc.asap || 'Prima possibile'}</option>}
+                {orderTimes.map((time) => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+            )}
+          </div>
+
           {/* Payment Method - Only to Courier (Cash or Card) */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
@@ -276,11 +353,22 @@ export const CheckoutModal = () => {
             </div>
           </div>
 
+          <PrivacyConsent
+            checked={formData.privacyAccepted}
+            onChange={(v) => setFormData({ ...formData, privacyAccepted: v })}
+          />
+
+          {errorMessage && (
+            <p role="alert" className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+              {errorMessage}
+            </p>
+          )}
+
           {/* Total Bar & Submit Button */}
           <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <div className="text-[11px] font-oswald text-white/50 tracking-wider uppercase">
-                {orderType === 'delivery' ? (tc.subtotalDelivery || 'Subtotale + Consegna (€2.50)') : (tc.subtotalPickup || 'Subtotale (Ritiro Gratuito)')}
+                {orderType === 'delivery' ? (tc.subtotalDelivery || `Subtotale + Consegna (€${DELIVERY_FEE.toFixed(2)})`) : (tc.subtotalPickup || 'Subtotale (Ritiro Gratuito)')}
               </div>
               <span className="block text-xs font-oswald tracking-widest text-white/70 uppercase">
                 {tc.totalToPay || 'TOTALE DA PAGARE AL CORRIERE:'}
@@ -292,10 +380,15 @@ export const CheckoutModal = () => {
 
             <button
               type="submit"
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#d2401e] to-[#ffa323] hover:from-[#b83314] hover:to-[#e68e17] text-white font-oswald text-sm tracking-[0.2em] font-black uppercase transition-all duration-300 rounded-xl shadow-xl shadow-[#d2401e]/30 cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
+              disabled={isSubmitting || noTimesToday}
+              className="disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#d2401e] to-[#ffa323] hover:from-[#b83314] hover:to-[#e68e17] text-white font-oswald text-sm tracking-[0.2em] font-black uppercase transition-all duration-300 rounded-xl shadow-xl shadow-[#d2401e]/30 cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
             >
               <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
-              <span>{orderType === 'delivery' ? 'CONFERMA E INVIA ORDINE' : 'CONFERMA ORDINE RITIRO'}</span>
+              <span>
+                {isSubmitting
+                  ? (tc.sending || 'INVIO IN CORSO...')
+                  : orderType === 'delivery' ? (tc.submitDelivery || 'CONFERMA E INVIA ORDINE') : (tc.submitPickup || 'CONFERMA ORDINE RITIRO')}
+              </span>
             </button>
           </div>
         </form>

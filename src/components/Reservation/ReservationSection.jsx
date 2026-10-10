@@ -16,9 +16,11 @@ import {
 } from 'lucide-react';
 import { useAdmin, getTodayDateString } from '../../context/AdminContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { PrivacyConsent } from '../Legal/PrivacyConsent';
+import { timeToMinutes } from '../../utils/schedule';
 
 export const ReservationSection = ({ isModal = false }) => {
-  const { createClientReservation, isRestaurantOpenOnDate, holidays } = useAdmin();
+  const { createClientReservation, isRestaurantOpenOnDate, holidays, getBookingSlots } = useAdmin();
   const { t, lang } = useLanguage();
 
   const tr = t.reservation || {};
@@ -32,23 +34,37 @@ export const ReservationSection = ({ isModal = false }) => {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [confirmedBooking, setConfirmedBooking] = useState(null);
 
-  const LUNCH_SLOTS = ['12:00', '12:30', '13:00', '13:30', '14:00'];
-  const DINNER_SLOTS = ['19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
+  // Fasce orarie dagli orari impostati in admin; per oggi solo quelle tra almeno 30 minuti
+  const slotsForShift = (shiftKey) => {
+    const all = getBookingSlots(date, shiftKey);
+    if (date !== getTodayDateString()) return all;
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    return all.filter((slot) => timeToMinutes(slot) > nowMin + 30);
+  };
+  const currentSlots = slotsForShift(shift);
 
-  // Keep time aligned with selected shift
+  // Orari reali del turno da mostrare sui pulsanti (es. "12:00 - 14:30")
+  const shiftHoursLabel = (shiftKey) => {
+    const check = isRestaurantOpenOnDate(date, shiftKey);
+    return check.isOpen && check.shiftHours ? `${check.shiftHours.open} - ${check.shiftHours.close}` : (tr.closedShort || 'chiuso');
+  };
+  const shiftName = (label, fallback) => (label ? label.replace(/[☀️🌙]/g, '').replace(/\s*\(.*\)\s*$/, '').trim() : fallback);
+
+  // Keep time aligned with selected shift and date
   useEffect(() => {
-    if (shift === 'pranzo' && !LUNCH_SLOTS.includes(time)) {
-      setTime('12:30');
-    } else if (shift === 'cena' && !DINNER_SLOTS.includes(time)) {
-      setTime('20:00');
+    if (currentSlots.length > 0 && !currentSlots.includes(time)) {
+      const preferred = shift === 'cena' ? '20:00' : '12:30';
+      setTime(currentSlots.includes(preferred) ? preferred : currentSlots[0]);
     }
-  }, [shift]);
+  }, [shift, date, currentSlots.join(',')]);
 
   // Weekdays & Months localizations
   const WEEKDAYS_MAP = {
@@ -93,7 +109,7 @@ export const ReservationSection = ({ isModal = false }) => {
 
   const upcomingDays = getUpcomingDays();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -109,35 +125,40 @@ export const ReservationSection = ({ isModal = false }) => {
       setErrorMessage(tr.errorName || 'Inserisci il tuo nome e cognome.');
       return;
     }
-    if (!phone.trim() || phone.trim().length < 6) {
+    if (!phone.trim() || phone.replace(/\D/g, '').length < 6) {
       setErrorMessage(tr.errorPhone || 'Inserisci un numero di telefono valido.');
+      return;
+    }
+    if (!currentSlots.includes(time)) {
+      setErrorMessage(tr.errorSlot || 'Scegli uno degli orari disponibili.');
+      return;
+    }
+    if (!privacyAccepted) {
+      setErrorMessage(t.legal?.consentRequired || "Per continuare accetta l'informativa privacy.");
       return;
     }
 
     setIsSubmitting(true);
+    const result = await createClientReservation({
+      name,
+      phone,
+      email,
+      date,
+      time,
+      guests: Number(guests),
+      notes,
+      shift,
+      privacyAccepted,
+    });
+    setIsSubmitting(false);
 
-    setTimeout(() => {
-      const result = createClientReservation({
-        name,
-        phone,
-        email,
-        date,
-        time,
-        guests: Number(guests),
-        notes,
-        shift,
-      });
-
-      setIsSubmitting(false);
-
-      if (result && result.success) {
-        setConfirmedBooking(result);
-      } else {
-        setErrorMessage(
-          result?.message || tr.errorNoTable || 'Nessun tavolo disponibile per la data e orario selezionati. Prova un altro orario.'
-        );
-      }
-    }, 450);
+    if (result && result.success) {
+      setConfirmedBooking(result);
+    } else {
+      setErrorMessage(
+        result?.message || tr.errorNoTable || 'Nessun tavolo disponibile per la data e orario selezionati. Prova un altro orario.'
+      );
+    }
   };
 
   const handleResetBooking = () => {
@@ -146,6 +167,7 @@ export const ReservationSection = ({ isModal = false }) => {
     setPhone('');
     setEmail('');
     setNotes('');
+    setPrivacyAccepted(false);
     setErrorMessage('');
   };
 
@@ -395,7 +417,7 @@ export const ReservationSection = ({ isModal = false }) => {
                       : 'bg-[#2a2a2a] text-white hover:bg-[#353535] border border-white/10 hover:border-white/25'
                   }`}
                 >
-                  <span>{tr.lunchShift ? tr.lunchShift.replace(/[☀️🌙]/g, '').trim() : 'Turno Pranzo (12:00 - 14:30)'}</span>
+                  <span>{shiftName(tr.lunchShift, 'Turno Pranzo')} ({shiftHoursLabel('pranzo')})</span>
                 </button>
                 <button
                   type="button"
@@ -406,13 +428,16 @@ export const ReservationSection = ({ isModal = false }) => {
                       : 'bg-[#2a2a2a] text-white hover:bg-[#353535] border border-white/10 hover:border-white/25'
                   }`}
                 >
-                  <span>{tr.dinnerShift ? tr.dinnerShift.replace(/[☀️🌙]/g, '').trim() : 'Turno Cena (19:00 - 23:00)'}</span>
+                  <span>{shiftName(tr.dinnerShift, 'Turno Cena')} ({shiftHoursLabel('cena')})</span>
                 </button>
               </div>
 
               {/* Time Slot Pills */}
               <div className="flex flex-wrap gap-2 sm:gap-2.5">
-                {(shift === 'cena' ? DINNER_SLOTS : LUNCH_SLOTS).map((slot) => {
+                {currentSlots.length === 0 && (
+                  <p className="text-xs text-white/60">{tr.noSlots || 'Nessun orario prenotabile per questo turno: scegli un altro giorno o turno.'}</p>
+                )}
+                {currentSlots.map((slot) => {
                   const isSelected = time === slot;
                   return (
                     <button
@@ -543,6 +568,10 @@ export const ReservationSection = ({ isModal = false }) => {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="mb-6">
+              <PrivacyConsent id="reservation-privacy" checked={privacyAccepted} onChange={setPrivacyAccepted} />
             </div>
 
             {/* SUBMIT BUTTON */}

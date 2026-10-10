@@ -29,3 +29,10 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Backend PHP: configurazione e dati locali
+api/config.php
+api/data/*
+!api/data/.htaccess
+uploads/
+api/seed.json

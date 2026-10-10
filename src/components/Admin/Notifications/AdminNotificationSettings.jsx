@@ -32,7 +32,8 @@ export const AdminNotificationSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [testStatus, setTestStatus] = useState(null); // { kind: 'ok'|'warn'|'error', text: string, channel: string }
   const [testingChannel, setTestingChannel] = useState(null); // 'telegram'|'whatsapp'|'email'|null
-  const [showSmtpPassword, setShowSmtpPassword] = useState(false);
+  const [mailFrom, setMailFrom] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [showTgToken, setShowTgToken] = useState(false);
   const [showWaKey, setShowWaKey] = useState(false);
   const [telegramChats, setTelegramChats] = useState([]);
@@ -40,9 +41,13 @@ export const AdminNotificationSettings = () => {
 
   // Load saved settings on mount
   useEffect(() => {
-    const loaded = getNotificationSettings();
-    setSettings(loaded);
-    setSavedSettings(loaded);
+    getNotificationSettings()
+      .then(({ settings: loaded, mailFrom: from }) => {
+        setSettings(loaded);
+        setSavedSettings(loaded);
+        setMailFrom(from);
+      })
+      .catch((err) => setLoadError(`Impossibile leggere le impostazioni dal server: ${err.message}`));
   }, []);
 
   // Check for unsaved changes
@@ -58,19 +63,6 @@ export const AdminNotificationSettings = () => {
     }));
   };
 
-  const handleSmtpChange = (field, value) => {
-    setSettings((prev) => ({
-      ...prev,
-      email: {
-        ...prev.email,
-        smtp: {
-          ...prev.email.smtp,
-          [field]: value,
-        },
-      },
-    }));
-  };
-
   const handleEventToggle = (eventField) => {
     setSettings((prev) => ({
       ...prev,
@@ -81,26 +73,19 @@ export const AdminNotificationSettings = () => {
     }));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     if (e) e.preventDefault();
     setIsSaving(true);
     setTestStatus(null);
     try {
-      const success = saveNotificationSettings(settings);
-      if (success) {
-        setSavedSettings(settings);
-        setTestStatus({
-          kind: 'ok',
-          text: 'Tutte le impostazioni di notifica sono state salvate con successo!',
-          channel: 'global',
-        });
-      } else {
-        setTestStatus({
-          kind: 'error',
-          text: 'Impossibile salvare le impostazioni nel browser.',
-          channel: 'global',
-        });
-      }
+      const saved = await saveNotificationSettings(settings);
+      setSettings(saved);
+      setSavedSettings(saved);
+      setTestStatus({
+        kind: 'ok',
+        text: 'Impostazioni salvate sul server: da ora le notifiche partono a ogni nuova prenotazione, ordine o richiesta evento.',
+        channel: 'global',
+      });
     } catch (err) {
       setTestStatus({ kind: 'error', text: err.message, channel: 'global' });
     } finally {
@@ -256,7 +241,25 @@ export const AdminNotificationSettings = () => {
               Nuovi Ordini Online (Domicilio & Asporto)
             </span>
           </label>
+
+          <label className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">
+            <input
+              type="checkbox"
+              checked={settings.events.notifyOnInquiry}
+              onChange={() => handleEventToggle('notifyOnInquiry')}
+              className="w-4 h-4 rounded text-[#ffa323] focus:ring-[#ffa323] accent-[#ffa323] cursor-pointer"
+            />
+            <span className="text-white font-medium flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#ffa323]" />
+              Richieste Eventi & Feste
+            </span>
+          </label>
         </div>
+        {loadError && (
+          <p role="alert" className="mt-4 text-xs text-rose-400">
+            {loadError}
+          </p>
+        )}
       </div>
 
       {/* ============================================================ */}
@@ -562,7 +565,7 @@ export const AdminNotificationSettings = () => {
         </div>
 
         {/* ========================================================== */}
-        {/* CHANNEL 3: EMAIL & SMTP                                    */}
+        {/* CHANNEL 3: EMAIL (mail() del server)                        */}
         {/* ========================================================== */}
         <div className="bg-[#181818] border border-white/10 rounded-3xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden">
           <div className="space-y-5">
@@ -576,7 +579,7 @@ export const AdminNotificationSettings = () => {
                   <h3 className="font-oswald text-lg font-bold uppercase text-white flex items-center gap-2">
                     Email
                   </h3>
-                  <span className="text-[10px] text-stone-400 font-mono">SMTP & Webhook</span>
+                  <span className="text-[10px] text-stone-400 font-mono">Inviata dal server</span>
                 </div>
               </div>
               {renderBadge(settings.email.enabled)}
@@ -609,108 +612,13 @@ export const AdminNotificationSettings = () => {
               />
             </div>
 
-            {/* Sender details */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-oswald uppercase tracking-wider text-stone-400 font-bold mb-1">
-                  Email Mittente
-                </label>
-                <input
-                  type="email"
-                  placeholder="ordini@saporeverace.it"
-                  value={settings.email.fromEmail}
-                  onChange={(e) => handleFieldChange('email', 'fromEmail', e.target.value.trim())}
-                  className="w-full bg-[#101010] border border-white/15 focus:border-[#ffa323] rounded-xl px-3 py-2 text-xs text-white outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-oswald uppercase tracking-wider text-stone-400 font-bold mb-1">
-                  Nome Mittente
-                </label>
-                <input
-                  type="text"
-                  placeholder="Sapore Verace"
-                  value={settings.email.fromName}
-                  onChange={(e) => handleFieldChange('email', 'fromName', e.target.value)}
-                  className="w-full bg-[#101010] border border-white/15 focus:border-[#ffa323] rounded-xl px-3 py-2 text-xs text-white outline-none"
-                />
-              </div>
-            </div>
-
-            {/* SMTP Details */}
-            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
-              <span className="text-[11px] font-oswald uppercase tracking-wider text-[#ffa323] font-bold block">
-                Parametri Server SMTP
-              </span>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-[10px] text-stone-400 font-sans mb-1">Host SMTP</label>
-                  <input
-                    type="text"
-                    placeholder="smtp.gmail.com"
-                    value={settings.email.smtp.host}
-                    onChange={(e) => handleSmtpChange('host', e.target.value.trim())}
-                    className="w-full bg-[#101010] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] text-stone-400 font-sans mb-1">Sicurezza / Porta</label>
-                  <div className="flex gap-1.5">
-                    <select
-                      value={settings.email.smtp.secure}
-                      onChange={(e) => {
-                        handleSmtpChange('secure', e.target.value);
-                        handleSmtpChange('port', e.target.value === 'ssl' ? '465' : '587');
-                      }}
-                      className="bg-[#101010] border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white outline-none"
-                    >
-                      <option value="ssl">SSL (465)</option>
-                      <option value="tls">TLS (587)</option>
-                    </select>
-                    <input
-                      type="text"
-                      value={settings.email.smtp.port}
-                      onChange={(e) => handleSmtpChange('port', e.target.value)}
-                      className="w-14 bg-[#101010] border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white outline-none font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className="block text-[10px] text-stone-400 font-sans mb-1">Utente / Login</label>
-                  <input
-                    type="text"
-                    placeholder="es. pizzeria@gmail.com"
-                    value={settings.email.smtp.user}
-                    onChange={(e) => handleSmtpChange('user', e.target.value.trim())}
-                    className="w-full bg-[#101010] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] text-stone-400 font-sans mb-1">Password</label>
-                  <div className="relative">
-                    <input
-                      type={showSmtpPassword ? 'text' : 'password'}
-                      placeholder="Password app o mailbox"
-                      value={settings.email.smtp.password}
-                      onChange={(e) => handleSmtpChange('password', e.target.value)}
-                      className="w-full bg-[#101010] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none font-mono pr-7"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSmtpPassword(!showSmtpPassword)}
-                      className="absolute right-2 top-2 text-stone-400 hover:text-white"
-                    >
-                      {showSmtpPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                  </div>
-                </div>
-              </div>
+            {/* Invio tramite il server */}
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-[11px] text-stone-300 leading-relaxed space-y-1">
+              <span className="font-oswald uppercase tracking-wider text-[#ffa323] font-bold block">Invio dal server</span>
+              <p>
+                Le email partono dal tuo hosting GoDaddy con il mittente <b className="font-mono">{mailFrom || 'impostato in api/config.php'}</b>.
+                Il mittente deve essere una casella del tuo dominio (cPanel &gt; Email Accounts), altrimenti i messaggi finiscono nello spam.
+              </p>
             </div>
           </div>
 

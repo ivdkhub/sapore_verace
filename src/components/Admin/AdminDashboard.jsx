@@ -6,12 +6,14 @@ import { AdminWeeklyProductsManager } from './Weekly/AdminWeeklyProductsManager'
 import { AdminHoursHolidaysManager } from './Hours/AdminHoursHolidaysManager';
 import { AdminReservationsManager } from './Reservations/AdminReservationsManager';
 import { AdminNotificationSettings } from './Notifications/AdminNotificationSettings';
-import { Calendar, Users, ArrowLeft, ChevronLeft, ChevronRight, UtensilsCrossed, LayoutDashboard, Flame, Star, Clock, Bell } from 'lucide-react';
+import { AdminOrdersManager } from './Orders/AdminOrdersManager';
+import { Calendar, Users, ArrowLeft, ChevronLeft, ChevronRight, UtensilsCrossed, LayoutDashboard, Flame, Star, Clock, Bell, ShoppingBag, LogOut } from 'lucide-react';
 import { MoustacheIcon } from '../common/Icons';
 
 export const AdminDashboard = () => {
   const {
     setIsAdminView,
+    logout,
     activeTab,
     setActiveTab,
     activeShift,
@@ -122,6 +124,18 @@ export const AdminDashboard = () => {
             </button>
 
             <button
+              onClick={() => setActiveTab('ordini')}
+              className={`px-4 py-2 rounded-xl font-oswald text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'ordini'
+                  ? 'bg-gradient-to-r from-[#ffa323] to-[#ffb84d] text-black shadow-lg shadow-[#ffa323]/30 scale-105'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>🛒 Ordini & Eventi</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('notifiche')}
               className={`px-4 py-2 rounded-xl font-oswald text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'notifiche'
@@ -142,6 +156,14 @@ export const AdminDashboard = () => {
             >
               <ArrowLeft className="w-3.5 h-3.5 text-[#ffa323]" />
               <span>Torna al Sito Pubblico</span>
+            </button>
+            <button
+              onClick={logout}
+              className="px-4 py-2.5 bg-white/5 hover:bg-rose-500/20 text-white/80 hover:text-white font-oswald text-xs font-bold tracking-[0.15em] uppercase rounded-xl flex items-center gap-2 transition-all cursor-pointer border border-white/10"
+              title="Esci dall'area admin"
+            >
+              <LogOut className="w-3.5 h-3.5 text-rose-400" />
+              <span>Esci</span>
             </button>
           </div>
         </div>
@@ -186,6 +208,11 @@ export const AdminDashboard = () => {
         {activeTab === 'notifiche' && (
           <AdminNotificationSettings />
         )}
+
+        {/* Ordini sempre montati (nascosti) così il segnale dei nuovi ordini suona da qualsiasi scheda */}
+        <div hidden={activeTab !== 'ordini'}>
+          <AdminOrdersManager />
+        </div>
       </main>
 
       {/* FULL MONTH CALENDAR & MULTI-DAY PLANNER MODAL */}
