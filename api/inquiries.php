@@ -7,7 +7,7 @@ require __DIR__ . '/lib/bootstrap.php';
 require __DIR__ . '/lib/notify.php';
 
 allow_methods(['POST']);
-rate_limit('inquiry', 5, 60 * 60);
+rate_limit('inquiry', 10, 60 * 60);
 
 $b = read_json_body(20000);
 $q = [

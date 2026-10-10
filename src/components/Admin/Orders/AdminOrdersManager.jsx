@@ -78,8 +78,14 @@ export const AdminOrdersManager = () => {
 
   useEffect(() => {
     load();
-    const t = setInterval(() => !document.hidden && load(), 20000);
-    return () => clearInterval(t);
+    // anche in background, così il segnale dei nuovi ordini arriva sempre
+    const t = setInterval(load, 20000);
+    const onVisible = () => !document.hidden && load();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
   const updateStatus = async (payload) => {

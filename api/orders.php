@@ -52,7 +52,7 @@ if (request_method() === 'PATCH') {
 }
 
 // ------------------------------ POST: nuovo ordine -----------------------
-rate_limit('order', 8, 60 * 60);
+rate_limit('order', 15, 60 * 60);
 
 $b = read_json_body(50000);
 $orderType = ($b['orderType'] ?? '') === 'pickup' ? 'pickup' : 'delivery';

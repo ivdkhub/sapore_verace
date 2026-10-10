@@ -42,7 +42,7 @@ if (request_method() === 'GET') {
 }
 
 // ----------------------------- POST: nuova prenotazione ------------------
-rate_limit('reservation', 6, 60 * 60);
+rate_limit('reservation', 12, 60 * 60);
 
 $b = read_json_body(20000);
 $name = clean_text($b['name'] ?? '', 80);

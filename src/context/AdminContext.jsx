@@ -326,18 +326,24 @@ export const AdminProvider = ({ children }) => {
       if (err.status === 401) setIsAuthenticated(false);
       else flashMessage(`⚠️ Impossibile caricare la sala dal server: ${err.message}`, 6000);
     });
-    const interval = setInterval(() => {
-      if (stopped || document.hidden) return;
+    // Continua anche con la scheda in background (il browser rallenta da solo i controlli):
+    // così il tablet del ristorante riceve le prenotazioni anche se l'admin non è in primo piano.
+    const poll = () => {
+      if (stopped) return;
       syncConfigsFromServer().catch((err) => {
         if (err.status === 401) {
           setIsAuthenticated(false);
           setIsAdminViewState(false);
         }
       });
-    }, 15000);
+    };
+    const interval = setInterval(poll, 15000);
+    const onVisible = () => !document.hidden && poll();
+    document.addEventListener('visibilitychange', onVisible);
     return () => {
       stopped = true;
       clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
     };
   }, [isAuthenticated]);
 

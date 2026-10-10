@@ -106,7 +106,7 @@ export const INITIAL_TABLES = [
     status: 'disponibile',
     reservation: null,
   },
-  // 8. T10 al centro-basso (PRENOTATO da "czz (3p)", 4 posti orizzontale, arancione)
+  // 8. T10 al centro-basso (4 posti orizzontale) — prima conteneva una prenotazione di prova
   {
     id: 'T10_CENTER_BOOKED',
     name: 'T10',
@@ -117,19 +117,8 @@ export const INITIAL_TABLES = [
     y: 525,
     width: 88,
     height: 55,
-    status: 'in_corso',
-    colorOverride: '#f59e0b',
-    reservation: {
-      name: 'czz',
-      clientName: 'czz',
-      guests: 3,
-      time: '20:30',
-      status: 'In Attesa',
-      color: '#f59e0b',
-      code: 'SV-7821',
-      phone: '+39 333 4567890',
-      notes: '',
-    },
+    status: 'disponibile',
+    reservation: null,
   },
 
   // --- SALA DESTRA ---
