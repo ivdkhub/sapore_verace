@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { MENU_ITEMS as DEFAULT_MENU_ITEMS } from '../data/menuData';
 import { DEFAULT_WEEKLY_PRODUCTS } from '../data/weeklyData';
+import { DEFAULT_EVENTS, EVENT_CATEGORIES } from '../data/eventsData';
 import { api } from '../services/api';
 
 const MenuContext = createContext();
@@ -26,10 +27,11 @@ export const MenuProvider = ({ children }) => {
   // Valori iniziali dal codice (render immediato), poi sostituiti da quelli salvati sul server
   const [menuItems, setMenuItemsState] = useState(DEFAULT_MENU_ITEMS);
   const [weeklyProducts, setWeeklyProductsState] = useState(DEFAULT_WEEKLY_PRODUCTS);
+  const [events, setEventsState] = useState(DEFAULT_EVENTS);
   const [isMenuLoaded, setIsMenuLoaded] = useState(false);
 
   // Solo le modifiche fatte dall'admin vengono salvate sul server
-  const dirtyRef = useRef({ menu: false, weekly: false });
+  const dirtyRef = useRef({ menu: false, weekly: false, events: false });
   // Se il menu non è arrivato dal server non si salva: si sovrascriverebbe con quello predefinito
   const loadedFromServerRef = useRef(false);
   const setMenuItems = (updater) => {
@@ -39,6 +41,10 @@ export const MenuProvider = ({ children }) => {
   const setWeeklyProducts = (updater) => {
     dirtyRef.current.weekly = true;
     setWeeklyProductsState(updater);
+  };
+  const setEvents = (updater) => {
+    dirtyRef.current.events = true;
+    setEventsState(updater);
   };
 
   const [toastMessage, setToastMessage] = useState(null);
@@ -54,7 +60,7 @@ export const MenuProvider = ({ children }) => {
   useEffect(() => {
     let cancelled = false;
     api
-      .get('state.php?keys=menu_items,weekly_products')
+      .get('state.php?keys=menu_items,weekly_products,events')
       .then(({ data }) => {
         if (cancelled) return;
         loadedFromServerRef.current = true;
@@ -62,6 +68,8 @@ export const MenuProvider = ({ children }) => {
         if (Array.isArray(data.weekly_products) && data.weekly_products.length > 0) {
           setWeeklyProductsState(data.weekly_products.slice(0, 3));
         }
+        // Una lista vuota è valida: l'admin può aver tolto tutti gli eventi
+        if (Array.isArray(data.events)) setEventsState(data.events);
       })
       .catch((err) => console.warn('Menu: uso i dati predefiniti, server non raggiungibile.', err.message))
       .finally(() => !cancelled && setIsMenuLoaded(true));
@@ -102,6 +110,22 @@ export const MenuProvider = ({ children }) => {
     }, 500);
     return () => clearTimeout(timer);
   }, [weeklyProducts]);
+
+  useEffect(() => {
+    if (!dirtyRef.current.events) return;
+    if (!loadedFromServerRef.current) {
+      showToast('Eventi NON salvati: dati del server non caricati. Ricarica la pagina e riprova.', 'delete');
+      return;
+    }
+    const timer = setTimeout(() => {
+      dirtyRef.current.events = false;
+      api.put('state.php', { key: 'events', value: events }).catch((err) => {
+        dirtyRef.current.events = true;
+        showToast(`Eventi NON salvati sul server: ${err.message}`, 'delete');
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [events]);
 
   // Compute dynamic categories and item counts
   const categories = React.useMemo(() => {
@@ -335,6 +359,87 @@ export const MenuProvider = ({ children }) => {
     showToast('Prodotti della settimana ripristinati ai valori iniziali.');
   };
 
+  // ==========================================
+  // EVENTI E SERATE A TEMA
+  // ==========================================
+  const categoryLabelFor = (id) => EVENT_CATEGORIES.find((c) => c.id === id)?.label || 'Evento';
+
+  // Normalizza i campi inviati dal modulo admin
+  const normalizeEvent = (data) => ({
+    title: (data.title || 'Nuovo evento').trim(),
+    category: EVENT_CATEGORIES.some((c) => c.id === data.category) ? data.category : 'degustazioni',
+    categoryLabel: (data.categoryLabel || '').trim() || categoryLabelFor(data.category),
+    date: (data.date || '').trim(),
+    time: (data.time || '').trim(),
+    price: (data.price || '').trim(),
+    image: data.image || '/images/ev1.jpg',
+    shortDesc: (data.shortDesc || '').trim(),
+    fullDesc: (data.fullDesc || '').trim(),
+    highlights: (Array.isArray(data.highlights) ? data.highlights : String(data.highlights || '').split('\n'))
+      .map((h) => h.trim())
+      .filter(Boolean),
+    active: data.active !== false,
+    endDate: data.endDate || '',
+  });
+
+  const addEvent = (data) => {
+    const newEvent = { id: `ev_${Date.now()}`, ...normalizeEvent(data), createdAt: new Date().toISOString() };
+    setEvents((prev) => [newEvent, ...prev]);
+    showToast(`Evento "${newEvent.title}" aggiunto!`);
+    return newEvent;
+  };
+
+  const updateEvent = (id, data) => {
+    setEvents((prev) =>
+      prev.map((ev) => (ev.id === id ? { ...ev, ...normalizeEvent({ ...ev, ...data }), updatedAt: new Date().toISOString() } : ev))
+    );
+    showToast('Evento aggiornato!');
+  };
+
+  const deleteEvent = (id) => {
+    const target = events.find((ev) => ev.id === id);
+    setEvents((prev) => prev.filter((ev) => ev.id !== id));
+    showToast(`Evento "${target?.title || ''}" eliminato.`, 'delete');
+  };
+
+  const duplicateEvent = (id) => {
+    const original = events.find((ev) => ev.id === id);
+    if (!original) return;
+    const copy = { ...original, id: `ev_${Date.now()}`, title: `${original.title} (Copia)`, active: false, createdAt: new Date().toISOString() };
+    setEvents((prev) => {
+      const idx = prev.findIndex((ev) => ev.id === id);
+      const next = [...prev];
+      next.splice(idx + 1, 0, copy);
+      return next;
+    });
+    showToast(`Evento duplicato (nascosto finché non lo attivi).`);
+  };
+
+  const toggleEventActive = (id) => {
+    const target = events.find((ev) => ev.id === id);
+    setEvents((prev) => prev.map((ev) => (ev.id === id ? { ...ev, active: ev.active === false } : ev)));
+    if (target) {
+      showToast(target.active === false ? `"${target.title}" ora è visibile sul sito.` : `"${target.title}" nascosto dal sito.`, target.active === false ? 'success' : 'warning');
+    }
+  };
+
+  // Sposta un evento in su (-1) o in giù (+1) nell'ordine mostrato sul sito
+  const moveEvent = (id, delta) => {
+    setEvents((prev) => {
+      const idx = prev.findIndex((ev) => ev.id === id);
+      const to = idx + delta;
+      if (idx < 0 || to < 0 || to >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[to]] = [next[to], next[idx]];
+      return next;
+    });
+  };
+
+  const resetEventsToDefault = () => {
+    setEvents(DEFAULT_EVENTS);
+    showToast('Eventi ripristinati a quelli iniziali.');
+  };
+
   return (
     <MenuContext.Provider
       value={{
@@ -352,6 +457,14 @@ export const MenuProvider = ({ children }) => {
         updateWeeklyProduct,
         deleteWeeklyProduct,
         resetWeeklyProductsToDefault,
+        events,
+        addEvent,
+        updateEvent,
+        deleteEvent,
+        duplicateEvent,
+        toggleEventActive,
+        moveEvent,
+        resetEventsToDefault,
         toastMessage,
       }}
     >

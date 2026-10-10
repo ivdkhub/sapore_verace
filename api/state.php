@@ -1,12 +1,12 @@
 <?php
 // Dati condivisi del sito.
-// GET  ?keys=menu_items,weekly_products,opening_hours,holidays  -> pubblico
+// GET  ?keys=menu_items,weekly_products,opening_hours,holidays,events  -> pubblico
 // PUT  { key, value }                                            -> solo admin
 
 declare(strict_types=1);
 require __DIR__ . '/lib/bootstrap.php';
 
-const PUBLIC_KEYS = ['menu_items', 'weekly_products', 'opening_hours', 'holidays'];
+const PUBLIC_KEYS = ['menu_items', 'weekly_products', 'opening_hours', 'holidays', 'events'];
 
 allow_methods(['GET', 'PUT']);
 
@@ -25,7 +25,7 @@ $key = (string)($body['key'] ?? '');
 if (!in_array($key, PUBLIC_KEYS, true)) fail('Chiave non valida.');
 $value = $body['value'] ?? null;
 
-if (in_array($key, ['menu_items', 'weekly_products', 'holidays'], true) && !is_array($value)) {
+if (in_array($key, ['menu_items', 'weekly_products', 'holidays', 'events'], true) && !is_array($value)) {
     fail('Formato dati non valido.');
 }
 if ($key === 'opening_hours' && (!is_array($value) || !isset($value['monday']))) {

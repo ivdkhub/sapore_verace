@@ -7,7 +7,8 @@ import { AdminHoursHolidaysManager } from './Hours/AdminHoursHolidaysManager';
 import { AdminReservationsManager } from './Reservations/AdminReservationsManager';
 import { AdminNotificationSettings } from './Notifications/AdminNotificationSettings';
 import { AdminOrdersManager } from './Orders/AdminOrdersManager';
-import { Calendar, Users, ArrowLeft, ChevronLeft, ChevronRight, UtensilsCrossed, LayoutDashboard, Flame, Star, Clock, Bell, ShoppingBag, LogOut } from 'lucide-react';
+import { AdminEventsManager } from './Events/AdminEventsManager';
+import { Calendar, Users, ArrowLeft, ChevronLeft, ChevronRight, UtensilsCrossed, LayoutDashboard, Flame, Star, Clock, Bell, ShoppingBag, LogOut, PartyPopper } from 'lucide-react';
 import { MoustacheIcon } from '../common/Icons';
 
 export const AdminDashboard = () => {
@@ -110,6 +111,18 @@ export const AdminDashboard = () => {
             </button>
 
             <button
+              onClick={() => setActiveTab('eventi')}
+              className={`px-4 py-2 rounded-xl font-oswald text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'eventi'
+                  ? 'bg-gradient-to-r from-[#a855f7] to-[#d2401e] text-white shadow-lg shadow-[#a855f7]/30 scale-105'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <PartyPopper className="w-4 h-4" />
+              <span>🎉 Eventi</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('orari')}
               className={`px-4 py-2 rounded-xl font-oswald text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'orari'
@@ -130,7 +143,7 @@ export const AdminDashboard = () => {
               }`}
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>🛒 Ordini & Eventi</span>
+              <span>🛒 Ordini & Richieste</span>
             </button>
 
             <button
@@ -184,6 +197,13 @@ export const AdminDashboard = () => {
         {/* ========================================================== */}
         {activeTab === 'weekly' && (
           <AdminWeeklyProductsManager />
+        )}
+
+        {/* ========================================================== */}
+        {/* TAB EVENTI: SERATE A TEMA MOSTRATE SUL SITO                */}
+        {/* ========================================================== */}
+        {activeTab === 'eventi' && (
+          <AdminEventsManager />
         )}
 
         {/* ========================================================== */}

@@ -37,6 +37,7 @@ export const EXTRA_TRANSLATIONS = {
       geoUnsupported: 'La geolocalizzazione non è supportata dal tuo browser: inserisci la partenza a mano.',
     },
     events: {
+      noEvents: 'Al momento non ci sono serate in programma: richiedi il tuo evento su misura qui sotto!',
       errorContact: 'Per favore compila il tuo nome e recapito telefonico.',
       sending: 'INVIO IN CORSO...',
       submitInquiry: 'INVIA RICHIESTA PREVENTIVO',
@@ -78,6 +79,7 @@ export const EXTRA_TRANSLATIONS = {
       geoUnsupported: 'Geolocation is not supported by your browser: please type your starting point.',
     },
     events: {
+      noEvents: 'There are no special evenings scheduled right now: request your custom event below!',
       errorContact: 'Please fill in your name and phone number.',
       sending: 'SENDING...',
       submitInquiry: 'SEND QUOTE REQUEST',
@@ -169,6 +171,7 @@ export const EXTRA_TRANSLATIONS = {
       geoUnsupported: 'Dein Browser unterstützt keine Standortbestimmung: gib den Startort bitte manuell ein.',
     },
     events: {
+      noEvents: 'Derzeit sind keine Themenabende geplant: frag unten dein individuelles Event an!',
       errorContact: 'Bitte gib deinen Namen und deine Telefonnummer ein.',
       sending: 'WIRD GESENDET...',
       submitInquiry: 'ANGEBOTSANFRAGE SENDEN',
@@ -210,6 +213,7 @@ export const EXTRA_TRANSLATIONS = {
       geoUnsupported: 'Shfletuesi yt nuk mbështet vendndodhjen: shkruaj nisjen manualisht.',
     },
     events: {
+      noEvents: 'Për momentin nuk ka mbrëmje të planifikuara: kërkoni eventin tuaj të personalizuar më poshtë!',
       errorContact: 'Të lutem plotëso emrin dhe numrin e telefonit.',
       sending: 'PO DËRGOHET...',
       submitInquiry: 'DËRGO KËRKESËN PËR OFERTË',
