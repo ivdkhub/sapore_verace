@@ -7,7 +7,7 @@ require __DIR__ . '/lib/bootstrap.php';
 require __DIR__ . '/lib/notify.php';
 
 allow_methods(['POST']);
-rate_limit('inquiry', 10, 60 * 60);
+rate_limit('inquiry', 10, 60 * 60, false);
 
 $b = read_json_body(20000);
 $q = [
@@ -17,7 +17,7 @@ $q = [
     'eventType' => clean_text($b['eventType'] ?? '', 80),
     'date' => clean_text($b['date'] ?? '', 10),
     'guests' => clean_text((string)($b['guests'] ?? ''), 10),
-    'notes' => clean_text($b['notes'] ?? '', 1000),
+    'notes' => clean_text($b['notes'] ?? '', 1000, true),
 ];
 
 if (empty($b['privacyAccepted'])) fail('Per inviare la richiesta è necessario accettare l\'informativa privacy.');
@@ -29,6 +29,7 @@ if ($q['date'] !== '' && (!valid_date($q['date']) || $q['date'] < date('Y-m-d'))
 
 db()->prepare('INSERT INTO inquiries (status, data, created_at) VALUES (?, ?, ?)')
     ->execute(['nuova', json_encode($q, JSON_UNESCAPED_UNICODE), now_iso()]);
+rate_limit_record('inquiry');
 
 finish_response_then(function () use ($q) {
     dispatch_notification('notifyOnInquiry', inquiry_messages($q));

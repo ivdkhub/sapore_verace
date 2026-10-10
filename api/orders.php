@@ -52,7 +52,7 @@ if (request_method() === 'PATCH') {
 }
 
 // ------------------------------ POST: nuovo ordine -----------------------
-rate_limit('order', 15, 60 * 60);
+rate_limit('order', 15, 60 * 60, false);
 
 $b = read_json_body(50000);
 $orderType = ($b['orderType'] ?? '') === 'pickup' ? 'pickup' : 'delivery';
@@ -64,7 +64,7 @@ $customer = [
     'address' => clean_text($c['address'] ?? '', 160),
     'city' => clean_text($c['city'] ?? '', 80),
     'postalCode' => clean_text($c['postalCode'] ?? '', 10),
-    'notes' => clean_text($c['notes'] ?? '', 500),
+    'notes' => clean_text($c['notes'] ?? '', 500, true),
 ];
 $requested = clean_text($b['requestedTime'] ?? 'asap', 5);
 
@@ -83,23 +83,19 @@ if ($orderType === 'delivery') {
     }
 }
 
-// --- Orario: oggi, durante un turno aperto ---
-$today = date('Y-m-d');
+// --- Orario: durante un turno aperto (anche quello di ieri sera se chiude dopo mezzanotte) ---
 $now = now_minutes();
 $prep = max(0, (int)cfg('orders.prep_minutes', 20));
 $openShift = null;
-foreach (['pranzo', 'cena'] as $shift) {
-    $s = shift_status($today, $shift);
-    if (!$s['open']) continue;
-    $open = time_to_minutes((string)$s['hours']['open']);
-    $close = time_to_minutes((string)$s['hours']['close']);
-    if ($open === null || $close === null) continue;
-    if ($close <= $open) $close += 1440;
+$t = $requested === 'asap' ? null : time_to_minutes($requested);
+foreach (current_shift_windows() as $w) {
     if ($requested === 'asap') {
-        if ($now >= $open && $now <= $close - 15) $openShift = $shift;
-    } else {
-        $t = time_to_minutes($requested);
-        if ($t !== null && $t >= $open && $t <= $close && $t >= $now + $prep) $openShift = $shift;
+        if ($now >= $w['open'] && $now <= $w['close'] - 15) $openShift = $w['shift'];
+    } elseif ($t !== null) {
+        // "00:15" scelto alle 23:00 indica stanotte, cioè 1440 + 15
+        foreach ([$t, $t + 1440] as $cand) {
+            if ($cand >= $w['open'] && $cand <= $w['close'] && $cand >= $now + $prep) $openShift = $w['shift'];
+        }
     }
     if ($openShift) break;
 }
@@ -160,6 +156,7 @@ $order = [
 ];
 $pdo->prepare('INSERT INTO orders (code, status, total, data, created_at) VALUES (?, ?, ?, ?, ?)')
     ->execute([$code, 'nuovo', $total, json_encode($order, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), now_iso()]);
+rate_limit_record('order');
 
 finish_response_then(function () use ($order) {
     dispatch_notification('notifyOnOrder', order_messages($order));

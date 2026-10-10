@@ -103,6 +103,8 @@ export const AdminProvider = ({ children }) => {
   const [openingHours, setOpeningHoursState] = useState(DEFAULT_OPENING_HOURS);
   const [holidays, setHolidaysState] = useState(DEFAULT_HOLIDAYS);
   const scheduleDirtyRef = useRef({ hours: false, holidays: false });
+  // Finché gli orari non arrivano dal server non si salva nulla: si sovrascriverebbero con i valori predefiniti
+  const scheduleLoadedRef = useRef(false);
   const setOpeningHours = (updater) => {
     scheduleDirtyRef.current.hours = true;
     setOpeningHoursState(updater);
@@ -118,12 +120,17 @@ export const AdminProvider = ({ children }) => {
       .then(({ data }) => {
         if (data.opening_hours && data.opening_hours.monday) setOpeningHoursState(data.opening_hours);
         if (Array.isArray(data.holidays)) setHolidaysState(data.holidays);
+        scheduleLoadedRef.current = true;
       })
       .catch((err) => console.warn('Orari: uso i valori predefiniti, server non raggiungibile.', err.message));
   }, []);
 
   useEffect(() => {
     if (!scheduleDirtyRef.current.hours) return;
+    if (!scheduleLoadedRef.current) {
+      flashMessage('⚠️ Orari NON salvati: dati del server non caricati. Ricarica la pagina e riprova.', 6000);
+      return;
+    }
     scheduleDirtyRef.current.hours = false;
     api.put('state.php', { key: 'opening_hours', value: openingHours }).catch((err) => {
       scheduleDirtyRef.current.hours = true;
@@ -134,6 +141,10 @@ export const AdminProvider = ({ children }) => {
 
   useEffect(() => {
     if (!scheduleDirtyRef.current.holidays) return;
+    if (!scheduleLoadedRef.current) {
+      flashMessage('⚠️ Ferie NON salvate: dati del server non caricati. Ricarica la pagina e riprova.', 6000);
+      return;
+    }
     scheduleDirtyRef.current.holidays = false;
     api.put('state.php', { key: 'holidays', value: holidays }).catch((err) => {
       scheduleDirtyRef.current.holidays = true;
@@ -238,9 +249,15 @@ export const AdminProvider = ({ children }) => {
     const res = await api.get(`configs.php${since ? `?since=${encodeURIComponent(since)}` : ''}`);
     lastSyncRef.current = res.serverTime;
     const incoming = res.configs || {};
+    // Le configurazioni con una modifica dell'admin in attesa di salvataggio restano alla versione
+    // vecchia: così il salvataggio riceve 409 e non cancella una prenotazione online appena arrivata.
     const changedKeys = Object.keys(incoming).filter(
-      (key) => incoming[key].version !== versionsRef.current[key]
+      (key) => incoming[key].version !== versionsRef.current[key] && pendingSaveRef.current?.key !== key
     );
+    // Le chiavi saltate vanno ricontrollate al prossimo giro anche se il server non le cambia più
+    if (Object.keys(incoming).some((key) => pendingSaveRef.current?.key === key)) {
+      lastSyncRef.current = since;
+    }
     if (changedKeys.length === 0 && knownReservationCodesRef.current) return;
 
     const isFirstSync = knownReservationCodesRef.current === null;

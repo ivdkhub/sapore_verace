@@ -36,3 +36,6 @@ api/data/*
 !api/data/.htaccess
 uploads/
 api/seed.json
+
+# Pacchetto per GoDaddy
+sapore-verace-deploy.zip

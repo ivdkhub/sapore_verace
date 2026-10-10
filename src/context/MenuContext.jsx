@@ -30,6 +30,8 @@ export const MenuProvider = ({ children }) => {
 
   // Solo le modifiche fatte dall'admin vengono salvate sul server
   const dirtyRef = useRef({ menu: false, weekly: false });
+  // Se il menu non è arrivato dal server non si salva: si sovrascriverebbe con quello predefinito
+  const loadedFromServerRef = useRef(false);
   const setMenuItems = (updater) => {
     dirtyRef.current.menu = true;
     setMenuItemsState(updater);
@@ -55,6 +57,7 @@ export const MenuProvider = ({ children }) => {
       .get('state.php?keys=menu_items,weekly_products')
       .then(({ data }) => {
         if (cancelled) return;
+        loadedFromServerRef.current = true;
         if (Array.isArray(data.menu_items) && data.menu_items.length > 0) setMenuItemsState(data.menu_items);
         if (Array.isArray(data.weekly_products) && data.weekly_products.length > 0) {
           setWeeklyProductsState(data.weekly_products.slice(0, 3));
@@ -70,6 +73,10 @@ export const MenuProvider = ({ children }) => {
   // Salvataggio sul server (con piccolo ritardo per raggruppare modifiche ravvicinate)
   useEffect(() => {
     if (!dirtyRef.current.menu) return;
+    if (!loadedFromServerRef.current) {
+      showToast('Menù NON salvato: dati del server non caricati. Ricarica la pagina e riprova.', 'delete');
+      return;
+    }
     const timer = setTimeout(() => {
       dirtyRef.current.menu = false;
       api.put('state.php', { key: 'menu_items', value: menuItems }).catch((err) => {
@@ -82,6 +89,10 @@ export const MenuProvider = ({ children }) => {
 
   useEffect(() => {
     if (!dirtyRef.current.weekly) return;
+    if (!loadedFromServerRef.current) {
+      showToast('Prodotti della settimana NON salvati: dati del server non caricati. Ricarica la pagina e riprova.', 'delete');
+      return;
+    }
     const timer = setTimeout(() => {
       dirtyRef.current.weekly = false;
       api.put('state.php', { key: 'weekly_products', value: weeklyProducts }).catch((err) => {

@@ -73,3 +73,37 @@ function now_minutes(): int
 {
     return (int)date('G') * 60 + (int)date('i');
 }
+
+// Minuti di un orario del turno contati dalla mezzanotte del giorno del turno:
+// per un turno che chiude dopo mezzanotte (es. 19:00-00:30) "00:00" vale 1440, non 0.
+function shift_minutes(string $date, string $shift, string $hhmm): ?int
+{
+    $t = time_to_minutes($hhmm);
+    if ($t === null) return null;
+    $status = shift_status($date, $shift);
+    $open = $status['open'] ? time_to_minutes((string)($status['hours']['open'] ?? '')) : null;
+    return ($open !== null && $t < $open) ? $t + 1440 : $t;
+}
+
+// Turni da considerare "adesso": quelli di oggi e quello di ieri se chiude dopo mezzanotte.
+// Ogni voce: ['date', 'shift', 'open', 'close'] in minuti dalla mezzanotte di OGGI.
+function current_shift_windows(): array
+{
+    $out = [];
+    foreach ([-1, 0] as $dayOffset) {
+        $date = date('Y-m-d', strtotime(($dayOffset < 0 ? '-1' : '+0') . ' day'));
+        foreach (['pranzo', 'cena'] as $shift) {
+            $s = shift_status($date, $shift);
+            if (!$s['open']) continue;
+            $open = time_to_minutes((string)($s['hours']['open'] ?? ''));
+            $close = time_to_minutes((string)($s['hours']['close'] ?? ''));
+            if ($open === null || $close === null) continue;
+            if ($close <= $open) $close += 1440;
+            $open += $dayOffset * 1440;
+            $close += $dayOffset * 1440;
+            if ($close <= 0) continue; // turno di ieri già finito
+            $out[] = ['date' => $date, 'shift' => $shift, 'open' => $open, 'close' => $close];
+        }
+    }
+    return $out;
+}

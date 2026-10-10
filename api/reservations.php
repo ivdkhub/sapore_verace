@@ -17,7 +17,7 @@ function shift_availability(string $date, string $shift, int $guests): array
     $slots = booking_slots($date, $shift);
     if ($date === date('Y-m-d')) {
         $now = now_minutes();
-        $slots = array_values(array_filter($slots, fn($s) => time_to_minutes($s) > $now + 30));
+        $slots = array_values(array_filter($slots, fn($s) => shift_minutes($date, $shift, $s) > $now + 30));
     }
     $cfg = load_day_config($date . '_' . $shift);
     $tables = $cfg ? (array)$cfg['data']['tables'] : default_day_config()['tables'];
@@ -42,7 +42,7 @@ if (request_method() === 'GET') {
 }
 
 // ----------------------------- POST: nuova prenotazione ------------------
-rate_limit('reservation', 12, 60 * 60);
+rate_limit('reservation', 12, 60 * 60, false);
 
 $b = read_json_body(20000);
 $name = clean_text($b['name'] ?? '', 80);
@@ -52,7 +52,7 @@ $date = clean_text($b['date'] ?? '', 10);
 $time = clean_text($b['time'] ?? '', 5);
 $shift = ($b['shift'] ?? '') === 'pranzo' ? 'pranzo' : 'cena';
 $guests = (int)($b['guests'] ?? 0);
-$notes = clean_text($b['notes'] ?? '', 500);
+$notes = clean_text($b['notes'] ?? '', 500, true);
 
 if (empty($b['privacyAccepted'])) fail('Per prenotare è necessario accettare l\'informativa privacy.');
 if (mb_strlen($name) < 2) fail('Inserisci il tuo nome e cognome.');
@@ -69,7 +69,7 @@ if ($date > $maxDate) fail('Si può prenotare al massimo con ' . (int)cfg('reser
 $status = shift_status($date, $shift);
 if (!$status['open']) fail($status['reason']);
 if (!in_array($time, booking_slots($date, $shift), true)) fail('L\'orario scelto non è disponibile per questo turno.');
-if ($date === $today && time_to_minutes($time) <= now_minutes() + 30) {
+if ($date === $today && shift_minutes($date, $shift, $time) <= now_minutes() + 30) {
     fail('Per oggi è possibile prenotare solo con almeno 30 minuti di anticipo. Per urgenze chiamaci.');
 }
 
@@ -120,10 +120,13 @@ try {
     $pdo->prepare('INSERT INTO reservations (code, config_key, table_id, data, created_at) VALUES (?, ?, ?, ?, ?)')
         ->execute([$code, $key, (string)$table['id'], json_encode($reservation, JSON_UNESCAPED_UNICODE), now_iso()]);
     db_commit($pdo);
+    rate_limit_record('reservation');
 } catch (Throwable $e) {
     db_rollback($pdo);
     throw $e;
 }
+
+if (random_int(1, 20) === 1) purge_old_data(); // conservazione dati (GDPR) anche se l'admin non apre la dashboard
 
 $payload = [
     'ok' => true,

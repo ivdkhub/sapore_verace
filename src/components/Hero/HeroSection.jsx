@@ -68,7 +68,7 @@ export const HeroSection = () => {
       id: slide.id,
       name: slide.name || `${slide.titlePrefix} ${slide.titleHighlight}`.trim(),
       price: slide.price,
-      numericPrice: slide.numericPrice || 11.5,
+      numericPrice: slide.numericPrice,
       image: slide.image,
       ingredients: slide.desc,
     }, 1);
@@ -89,7 +89,7 @@ export const HeroSection = () => {
       {addedToast && (
         <div className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 z-50 flex items-center gap-3 bg-[#d2401e] text-white px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-5 font-oswald tracking-wider uppercase text-xs sm:text-sm border border-white/20 whitespace-nowrap">
           <Check className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-          <span>{addedToast} Aggiunto al Carrello!</span>
+          <span>{addedToast} {t.reservation?.addedToCart || 'Aggiunto al carrello!'}</span>
         </div>
       )}
 

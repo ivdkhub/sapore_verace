@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:api": "node scripts/export-seed.mjs && php -S 127.0.0.1:5180 api/dev-router.php",
     "build": "node scripts/export-seed.mjs && vite build && node scripts/copy-api.mjs",
+    "package": "npm run build && node scripts/package.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

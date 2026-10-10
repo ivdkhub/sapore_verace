@@ -17,7 +17,7 @@ import {
 import { useAdmin, getTodayDateString } from '../../context/AdminContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { PrivacyConsent } from '../Legal/PrivacyConsent';
-import { timeToMinutes } from '../../utils/schedule';
+import { shiftMinutes } from '../../utils/schedule';
 
 export const ReservationSection = ({ isModal = false }) => {
   const { createClientReservation, isRestaurantOpenOnDate, holidays, getBookingSlots } = useAdmin();
@@ -47,7 +47,8 @@ export const ReservationSection = ({ isModal = false }) => {
     if (date !== getTodayDateString()) return all;
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
-    return all.filter((slot) => timeToMinutes(slot) > nowMin + 30);
+    const open = isRestaurantOpenOnDate(date, shiftKey).shiftHours?.open;
+    return all.filter((slot) => shiftMinutes(slot, open) > nowMin + 30);
   };
   const currentSlots = slotsForShift(shift);
 
@@ -179,7 +180,9 @@ export const ReservationSection = ({ isModal = false }) => {
   };
 
   const currentOpenCheck = isRestaurantOpenOnDate ? isRestaurantOpenOnDate(date, shift) : { isOpen: true };
-  const activeHolidayBanner = holidays?.find((h) => h.bannerActive);
+  // Solo chiusure in corso o future: un periodo già finito non va più annunciato
+  const todayStr = getTodayDateString();
+  const activeHolidayBanner = holidays?.find((h) => h.bannerActive && (h.endDate || h.startDate) >= todayStr);
 
   const mainContent = (
     <div className={isModal ? "max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-6 relative z-10" : "max-w-[1240px] mx-auto px-4 sm:px-8 relative z-10"}>
@@ -212,7 +215,7 @@ export const ReservationSection = ({ isModal = false }) => {
               </div>
               <div>
                 <span className="text-[10px] font-oswald tracking-widest text-amber-200 uppercase font-bold block">
-                  COMUNICAZIONE UFFICIALE CHIUSURE
+                  {tr.closureNotice || 'COMUNICAZIONE UFFICIALE CHIUSURE'}
                 </span>
                 <h4 className="font-oswald text-base font-bold uppercase tracking-wide">
                   {activeHolidayBanner.name}

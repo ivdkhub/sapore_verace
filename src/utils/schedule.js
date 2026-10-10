@@ -22,6 +22,15 @@ export const buildSlots = (hours, step = SLOT_MINUTES, lastBeforeClose = LAST_SL
   return slots;
 };
 
+// Minuti di un orario del turno dalla mezzanotte del giorno del turno
+// (in un turno 19:00-00:30 "00:00" vale 1440, non 0). Come shift_minutes() in PHP.
+export const shiftMinutes = (hhmm, shiftOpen) => {
+  const t = timeToMinutes(hhmm);
+  const open = timeToMinutes(shiftOpen);
+  if (t === null) return null;
+  return open !== null && t < open ? t + 24 * 60 : t;
+};
+
 // Riassunto leggibile degli orari, es. "Mar - Dom" / "12:00 - 14:30"
 const DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 

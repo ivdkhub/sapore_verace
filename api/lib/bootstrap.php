@@ -99,6 +99,13 @@ function is_https(): bool
 function start_session(): void
 {
     if (session_status() === PHP_SESSION_ACTIVE) return;
+    // Sessioni in una cartella propria: sull'hosting condiviso la cartella comune
+    // viene ripulita dopo 24 minuti e l'admin verrebbe scollegato.
+    $dir = __DIR__ . '/../data/sessions';
+    if (!is_dir($dir)) @mkdir($dir, 0700, true);
+    if (is_dir($dir) && is_writable($dir)) session_save_path($dir);
+    ini_set('session.gc_maxlifetime', (string)(8 * 3600));
+    ini_set('session.use_strict_mode', '1');
     session_name('sv_admin');
     session_set_cookie_params([
         'lifetime' => 0,
@@ -112,6 +119,8 @@ function start_session(): void
 
 function is_admin(): bool
 {
+    // I visitatori normali non hanno il cookie: nessuna sessione viene creata per loro
+    if (session_status() !== PHP_SESSION_ACTIVE && empty($_COOKIE['sv_admin'])) return false;
     start_session();
     $ok = !empty($_SESSION['admin']) && ($_SESSION['expires'] ?? 0) > time();
     if ($ok) $_SESSION['expires'] = time() + 8 * 3600; // scadenza scorrevole: 8 ore di inattività
@@ -136,8 +145,10 @@ function client_ip(): string
     return substr((string)($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'), 0, 64);
 }
 
-// Limite semplice di richieste per IP (anti-spam su prenotazioni/ordini/login)
-function rate_limit(string $bucket, int $max, int $windowSeconds): void
+// Limite semplice di richieste per IP (anti-spam su prenotazioni/ordini/login).
+// Con $record = false controlla soltanto: il tentativo si conta poi con rate_limit_record(),
+// così un cliente che corregge un errore nel modulo non consuma il suo limite.
+function rate_limit(string $bucket, int $max, int $windowSeconds, bool $record = true): void
 {
     $pdo = db();
     $since = date('Y-m-d H:i:s', time() - $windowSeconds);
@@ -147,7 +158,12 @@ function rate_limit(string $bucket, int $max, int $windowSeconds): void
     if ((int)$st->fetchColumn() >= $max) {
         fail('Troppe richieste in poco tempo. Riprova tra qualche minuto.', 429);
     }
-    $pdo->prepare('INSERT INTO rate_limits (bucket, ip, created_at) VALUES (?, ?, ?)')
+    if ($record) rate_limit_record($bucket);
+}
+
+function rate_limit_record(string $bucket): void
+{
+    db()->prepare('INSERT INTO rate_limits (bucket, ip, created_at) VALUES (?, ?, ?)')
         ->execute([$bucket, client_ip(), date('Y-m-d H:i:s')]);
 }
 
@@ -268,10 +284,12 @@ function kv_set(string $key, $value): void
 // --------------------------------------------------------------------------
 // Validazione e utilità
 // --------------------------------------------------------------------------
-function clean_text($value, int $max = 200): string
+// Testo pulito; solo i campi $multiline (note) possono contenere a capo
+function clean_text($value, int $max = 200, bool $multiline = false): string
 {
-    $s = trim((string)($value ?? ''));
+    $s = is_scalar($value) ? trim((string)$value) : '';
     $s = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $s) ?? '';
+    if (!$multiline) $s = trim(preg_replace('/\s*[\r\n]+\s*/u', ' ', $s) ?? '');
     return mb_substr($s, 0, $max);
 }
 

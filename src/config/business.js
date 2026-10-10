@@ -1,12 +1,14 @@
 // Dati dell'attività usati in footer, informativa privacy, SEO e link.
 // ⚠️ Compila i campi vuoti prima della pubblicazione: la P.IVA nel sito è obbligatoria per legge.
 
+import site from '../../site.config.json';
+
 export const BUSINESS = {
   name: 'Sapore Verace',
   legalName: '', // ragione sociale, es. "Sapore Verace S.r.l." o "Mario Rossi (ditta individuale)"
   vatNumber: '', // Partita IVA, es. "01234567890"
   privacyEmail: '', // email per richieste privacy, es. "info@saporeverace.it"
-  siteUrl: 'https://www.saporeverace.it',
+  siteUrl: site.siteUrl.replace(/\/+$/, ''), // si cambia in site.config.json
 
   address: {
     street: 'Via Borsano 44',

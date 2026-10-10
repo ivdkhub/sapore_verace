@@ -10,6 +10,11 @@ DirectoryIndex index.html
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+  # Indirizzo senza "www" -> con "www" (come in site.config.json). Togli il # quando il dominio è attivo.
+  # RewriteCond %{HTTP_HOST} !^www\. [NC]
+  # RewriteCond %{HTTP_HOST} !^localhost [NC]
+  # RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
   # Le API e i file esistenti vengono serviti così come sono
   RewriteRule ^api/ - [L]
   RewriteCond %{REQUEST_FILENAME} -f [OR]

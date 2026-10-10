@@ -13,21 +13,31 @@ const PREP_MINUTES = 20; // come 'orders.prep_minutes' in api/config.php
 const useTodayOrderTimes = (isOpenModal) => {
   const { isRestaurantOpenOnDate, openingHours, holidays } = useAdmin();
   return useMemo(() => {
-    const today = getTodayDateString();
     const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const times = [];
     let openNow = false;
-    ['pranzo', 'cena'].forEach((shift) => {
-      const check = isRestaurantOpenOnDate(today, shift);
-      if (!check.isOpen) return;
-      const open = timeToMinutes(check.shiftHours?.open);
-      let close = timeToMinutes(check.shiftHours?.close);
-      if (open === null || close === null) return;
-      if (close <= open) close += 24 * 60;
-      if (nowMin >= open && nowMin <= close - 15) openNow = true;
-      const start = Math.max(open, Math.ceil((nowMin + PREP_MINUTES) / 15) * 15);
-      for (let m = start; m <= close; m += 15) times.push(minutesToTime(m));
+    // Turni di oggi + quello di ieri sera se chiude dopo mezzanotte (minuti dalla mezzanotte di oggi)
+    [[yesterday, -1440], [now, 0]].forEach(([day, offset]) => {
+      ['pranzo', 'cena'].forEach((shift) => {
+        const check = isRestaurantOpenOnDate(getTodayDateString(day), shift);
+        if (!check.isOpen) return;
+        let open = timeToMinutes(check.shiftHours?.open);
+        let close = timeToMinutes(check.shiftHours?.close);
+        if (open === null || close === null) return;
+        if (close <= open) close += 24 * 60;
+        open += offset;
+        close += offset;
+        if (close <= 0) return;
+        if (nowMin >= open && nowMin <= close - 15) openNow = true;
+        const start = Math.max(open, Math.ceil((nowMin + PREP_MINUTES) / 15) * 15);
+        for (let m = start; m <= close; m += 15) {
+          const label = minutesToTime(m);
+          if (!times.includes(label)) times.push(label);
+        }
+      });
     });
     return { times, openNow };
     // ricalcolato a ogni apertura del checkout e quando cambiano orari/ferie

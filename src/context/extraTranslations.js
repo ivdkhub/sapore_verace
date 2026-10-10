@@ -22,6 +22,8 @@ export const EXTRA_TRANSLATIONS = {
       alertAddress: 'Per favore inserisci l’indirizzo di consegna con il numero civico.',
     },
     reservation: {
+      closureNotice: 'COMUNICAZIONE UFFICIALE CHIUSURE',
+      addedToCart: 'Aggiunto al carrello!',
       closedShort: 'chiuso',
       noSlots: 'Nessun orario prenotabile per questo turno: scegli un altro giorno o turno.',
       errorSlot: 'Scegli uno degli orari disponibili.',
@@ -61,6 +63,8 @@ export const EXTRA_TRANSLATIONS = {
       alertAddress: 'Please enter the delivery address including the street number.',
     },
     reservation: {
+      closureNotice: 'CLOSING NOTICE',
+      addedToCart: 'Added to cart!',
       closedShort: 'closed',
       noSlots: 'No bookable times for this shift: choose another day or shift.',
       errorSlot: 'Please choose one of the available times.',
@@ -150,6 +154,8 @@ export const EXTRA_TRANSLATIONS = {
       submitPickup: 'ABHOLBESTELLUNG BESTÄTIGEN',
     },
     reservation: {
+      closureNotice: 'HINWEIS ZU SCHLIESSZEITEN',
+      addedToCart: 'In den Warenkorb gelegt!',
       closedShort: 'geschlossen',
       noSlots: 'Für diese Schicht sind keine Uhrzeiten buchbar: wähle einen anderen Tag oder eine andere Schicht.',
       errorSlot: 'Bitte wähle eine der verfügbaren Uhrzeiten.',
@@ -189,6 +195,8 @@ export const EXTRA_TRANSLATIONS = {
       alertAddress: 'Të lutem shkruaj adresën e dorëzimit me numrin e shtëpisë.',
     },
     reservation: {
+      closureNotice: 'NJOFTIM PËR MBYLLJEN',
+      addedToCart: 'U shtua në shportë!',
       closedShort: 'mbyllur',
       noSlots: 'Nuk ka orare të rezervueshme për këtë turn: zgjidh një ditë ose turn tjetër.',
       errorSlot: 'Zgjidh një nga oraret e disponueshme.',
