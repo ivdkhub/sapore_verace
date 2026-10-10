@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { notifyNewReservation } from '../services/notificationService';
 
 const AdminContext = createContext();
 
@@ -1058,6 +1059,24 @@ export const AdminProvider = ({ children }) => {
         })
       );
     } catch (e) {}
+
+    // 9. Invia notifiche multicanale (Email, Telegram, WhatsApp)
+    try {
+      notifyNewReservation({
+        code: bookingCode,
+        name: newResObj.name,
+        guests: newResObj.guests,
+        date,
+        time,
+        shift,
+        phone: newResObj.phone,
+        email: newResObj.email,
+        tableName: bestTable.name,
+        notes: newResObj.notes,
+      });
+    } catch (notifErr) {
+      console.warn('Errore invio notifiche prenotazione:', notifErr);
+    }
 
     return {
       success: true,

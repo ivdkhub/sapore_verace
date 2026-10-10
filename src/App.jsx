@@ -14,7 +14,7 @@ import { FindUsSection } from './components/Location/FindUsSection';
 import { Footer } from './components/Footer/Footer';
 import { CartDrawer } from './components/Cart/CartDrawer';
 import { CheckoutModal } from './components/Cart/CheckoutModal';
-import { OrderTrackingModal } from './components/Cart/OrderTrackingModal';
+import { OrderConfirmationModal } from './components/Cart/OrderConfirmationModal';
 import { ReservationSection } from './components/Reservation/ReservationSection';
 import { ClientReservationModal } from './components/Reservation/ClientReservationModal';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
@@ -70,10 +70,10 @@ function MainAppContent() {
       {/* 11. MINIMAL FLOATING BACK TO TOP BUTTON */}
       <ScrollToTop />
 
-      {/* SHOPPING CART, CHECKOUT, BOOKING & LIVE ORDER TRACKING MODALS */}
+      {/* SHOPPING CART, CHECKOUT, BOOKING & ORDER CONFIRMATION MODALS */}
       <CartDrawer />
       <CheckoutModal />
-      <OrderTrackingModal />
+      <OrderConfirmationModal />
       <ClientReservationModal />
     </div>
   );

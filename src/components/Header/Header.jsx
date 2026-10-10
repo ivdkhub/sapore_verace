@@ -10,12 +10,12 @@ import { useAdmin } from '../../context/AdminContext';
 
 export const Header = () => {
   const { t } = useLanguage();
-  const { totalItemsCount, setIsCartOpen, activeOrder, setIsTrackingOpen } = useCart();
+  const { totalItemsCount, setIsCartOpen } = useCart();
   const { setIsBookingModalOpen } = useAdmin();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeItem, setActiveItem] = useState('HOME');
+  const [activeItem, setActiveItem] = useState('MENU');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,15 +31,13 @@ export const Header = () => {
   }, []);
 
   const NAV_ITEMS_LEFT = [
-    { label: t.nav?.home || 'HOME', href: '#', active: true, hasSub: true, key: 'HOME' },
-    { label: t.nav?.pages || 'PAGINE', href: '#pages', hasSub: true, key: 'PAGES' },
-    { label: t.nav?.menu || 'MENÙ', href: '#menu', hasSub: true, key: 'MENU' },
+    { label: t.nav?.menu || 'MENÙ', href: '#menu', key: 'MENU' },
+    { label: t.nav?.fixedMenu || t.fixedMenu || 'MENÙ FISSO', href: '#menu-fisso', key: 'MENU_FISSO' },
   ];
 
   const NAV_ITEMS_RIGHT = [
-    { label: t.nav?.fixedMenu || t.fixedMenu || 'MENÙ FISSO', href: '#menu-fisso', hasSub: false, key: 'MENU_FISSO' },
-    { label: t.nav?.event || 'EVENTI', href: '#event', hasSub: true, key: 'EVENT' },
-    { label: t.nav?.findUs || 'COME TROVARCI', href: '#come-trovarci', hasSub: false, key: 'FIND_US' },
+    { label: t.nav?.event || 'EVENTI', href: '#event', key: 'EVENT' },
+    { label: t.nav?.findUs || 'COME TROVARCI', href: '#come-trovarci', key: 'FIND_US' },
   ];
 
   return (
@@ -172,18 +170,6 @@ export const Header = () => {
                 <span>{t.bookNow || 'PRENOTA ORA'}</span>
               </a>
 
-              {/* Active Order Live Tracking Badge (if order exists) */}
-              {activeOrder && (
-                <button
-                  onClick={() => setIsTrackingOpen(true)}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#d2401e] hover:bg-[#b83314] text-white rounded-full font-oswald text-xs tracking-wider uppercase animate-bounce cursor-pointer shadow-lg shadow-[#d2401e]/40"
-                  title="Vedi stato ordine in tempo reale"
-                >
-                  <Bike className="w-3.5 h-3.5" />
-                  <span>{t.trackingBadge || 'TRACKING'}</span>
-                </button>
-              )}
-
               {/* Cart Trigger with Dynamic Counter Badge */}
               <button
                 onClick={() => setIsCartOpen(true)}
@@ -235,20 +221,6 @@ export const Header = () => {
               <Calendar className="w-4 h-4" />
               <span>{t.bookNow || 'PRENOTA UN TAVOLO ORA'}</span>
             </button>
-
-            {/* Mobile Tracking Shortcut */}
-            {activeOrder && (
-              <button
-                onClick={() => {
-                  setIsTrackingOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full mb-3 py-2.5 bg-[#d2401e] text-white rounded-xl font-oswald text-xs tracking-wider uppercase flex items-center justify-center gap-2 animate-bounce"
-              >
-                <Bike className="w-4 h-4" />
-                <span>{t.tracking?.tag || 'LIVE ORDER TRACKING'}</span>
-              </button>
-            )}
 
             <ul className="space-y-3 pt-2">
               {[...NAV_ITEMS_LEFT, ...NAV_ITEMS_RIGHT].map((item) => (

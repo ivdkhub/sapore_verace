@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { notifyNewOrder } from '../services/notificationService';
 
 const CartContext = createContext();
 
@@ -8,7 +9,7 @@ export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
-  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+  const [confirmedOrder, setConfirmedOrder] = useState(null);
 
   // Load active order or cart from localStorage if exists
   useEffect(() => {
@@ -68,7 +69,7 @@ export const CartProvider = ({ children }) => {
   const deliveryFee = orderType === 'delivery' && subtotal > 0 ? 2.5 : 0;
   const totalPrice = subtotal + deliveryFee;
 
-  // Place order and start live tracking simulator
+  // Place order and show confirmation modal (payment only on delivery to courier)
   const placeOrder = (customerDetails) => {
     const newOrder = {
       orderId: 'SV-' + Math.floor(100000 + Math.random() * 900000),
@@ -78,18 +79,25 @@ export const CartProvider = ({ children }) => {
       totalPrice,
       orderType,
       customer: customerDetails,
+      paymentMethod: customerDetails.paymentMethod || 'cash', // 'cash' | 'card'
       createdAt: new Date().toISOString(),
-      status: 'received', // received -> preparing -> baking -> delivering -> delivered
-      estimatedMinutes: orderType === 'delivery' ? 25 : 15,
-      progress: 15,
+      status: 'confirmed',
     };
 
     setActiveOrder(newOrder);
+    setConfirmedOrder(newOrder);
     localStorage.setItem('sapore_verace_active_order', JSON.stringify(newOrder));
+    
+    // Dispatch real-time notifications to configured channels (Email, Telegram, WhatsApp)
+    try {
+      notifyNewOrder(newOrder);
+    } catch (notifErr) {
+      console.warn('Failed to dispatch order notification:', notifErr);
+    }
+
     clearCart();
     setIsCheckoutOpen(false);
     setIsCartOpen(false);
-    setIsTrackingOpen(true);
   };
 
   return (
@@ -104,8 +112,8 @@ export const CartProvider = ({ children }) => {
         setIsCheckoutOpen,
         activeOrder,
         setActiveOrder,
-        isTrackingOpen,
-        setIsTrackingOpen,
+        confirmedOrder,
+        setConfirmedOrder,
         addToCart,
         removeFromCart,
         updateQuantity,

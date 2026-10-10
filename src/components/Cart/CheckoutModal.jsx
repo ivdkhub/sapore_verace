@@ -201,16 +201,27 @@ export const CheckoutModal = () => {
             />
           </div>
 
-          {/* Payment Method */}
+          {/* Payment Method - Only to Courier (Cash or Card) */}
           <div>
-            <label className="block text-xs font-oswald tracking-wider uppercase text-white/70 mb-2">
-              {tc.paymentLabel || 'METODO DI PAGAMENTO'}
-            </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-oswald tracking-wider uppercase text-white/90 font-bold">
+                {tc.paymentLabel || 'PAGAMENTO ALLA CONSEGNA AL CORRIERE'}
+              </label>
+              <span className="text-[11px] font-oswald text-[#ffa323] uppercase font-semibold">
+                ● Nessun anticipo online
+              </span>
+            </div>
+            <p className="text-xs text-white/50 font-sans mb-3">
+              {orderType === 'delivery'
+                ? 'Pagherai comodamente al nostro corriere all’arrivo a domicilio. Scegli come preferisci pagare:'
+                : 'Pagherai al momento del ritiro direttamente alla cassa della pizzeria:'}
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label
-                className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                   formData.paymentMethod === 'cash'
-                    ? 'border-[#d2401e] bg-[#d2401e]/10 text-white'
+                    ? 'border-[#ffa323] bg-[#ffa323]/10 text-white shadow-md shadow-[#ffa323]/10'
                     : 'border-white/15 bg-[#242424] text-white/70 hover:border-white/30'
                 }`}
               >
@@ -222,16 +233,23 @@ export const CheckoutModal = () => {
                   onChange={() => setFormData({ ...formData, paymentMethod: 'cash' })}
                   className="hidden"
                 />
-                <Banknote className="w-5 h-5 text-[#ffa323]" />
-                <span className="font-oswald text-xs tracking-wider uppercase font-bold">
-                  {orderType === 'delivery' ? (tc.cashDelivery || 'CONTANTI AL RIDER') : (tc.cashPickup || 'CONTANTI ALLA CASSA')}
-                </span>
+                <div className="w-8 h-8 rounded-lg bg-[#ffa323]/20 flex items-center justify-center text-[#ffa323] shrink-0 mt-0.5">
+                  <Banknote className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-oswald text-xs tracking-wider uppercase font-bold text-white block">
+                    {orderType === 'delivery' ? 'Contanti al Corriere' : 'Contanti alla Cassa'}
+                  </span>
+                  <span className="text-[11px] text-white/50 font-sans block mt-0.5">
+                    {orderType === 'delivery' ? 'Paga in contanti all’arrivo del rider' : 'Paga in contanti al ritiro'}
+                  </span>
+                </div>
               </label>
 
               <label
-                className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                   formData.paymentMethod === 'card'
-                    ? 'border-[#d2401e] bg-[#d2401e]/10 text-white'
+                    ? 'border-[#d2401e] bg-[#d2401e]/10 text-white shadow-md shadow-[#d2401e]/10'
                     : 'border-white/15 bg-[#242424] text-white/70 hover:border-white/30'
                 }`}
               >
@@ -243,10 +261,17 @@ export const CheckoutModal = () => {
                   onChange={() => setFormData({ ...formData, paymentMethod: 'card' })}
                   className="hidden"
                 />
-                <CreditCard className="w-5 h-5 text-[#d2401e]" />
-                <span className="font-oswald text-xs tracking-wider uppercase font-bold">
-                  {orderType === 'delivery' ? (tc.cardDelivery || 'POS / CARTA AL DOMICILIO') : (tc.cardPickup || 'CARTA / BANCOMAT IN CASSA')}
-                </span>
+                <div className="w-8 h-8 rounded-lg bg-[#d2401e]/20 flex items-center justify-center text-[#d2401e] shrink-0 mt-0.5">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-oswald text-xs tracking-wider uppercase font-bold text-white block">
+                    {orderType === 'delivery' ? 'Carta / POS al Corriere' : 'Carta / POS in Cassa'}
+                  </span>
+                  <span className="text-[11px] text-white/50 font-sans block mt-0.5">
+                    {orderType === 'delivery' ? 'Il rider ha con sé il POS portatile' : 'Bancomat, carte o contactless'}
+                  </span>
+                </div>
               </label>
             </div>
           </div>
@@ -258,7 +283,7 @@ export const CheckoutModal = () => {
                 {orderType === 'delivery' ? (tc.subtotalDelivery || 'Subtotale + Consegna (€2.50)') : (tc.subtotalPickup || 'Subtotale (Ritiro Gratuito)')}
               </div>
               <span className="block text-xs font-oswald tracking-widest text-white/70 uppercase">
-                {tc.totalToPay || 'TOTALE DA PAGARE:'}
+                {tc.totalToPay || 'TOTALE DA PAGARE AL CORRIERE:'}
               </span>
               <span className="text-2xl font-oswald font-black text-[#d2401e]">
                 €{totalPrice.toFixed(2)}
@@ -267,10 +292,10 @@ export const CheckoutModal = () => {
 
             <button
               type="submit"
-              className="w-full sm:w-auto px-8 py-4 bg-[#d2401e] hover:bg-[#b83314] text-white font-oswald text-sm tracking-[0.2em] font-bold uppercase transition-all duration-300 rounded-xl shadow-xl shadow-[#d2401e]/30 cursor-pointer flex items-center justify-center gap-2 hover:scale-105"
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#d2401e] to-[#ffa323] hover:from-[#b83314] hover:to-[#e68e17] text-white font-oswald text-sm tracking-[0.2em] font-black uppercase transition-all duration-300 rounded-xl shadow-xl shadow-[#d2401e]/30 cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
             >
-              <ShieldCheck className="w-5 h-5" />
-              <span>{orderType === 'delivery' ? (tc.confirmDeliveryBtn || 'CONFERMA E AVVIA TRACKING') : (tc.confirmPickupBtn || 'CONFERMA ORDINE RITIRO')}</span>
+              <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
+              <span>{orderType === 'delivery' ? 'CONFERMA E INVIA ORDINE' : 'CONFERMA ORDINE RITIRO'}</span>
             </button>
           </div>
         </form>
