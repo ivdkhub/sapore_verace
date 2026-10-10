@@ -248,7 +248,7 @@ export const ReservationSection = ({ isModal = false }) => {
             </h3>
 
             <p className="text-xs text-white/60 mt-1 font-sans">
-              {tr.successDesc || 'La tua prenotazione è stata registrata istantaneamente nella planimetria della sala.'}
+              {tr.successDesc || 'La tua prenotazione è stata registrata e il tavolo è riservato per te. Ti aspettiamo!'}
             </p>
 
             {/* Receipt Summary Card */}

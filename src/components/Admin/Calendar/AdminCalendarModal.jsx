@@ -25,7 +25,6 @@ export const AdminCalendarModal = ({ isOpen, onClose }) => {
     setActiveShift,
     dailyConfigs,
     getSummaryForDate,
-    copyLayoutFromDate,
   } = useAdmin();
 
   const { position, isDragging, handleDragHeader } = useDraggableModal();
@@ -39,9 +38,6 @@ export const AdminCalendarModal = ({ isOpen, onClose }) => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
-
-  const [copySourceDate, setCopySourceDate] = useState('');
-  const [showCopyNotice, setShowCopyNotice] = useState(false);
 
   if (!isOpen) return null;
 
@@ -91,13 +87,6 @@ export const AdminCalendarModal = ({ isOpen, onClose }) => {
     const dateStr = getTodayDateString(d);
     setSelectedDate(dateStr);
     setViewDate(new Date(d.getFullYear(), d.getMonth(), 1));
-  };
-
-  const handleCopyLayout = () => {
-    if (!copySourceDate || copySourceDate === selectedDate) return;
-    copyLayoutFromDate(copySourceDate, selectedDate);
-    setShowCopyNotice(true);
-    setTimeout(() => setShowCopyNotice(false), 3000);
   };
 
   return (
@@ -378,18 +367,11 @@ export const AdminCalendarModal = ({ isOpen, onClose }) => {
               className="px-5 py-2.5 bg-[#ffa323] hover:bg-[#ffb347] text-black font-oswald text-xs font-bold tracking-wider uppercase rounded-xl shadow-lg transition-all cursor-pointer flex items-center gap-2"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Conferma & Visualizza Planimetria</span>
+              <span>Conferma & Visualizza Prenotazioni</span>
             </button>
           </div>
         </div>
 
-        {/* Copy Layout Banner Notification */}
-        {showCopyNotice && (
-          <div className="px-6 py-2.5 bg-[#10b981] text-black font-oswald font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 animate-in fade-in duration-200">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Disposizione tavoli copiata con successo per {selectedDate}!</span>
-          </div>
-        )}
       </div>
     </div>
   );

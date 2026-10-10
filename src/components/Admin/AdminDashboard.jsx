@@ -25,7 +25,6 @@ export const AdminDashboard = () => {
     stats,
     newReservationToast,
     setNewReservationToast,
-    setSelectedTable,
   } = useAdmin();
 
   // Auto-dismiss real-time toast after 9 seconds
@@ -42,7 +41,6 @@ export const AdminDashboard = () => {
     setActiveTab('tavoli');
     if (newReservationToast.date) setSelectedDate(newReservationToast.date);
     if (newReservationToast.shift) setActiveShift(newReservationToast.shift);
-    if (newReservationToast.table) setSelectedTable(newReservationToast.table);
     setNewReservationToast(null);
   };
 
@@ -196,7 +194,7 @@ export const AdminDashboard = () => {
         )}
 
         {/* ========================================================== */}
-        {/* TAB 4: RESERVATIONS MANAGEMENT (NO FLOOR PLAN)             */}
+        {/* TAB 4: RESERVATIONS MANAGEMENT                             */}
         {/* ========================================================== */}
         {activeTab === 'tavoli' && (
           <AdminReservationsManager />

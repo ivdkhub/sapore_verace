@@ -112,7 +112,7 @@ export const TRANSLATIONS = {
       // Receipt
       successTag: 'PRENOTAZIONE CONFERMATA CON SUCCESSO',
       successTitle: 'Ti Aspettiamo',
-      successDesc: 'La tua prenotazione è stata registrata istantaneamente nella planimetria della sala.',
+      successDesc: 'La tua prenotazione è stata registrata e il tavolo è riservato per te. Ti aspettiamo!',
       bookingCode: 'Codice Prenotazione:',
       dateLabel: 'Data',
       timeShiftLabel: 'Orario & Turno',
@@ -458,7 +458,7 @@ export const TRANSLATIONS = {
       // Receipt
       successTag: 'RESERVATION SUCCESSFULLY CONFIRMED',
       successTitle: 'We look forward to seeing you',
-      successDesc: 'Your table reservation has been instantly booked into the restaurant floor plan.',
+      successDesc: 'Your booking has been registered and your table is reserved. See you soon!',
       bookingCode: 'Booking Code:',
       dateLabel: 'Date',
       timeShiftLabel: 'Time & Shift',
@@ -804,7 +804,7 @@ export const TRANSLATIONS = {
       // Receipt
       successTag: 'RESERVIERUNG ERFOLGREICH BESTÄTIGT',
       successTitle: 'Wir freuen uns auf dich',
-      successDesc: 'Deine Tischreservierung wurde soeben im Restaurant-Saalplan eingetragen.',
+      successDesc: 'Deine Reservierung wurde registriert und dein Tisch ist reserviert. Wir freuen uns auf dich!',
       bookingCode: 'Buchungscode:',
       dateLabel: 'Datum',
       timeShiftLabel: 'Uhrzeit & Schicht',
@@ -1059,7 +1059,7 @@ export const TRANSLATIONS = {
       // Receipt
       successTag: 'REZERVIMI U KONFIRMU ME SUKSES',
       successTitle: 'Ju Mirëpresim',
-      successDesc: 'Rezervimi i tavolinës suaj u regjistrua menjëherë në planimetrinë e restorantit.',
+      successDesc: 'Rezervimi juaj u regjistrua dhe tavolina është e rezervuar. Ju presim!',
       bookingCode: 'Kodi i Rezervimit:',
       dateLabel: 'Data',
       timeShiftLabel: 'Ora & Turni',

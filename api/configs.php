@@ -57,11 +57,7 @@ try {
         ], 409);
     }
     $newVersion = $currentVersion + 1;
-    store_day_config($key, [
-        'tables' => array_values($data['tables']),
-        'zoneLabels' => $data['zoneLabels'] ?? [],
-        'structure' => $data['structure'] ?? new stdClass(),
-    ], $newVersion);
+    store_day_config($key, ['tables' => array_values($data['tables'])], $newVersion);
     db_commit($pdo);
 } catch (Throwable $e) {
     db_rollback($pdo);

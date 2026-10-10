@@ -1,22 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { INITIAL_TABLES, INITIAL_ZONE_LABELS, INITIAL_STRUCTURE } from '../data/defaultLayout';
+import { INITIAL_TABLES } from '../data/defaultLayout';
 import { DEFAULT_OPENING_HOURS, DEFAULT_HOLIDAYS } from '../data/defaultSchedule';
 import { api } from '../services/api';
 import { buildSlots } from '../utils/schedule';
 
 const AdminContext = createContext();
 
-export { INITIAL_TABLES, INITIAL_ZONE_LABELS, INITIAL_STRUCTURE, DEFAULT_OPENING_HOURS, DEFAULT_HOLIDAYS };
-
-// Helper: Determina se un tavolo è modulare da 2 persone (o unito da tavoli da 2)
-export const isModularTable = (table) => {
-  if (!table) return false;
-  if (table.type === 'round') return false;
-  if (table.isModular === true) return true;
-  if (table.mergedFrom && table.mergedFrom.length > 0) return true;
-  if (table.type === 'square' && table.seats === 2) return true;
-  return false;
-};
+export { INITIAL_TABLES, DEFAULT_OPENING_HOURS, DEFAULT_HOLIDAYS };
 
 export const getTodayDateString = (d = new Date()) => {
   const year = d.getFullYear();
@@ -56,8 +46,6 @@ export const AdminProvider = ({ children }) => {
   isAuthenticatedRef.current = isAuthenticated;
 
   const [activeTab, setActiveTab] = useState('tavoli');
-  const [isStructureEditMode, setIsStructureEditMode] = useState(false);
-  const [selectedStructureItem, setSelectedStructureItem] = useState(null);
 
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
   const [activeShift, setActiveShift] = useState('cena');
@@ -157,14 +145,12 @@ export const AdminProvider = ({ children }) => {
   // ============================================================
   // CONFIGURAZIONI GIORNALIERE DELLA SALA (solo admin, sul server)
   // ============================================================
-  // Mappa "YYYY-MM-DD_turno" -> { tables, zoneLabels, structure }
+  // Mappa "YYYY-MM-DD_turno" -> { tables }
   const [dailyConfigs, setDailyConfigs] = useState(() => {
     const today = getTodayDateString();
     return {
       [`${today}_cena`]: {
         tables: INITIAL_TABLES,
-        zoneLabels: INITIAL_ZONE_LABELS,
-        structure: INITIAL_STRUCTURE,
         updatedAt: new Date().toISOString(),
       },
     };
@@ -178,34 +164,15 @@ export const AdminProvider = ({ children }) => {
   const knownReservationCodesRef = useRef(null);
   const lastSyncRef = useRef('');
 
-  // Current active tables, zoneLabels, and structure for the selectedDate and activeShift
+  // Tavoli del giorno/turno selezionato
   const currentKey = `${selectedDate}_${activeShift}`;
+  const [tables, setTables] = useState(() => dailyConfigs[currentKey]?.tables || INITIAL_TABLES);
 
-  const [tables, setTables] = useState(() => {
-    const initialConfig = dailyConfigs[currentKey];
-    if (initialConfig && initialConfig.tables) return initialConfig.tables;
-    return INITIAL_TABLES;
-  });
-
-  const [zoneLabels, setZoneLabels] = useState(() => {
-    const initialConfig = dailyConfigs[currentKey];
-    if (initialConfig && initialConfig.zoneLabels) return initialConfig.zoneLabels;
-    return INITIAL_ZONE_LABELS;
-  });
-
-  const [structure, setStructure] = useState(() => {
-    const initialConfig = dailyConfigs[currentKey];
-    if (initialConfig && initialConfig.structure) return initialConfig.structure;
-    return INITIAL_STRUCTURE;
-  });
-
-  // Ultimo stato caricato (dal server o dal cambio data): se tables/zone/struttura sono
-  // ancora questi oggetti, non c'è nessuna modifica dell'admin da salvare.
-  const loadedSnapshotRef = useRef({ key: currentKey, tables, zoneLabels, structure });
+  // Ultimo stato caricato (dal server o dal cambio data): se tables è ancora questo
+  // oggetto, non c'è nessuna modifica dell'admin da salvare.
+  const loadedSnapshotRef = useRef({ key: currentKey, tables });
   const skipNextSaveRef = useRef(true);
 
-  const [selectedTable, setSelectedTable] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState('');
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [newReservationToast, setNewReservationToast] = useState(null);
@@ -255,12 +222,8 @@ export const AdminProvider = ({ children }) => {
   const applyServerConfigToView = (key, data) => {
     if (key !== `${selectedDateRef.current}_${activeShiftRef.current}`) return;
     const nextTables = data.tables || INITIAL_TABLES;
-    const nextZones = data.zoneLabels || INITIAL_ZONE_LABELS;
-    const nextStructure = data.structure || INITIAL_STRUCTURE;
-    loadedSnapshotRef.current = { key, tables: nextTables, zoneLabels: nextZones, structure: nextStructure };
+    loadedSnapshotRef.current = { key, tables: nextTables };
     setTables(nextTables);
-    setZoneLabels(nextZones);
-    setStructure(nextStructure);
   };
 
   const selectedDateRef = useRef(selectedDate);
@@ -352,7 +315,7 @@ export const AdminProvider = ({ children }) => {
     try {
       const res = await api.put('configs.php', {
         key,
-        data: { tables: data.tables, zoneLabels: data.zoneLabels, structure: data.structure },
+        data: { tables: data.tables },
         baseVersion: versionsRef.current[key] || 0,
       });
       versionsRef.current[key] = res.version;
@@ -382,15 +345,8 @@ export const AdminProvider = ({ children }) => {
     skipNextSaveRef.current = true;
 
     if (existing && existing.tables) {
-      loadedSnapshotRef.current = {
-        key: targetKey,
-        tables: existing.tables,
-        zoneLabels: existing.zoneLabels || INITIAL_ZONE_LABELS,
-        structure: existing.structure || INITIAL_STRUCTURE,
-      };
+      loadedSnapshotRef.current = { key: targetKey, tables: existing.tables };
       setTables(existing.tables);
-      setZoneLabels(existing.zoneLabels || INITIAL_ZONE_LABELS);
-      setStructure(existing.structure || INITIAL_STRUCTURE);
     } else {
       // New date / shift: create clean default template ready for booking & planning
       const freshTables = INITIAL_TABLES.map((t) => ({
@@ -399,28 +355,23 @@ export const AdminProvider = ({ children }) => {
         reservation: null,
         colorOverride: null,
       }));
-      loadedSnapshotRef.current = { key: targetKey, tables: freshTables, zoneLabels: INITIAL_ZONE_LABELS, structure: INITIAL_STRUCTURE };
+      loadedSnapshotRef.current = { key: targetKey, tables: freshTables };
       setTables(freshTables);
-      setZoneLabels(INITIAL_ZONE_LABELS);
-      setStructure(INITIAL_STRUCTURE);
 
       setDailyConfigs((prev) => {
         const updated = {
           ...prev,
           [targetKey]: {
             tables: freshTables,
-            zoneLabels: INITIAL_ZONE_LABELS,
-            structure: INITIAL_STRUCTURE,
             updatedAt: new Date().toISOString(),
           },
         };
         return cleanupOldDailyConfigs(updated);
       });
     }
-    setSelectedTable(null);
   }, [selectedDate, activeShift]);
 
-  // Auto-save: ogni modifica dell'admin alla sala del giorno/turno attivo viene salvata sul server
+  // Auto-save: ogni modifica dell'admin alle prenotazioni del giorno/turno attivo viene salvata sul server
   useEffect(() => {
     if (skipNextSaveRef.current) {
       // render del cambio data/turno: tables contiene ancora i dati del giorno precedente
@@ -429,13 +380,13 @@ export const AdminProvider = ({ children }) => {
     }
     const targetKey = `${selectedDate}_${activeShift}`;
     const snap = loadedSnapshotRef.current;
-    if (snap.key === targetKey && snap.tables === tables && snap.zoneLabels === zoneLabels && snap.structure === structure) {
+    if (snap.key === targetKey && snap.tables === tables) {
       return; // nessuna modifica rispetto a quanto caricato
     }
 
-    const data = { tables, zoneLabels, structure, updatedAt: new Date().toISOString() };
+    const data = { tables, updatedAt: new Date().toISOString() };
     setDailyConfigs((prev) => cleanupOldDailyConfigs({ ...prev, [targetKey]: data }));
-    loadedSnapshotRef.current = { key: targetKey, tables, zoneLabels, structure };
+    loadedSnapshotRef.current = { key: targetKey, tables };
 
     if (!isAuthenticated) return;
     if (pendingSaveRef.current) clearTimeout(pendingSaveRef.current.timer);
@@ -444,19 +395,7 @@ export const AdminProvider = ({ children }) => {
       putConfig(targetKey, data);
     }, 700);
     pendingSaveRef.current = { key: targetKey, timer, data };
-  }, [tables, zoneLabels, structure, selectedDate, activeShift]);
-
-  // Esplicito salvataggio manuale del layout con feedback toast
-  const saveLayout = async () => {
-    const targetKey = `${selectedDate}_${activeShift}`;
-    if (pendingSaveRef.current) {
-      clearTimeout(pendingSaveRef.current.timer);
-      pendingSaveRef.current = null;
-    }
-    const ok = await putConfig(targetKey, { tables, zoneLabels, structure });
-    if (ok) flashMessage(`Configurazione salvata per ${selectedDate} (${activeShift})!`);
-    return ok;
-  };
+  }, [tables, selectedDate, activeShift]);
 
   // Helper: Ottieni riassunto prenotazioni e configurazione per una data
   const getSummaryForDate = (dateStr, shift = activeShift) => {
@@ -476,50 +415,6 @@ export const AdminProvider = ({ children }) => {
       totalGuests,
       hasCustomLayout: true,
     };
-  };
-
-  // Helper: Copia disposizione tavoli da una data sorgente a una data target
-  const copyLayoutFromDate = (sourceDate, targetDate, shift = activeShift) => {
-    const sourceKey = `${sourceDate}_${shift}`;
-    const sourceConfig = dailyConfigs[sourceKey];
-    if (!sourceConfig || !sourceConfig.tables) return false;
-
-    const targetKey = `${targetDate}_${shift}`;
-    const targetConfig = dailyConfigs[targetKey];
-    // Le prenotazioni già presenti nel giorno di destinazione non vanno perse
-    const targetReservations = (targetConfig?.tables || []).filter((t) => t.reservation);
-    if (targetReservations.length > 0) {
-      flashMessage(`⚠️ Il ${targetDate} ha già ${targetReservations.length} prenotazioni: sposta o cancella prima quelle prenotazioni.`, 6000);
-      return false;
-    }
-
-    // Clona i tavoli azzerando le prenotazioni passate
-    const clonedTables = sourceConfig.tables.map((t) => ({
-      ...t,
-      status: 'disponibile',
-      reservation: null,
-      colorOverride: null,
-    }));
-
-    const data = {
-      tables: clonedTables,
-      zoneLabels: sourceConfig.zoneLabels || INITIAL_ZONE_LABELS,
-      structure: sourceConfig.structure || INITIAL_STRUCTURE,
-      updatedAt: new Date().toISOString(),
-    };
-
-    setDailyConfigs((prev) => cleanupOldDailyConfigs({ ...prev, [targetKey]: data }));
-    putConfig(targetKey, data);
-
-    if (targetDate === selectedDate && shift === activeShift) {
-      loadedSnapshotRef.current = { key: targetKey, tables: data.tables, zoneLabels: data.zoneLabels, structure: data.structure };
-      setTables(data.tables);
-      setZoneLabels(data.zoneLabels);
-      setStructure(data.structure);
-    }
-
-    flashMessage(`Disposizione copiata da ${sourceDate} al ${targetDate}!`);
-    return true;
   };
 
   // Helper: Trova il primo tavolo libero che ha la capacità (nr di coperti) contenente gli ospiti
@@ -617,8 +512,6 @@ export const AdminProvider = ({ children }) => {
         return t;
       })
     );
-    setIsModalOpen(false);
-    setSelectedTable(null);
     return true;
   };
 
@@ -637,447 +530,6 @@ export const AdminProvider = ({ children }) => {
         return t;
       })
     );
-    setSelectedTable(null);
-  };
-
-  // Aggiorna posizione tavolo (Drag & Drop)
-  const updateTablePosition = (tableId, newX, newY) => {
-    setTables((prev) =>
-      prev.map((t) => (t.id === tableId ? { ...t, x: newX, y: newY } : t))
-    );
-  };
-
-  // Ruota tavolo di 90 gradi
-  const rotateTable = (tableId) => {
-    setTables((prev) =>
-      prev.map((t) => {
-        if (t.id === tableId) {
-          const newRot = ((t.rotation || 0) + 90) % 360;
-          return { ...t, rotation: newRot };
-        }
-        return t;
-      })
-    );
-  };
-
-  // Rimuovi tavolo dalla planimetria
-  const deleteTable = (tableId) => {
-    setTables((prev) => prev.filter((t) => t.id !== tableId));
-    setSelectedTable(null);
-  };
-
-  // Unisci due tavoli modulari vicini in un unico grande tavolo allungato
-  const mergeTables = (sourceId, targetId) => {
-    const sourceTable = tables.find((t) => t.id === sourceId);
-    const targetTable = tables.find((t) => t.id === targetId);
-    if (!sourceTable || !targetTable) return;
-    if (!isModularTable(sourceTable) || !isModularTable(targetTable)) return;
-
-    const totalSeats = (sourceTable.seats || 2) + (targetTable.seats || 2);
-    const mergedId = 'T_MODULAR_' + Date.now().toString().slice(-4);
-    const combinedName = `${targetTable.name}+${sourceTable.name}`;
-
-    // Modular dimension calculation: each 2 seats adds ~42px length
-    const unitLength = 42;
-    const baseBreadth = 44;
-    const computedLength = Math.max(84, (totalSeats / 2) * unitLength);
-
-    const isHorizontal = Math.abs(sourceTable.x - targetTable.x) >= Math.abs(sourceTable.y - targetTable.y);
-    const minX = Math.min(sourceTable.x, targetTable.x);
-    const minY = Math.min(sourceTable.y, targetTable.y);
-
-    const mergedTable = {
-      id: mergedId,
-      name: combinedName,
-      room: targetTable.room || 'main',
-      type: 'rect',
-      isModular: true,
-      seats: totalSeats,
-      x: Math.round(minX),
-      y: Math.round(minY),
-      width: isHorizontal ? computedLength : baseBreadth,
-      height: isHorizontal ? baseBreadth : computedLength,
-      rotation: 0,
-      status:
-        sourceTable.status !== 'disponibile' || targetTable.status !== 'disponibile'
-          ? 'occupato'
-          : 'disponibile',
-      colorOverride: sourceTable.colorOverride || targetTable.colorOverride || null,
-      reservation: targetTable.reservation || sourceTable.reservation || null,
-      mergedFrom: [
-        ...(targetTable.mergedFrom || [targetTable]),
-        ...(sourceTable.mergedFrom || [sourceTable]),
-      ],
-    };
-
-    setTables((prev) => [
-      ...prev.filter((t) => t.id !== sourceId && t.id !== targetId),
-      mergedTable,
-    ]);
-    setSelectedTable(mergedTable);
-    setSaveSuccessMessage(`Tavoli modulari uniti! (${combinedName} - ${totalSeats} Persone)`);
-    setTimeout(() => setSaveSuccessMessage(''), 3500);
-  };
-
-  // Separa un tavolo precedentemente unito nei tavoli originali
-  const splitTable = (tableId) => {
-    const table = tables.find((t) => t.id === tableId);
-    if (!table || !table.mergedFrom || table.mergedFrom.length < 2) return;
-
-    const [t1, t2] = table.mergedFrom;
-    const restoredT1 = { ...t1, x: table.x, y: table.y };
-    const restoredT2 = { ...t2, x: table.x + (t1.width || 42) + 12, y: table.y };
-
-    setTables((prev) => [
-      ...prev.filter((t) => t.id !== tableId),
-      restoredT1,
-      restoredT2,
-    ]);
-    setSelectedTable(null);
-    setSaveSuccessMessage(`Tavoli separati con successo!`);
-    setTimeout(() => setSaveSuccessMessage(''), 3500);
-  };
-
-  // Aggiungi nuovo tavolo
-  const addTable = ({ type, name, seats, x, y }) => {
-    const id = 'T_' + Date.now().toString().slice(-4);
-    let newTableProps = {};
-
-    switch (type) {
-      case 'single_2_modular':
-      case 'single_2_4':
-        newTableProps = {
-          type: 'square',
-          isModular: true,
-          seats: seats || 2,
-          width: 44,
-          height: 44,
-        };
-        break;
-      case 'round_4':
-        newTableProps = {
-          type: 'round',
-          seats: 4,
-          radius: 28,
-        };
-        break;
-      case 'double_4_6':
-        const seatCount = seats || 6;
-        newTableProps = {
-          type: 'rect',
-          seats: seatCount,
-          width: seatCount <= 4 ? 85 : 125,
-          height: 50,
-        };
-        break;
-      case 'large_8':
-        newTableProps = {
-          type: 'rect',
-          seats: seats || 8,
-          width: 170,
-          height: 52,
-        };
-        break;
-      default:
-        newTableProps = {
-          type: 'round',
-          seats: 4,
-          radius: 28,
-        };
-    }
-
-    const newTable = {
-      id,
-      name: name || `T${tables.length + 1}`,
-      room: 'main',
-      x: x || 550,
-      y: y || 500,
-      rotation: 0,
-      status: 'disponibile',
-      reservation: null,
-      ...newTableProps,
-    };
-
-    setTables((prev) => [...prev, newTable]);
-    setSelectedTable(newTable);
-    return newTable;
-  };
-
-  // --- GESTIONE ETICHETTE SALE (ZONE LABELS) ---
-  const addZoneLabel = ({ name, subtitle, color }) => {
-    const newZone = {
-      id: 'zone_' + Date.now().toString().slice(-4),
-      name: name || 'NUOVA SALA',
-      subtitle: subtitle || 'Zona Riservata',
-      x: 550,
-      y: 400,
-      color: color || '#ffa323',
-    };
-    setZoneLabels((prev) => [...prev, newZone]);
-  };
-
-  const updateZonePosition = (id, newX, newY) => {
-    setZoneLabels((prev) =>
-      prev.map((z) => (z.id === id ? { ...z, x: newX, y: newY } : z))
-    );
-  };
-
-  const updateZoneLabel = (id, newProps) => {
-    setZoneLabels((prev) =>
-      prev.map((z) => (z.id === id ? { ...z, ...newProps } : z))
-    );
-  };
-
-  const deleteZoneLabel = (id) => {
-    setZoneLabels((prev) => prev.filter((z) => z.id !== id));
-  };
-
-  // ============================================================
-  // GESTIONE ELEMENTI STRUTTURALI (PARETI, PORTE, ARREDI, PERIMETRO)
-  // ============================================================
-  const updatePerimeter = (newPerimeterProps) => {
-    setStructure((prev) => ({
-      ...prev,
-      perimeter: { ...prev.perimeter, ...newPerimeterProps },
-    }));
-  };
-
-  // Pareti
-  const addWall = (wallData) => {
-    const newWall = {
-      id: 'wall_' + Date.now().toString().slice(-4),
-      name: wallData?.name || (wallData?.type === 'partition' ? 'Divisorio Legno' : 'Parete'),
-      x: wallData?.x || 500,
-      y: wallData?.y || 450,
-      width: wallData?.width || (wallData?.orientation === 'horizontal' ? 220 : 12),
-      height: wallData?.height || (wallData?.orientation === 'horizontal' ? 12 : 220),
-      rotation: wallData?.rotation || 0,
-      type: wallData?.type || 'wall',
-      color: wallData?.type === 'partition' ? '#78350f' : '#555555',
-    };
-    setStructure((prev) => ({
-      ...prev,
-      walls: [...(prev.walls || []), newWall],
-    }));
-    setSelectedStructureItem({ type: 'wall', id: newWall.id, data: newWall });
-    return newWall;
-  };
-
-  const updateWall = (id, newProps) => {
-    setStructure((prev) => ({
-      ...prev,
-      walls: (prev.walls || []).map((w) => (w.id === id ? { ...w, ...newProps } : w)),
-    }));
-    if (selectedStructureItem?.id === id) {
-      setSelectedStructureItem((prev) => ({ ...prev, data: { ...prev.data, ...newProps } }));
-    }
-  };
-
-  const rotateWall = (id) => {
-    setStructure((prev) => ({
-      ...prev,
-      walls: (prev.walls || []).map((w) => {
-        if (w.id === id) {
-          return {
-            ...w,
-            width: w.height,
-            height: w.width,
-            rotation: ((w.rotation || 0) + 90) % 360,
-          };
-        }
-        return w;
-      }),
-    }));
-  };
-
-  const deleteWall = (id) => {
-    setStructure((prev) => ({
-      ...prev,
-      walls: (prev.walls || []).filter((w) => w.id !== id),
-    }));
-    if (selectedStructureItem?.id === id) setSelectedStructureItem(null);
-  };
-
-  // Porte
-  const addDoor = (doorData) => {
-    const newDoor = {
-      id: 'door_' + Date.now().toString().slice(-4),
-      name: doorData?.name || 'Nuova Porta',
-      x: doorData?.x || 500,
-      y: doorData?.y || 450,
-      width: doorData?.width || 65,
-      rotation: doorData?.rotation || 0,
-      swing: doorData?.swing || 'left',
-    };
-    setStructure((prev) => ({
-      ...prev,
-      doors: [...(prev.doors || []), newDoor],
-    }));
-    setSelectedStructureItem({ type: 'door', id: newDoor.id, data: newDoor });
-    return newDoor;
-  };
-
-  const updateDoor = (id, newProps) => {
-    setStructure((prev) => ({
-      ...prev,
-      doors: (prev.doors || []).map((d) => (d.id === id ? { ...d, ...newProps } : d)),
-    }));
-    if (selectedStructureItem?.id === id) {
-      setSelectedStructureItem((prev) => ({ ...prev, data: { ...prev.data, ...newProps } }));
-    }
-  };
-
-  const rotateDoor = (id) => {
-    setStructure((prev) => ({
-      ...prev,
-      doors: (prev.doors || []).map((d) =>
-        d.id === id ? { ...d, rotation: ((d.rotation || 0) + 90) % 360 } : d
-      ),
-    }));
-  };
-
-  const deleteDoor = (id) => {
-    setStructure((prev) => ({
-      ...prev,
-      doors: (prev.doors || []).filter((d) => d.id !== id),
-    }));
-    if (selectedStructureItem?.id === id) setSelectedStructureItem(null);
-  };
-
-  // Finestre
-  const addWindow = (winData) => {
-    const newWindow = {
-      id: 'win_' + Date.now().toString().slice(-4),
-      name: winData?.name || 'Vetrata',
-      x: winData?.x || 450,
-      y: winData?.y || 80,
-      width: winData?.width || 200,
-      height: winData?.height || 12,
-      rotation: winData?.rotation || 0,
-    };
-    setStructure((prev) => ({
-      ...prev,
-      windows: [...(prev.windows || []), newWindow],
-    }));
-    setSelectedStructureItem({ type: 'window', id: newWindow.id, data: newWindow });
-    return newWindow;
-  };
-
-  const updateWindow = (id, newProps) => {
-    setStructure((prev) => ({
-      ...prev,
-      windows: (prev.windows || []).map((w) => (w.id === id ? { ...w, ...newProps } : w)),
-    }));
-    if (selectedStructureItem?.id === id) {
-      setSelectedStructureItem((prev) => ({ ...prev, data: { ...prev.data, ...newProps } }));
-    }
-  };
-
-  const rotateWindow = (id) => {
-    setStructure((prev) => ({
-      ...prev,
-      windows: (prev.windows || []).map((w) => {
-        if (w.id === id) {
-          return {
-            ...w,
-            width: w.height,
-            height: w.width,
-            rotation: ((w.rotation || 0) + 90) % 360,
-          };
-        }
-        return w;
-      }),
-    }));
-  };
-
-  const deleteWindow = (id) => {
-    setStructure((prev) => ({
-      ...prev,
-      windows: (prev.windows || []).filter((w) => w.id !== id),
-    }));
-    if (selectedStructureItem?.id === id) setSelectedStructureItem(null);
-  };
-
-  // Arredi Fissi & Blocchi
-  const addFixture = (fixData) => {
-    const newFix = {
-      id: 'fix_' + Date.now().toString().slice(-4),
-      name: fixData?.name || 'Nuovo Elemento',
-      type: fixData?.type || 'counter',
-      x: fixData?.x || 500,
-      y: fixData?.y || 400,
-      width: fixData?.width || 150,
-      height: fixData?.height || 50,
-      rotation: fixData?.rotation || 0,
-    };
-    setStructure((prev) => ({
-      ...prev,
-      fixtures: [...(prev.fixtures || []), newFix],
-    }));
-    setSelectedStructureItem({ type: 'fixture', id: newFix.id, data: newFix });
-    return newFix;
-  };
-
-  const updateFixture = (id, newProps) => {
-    setStructure((prev) => ({
-      ...prev,
-      fixtures: (prev.fixtures || []).map((f) => (f.id === id ? { ...f, ...newProps } : f)),
-    }));
-    if (selectedStructureItem?.id === id) {
-      setSelectedStructureItem((prev) => ({ ...prev, data: { ...prev.data, ...newProps } }));
-    }
-  };
-
-  const rotateFixture = (id) => {
-    setStructure((prev) => ({
-      ...prev,
-      fixtures: (prev.fixtures || []).map((f) =>
-        f.id === id ? { ...f, rotation: ((f.rotation || 0) + 90) % 360 } : f
-      ),
-    }));
-  };
-
-  const deleteFixture = (id) => {
-    setStructure((prev) => ({
-      ...prev,
-      fixtures: (prev.fixtures || []).filter((f) => f.id !== id),
-    }));
-    if (selectedStructureItem?.id === id) setSelectedStructureItem(null);
-  };
-
-  // Svuota completamente la piantina
-  const clearAllLayout = (includeStructure = false) => {
-    setTables([]);
-    setZoneLabels([]);
-    setSelectedTable(null);
-    if (includeStructure) {
-      setStructure({
-        perimeter: {
-          x: 120,
-          y: 80,
-          width: 880,
-          height: 880,
-          strokeWidth: 9,
-          fill: '#151515',
-          borderColor: '#404040',
-        },
-        walls: [],
-        doors: [],
-        windows: [],
-        fixtures: [],
-      });
-      setSelectedStructureItem(null);
-    }
-  };
-
-  // Reset a stato iniziale (default image template)
-  const resetTables = () => {
-    setTables(INITIAL_TABLES);
-    setZoneLabels(INITIAL_ZONE_LABELS);
-    setStructure(INITIAL_STRUCTURE);
-    setSelectedTable(null);
-    setSelectedStructureItem(null);
-    saveLayout();
   };
 
   // ============================================================
@@ -1243,17 +695,7 @@ export const AdminProvider = ({ children }) => {
         getBookingSlots,
         activeTab,
         setActiveTab,
-        isStructureEditMode,
-        setIsStructureEditMode,
-        selectedStructureItem,
-        setSelectedStructureItem,
         tables,
-        zoneLabels,
-        structure,
-        selectedTable,
-        setSelectedTable,
-        isModalOpen,
-        setIsModalOpen,
         activeShift,
         setActiveShift,
         selectedDate,
@@ -1262,9 +704,7 @@ export const AdminProvider = ({ children }) => {
         setIsCalendarOpen,
         dailyConfigs,
         getSummaryForDate,
-        copyLayoutFromDate,
         saveSuccessMessage,
-        saveLayout,
         createClientReservation,
         getAvailableSlotsForDate,
         isBookingModalOpen,
@@ -1274,36 +714,6 @@ export const AdminProvider = ({ children }) => {
         findBestFreeTable,
         saveReservation,
         clearTable,
-        updateTablePosition,
-        rotateTable,
-        deleteTable,
-        mergeTables,
-        splitTable,
-        addTable,
-        addZoneLabel,
-        updateZonePosition,
-        updateZoneLabel,
-        deleteZoneLabel,
-        // Structural functions
-        updatePerimeter,
-        addWall,
-        updateWall,
-        rotateWall,
-        deleteWall,
-        addDoor,
-        updateDoor,
-        rotateDoor,
-        deleteDoor,
-        addWindow,
-        updateWindow,
-        rotateWindow,
-        deleteWindow,
-        addFixture,
-        updateFixture,
-        rotateFixture,
-        deleteFixture,
-        clearAllLayout,
-        resetTables,
         // Opening hours & Holidays management
         openingHours,
         holidays,

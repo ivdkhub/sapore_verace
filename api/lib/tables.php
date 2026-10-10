@@ -18,11 +18,7 @@ function default_day_config(): array
         $t['colorOverride'] = null;
         return $t;
     }, (array)($layout['tables'] ?? []));
-    return [
-        'tables' => $tables,
-        'zoneLabels' => $layout['zoneLabels'] ?? [],
-        'structure' => $layout['structure'] ?? new stdClass(),
-    ];
+    return ['tables' => $tables];
 }
 
 // Legge la configurazione (bloccando la riga su MySQL se dentro una transazione)
