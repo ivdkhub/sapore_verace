@@ -1,6 +1,6 @@
 Options -Indexes
 
 # File interni mai accessibili dal browser
-<FilesMatch "^(config\.php|config\.example\.php|seed\.json|dev-router\.php)$">
+<FilesMatch "^(config\.php|config\.example\.php|seed\.json|dev-router\.php|\.user\.ini)$">
   Require all denied
 </FilesMatch>

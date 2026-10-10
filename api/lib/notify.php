@@ -284,19 +284,24 @@ function order_messages(array $o): array
 
 function inquiry_messages(array $q): array
 {
-    $tg = "🎉 <b>RICHIESTA EVENTO — Sapore Verace</b>\n\n"
+    // Il modulo contatti usa lo stesso canale: eventType inizia con "Messaggio dal sito"
+    $isMessage = strpos($q['eventType'], 'Messaggio dal sito') === 0;
+    $label = $isMessage ? 'MESSAGGIO DAL SITO' : 'RICHIESTA EVENTO';
+    $icon = $isMessage ? '✉️' : '🎉';
+    $labelLower = $isMessage ? 'Messaggio dal sito' : 'Richiesta evento';
+    $tg = "$icon <b>$label — Sapore Verace</b>\n\n"
         . '👤 <b>Nome:</b> ' . h($q['name']) . "\n📞 <b>Telefono:</b> " . h($q['phone']) . "\n"
         . ($q['email'] ? '✉️ <b>Email:</b> ' . h($q['email']) . "\n" : '')
         . '🎈 <b>Tipo:</b> ' . h($q['eventType']) . "\n"
         . ($q['date'] ? '📅 <b>Data:</b> ' . h($q['date']) . "\n" : '')
         . '👥 <b>Ospiti:</b> ' . h($q['guests']) . "\n"
         . ($q['notes'] ? '💬 <b>Note:</b> ' . h($q['notes']) . "\n" : '');
-    $plain = "Richiesta evento\nNome: {$q['name']}\nTelefono: {$q['phone']}\nEmail: {$q['email']}\nTipo: {$q['eventType']}\nData: {$q['date']}\nOspiti: {$q['guests']}\nNote: {$q['notes']}";
+    $plain = "$labelLower\nNome: {$q['name']}\nTelefono: {$q['phone']}\nEmail: {$q['email']}\nTipo: {$q['eventType']}\nData: {$q['date']}\nOspiti: {$q['guests']}\nNote: {$q['notes']}";
     return [
         'telegram' => $tg,
-        'whatsapp' => '*🎉 RICHIESTA EVENTO — Sapore Verace*' . "\n" . $plain,
-        'subject' => "Richiesta evento: {$q['eventType']} - {$q['name']}",
+        'whatsapp' => "*$icon $label — Sapore Verace*\n" . $plain,
+        'subject' => ($isMessage ? $q['eventType'] : "Richiesta evento: {$q['eventType']}") . " - {$q['name']}",
         'text' => $plain,
-        'html' => '<div style="font-family:sans-serif"><h2>Richiesta evento</h2><pre>' . h($plain) . '</pre></div>',
+        'html' => '<div style="font-family:sans-serif"><h2>' . $labelLower . '</h2><pre>' . h($plain) . '</pre></div>',
     ];
 }

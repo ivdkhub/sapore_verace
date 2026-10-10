@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Utensils, Pizza, Coffee, Wine, CheckCircle2, Clock, Calendar, Sparkles, Phone, ArrowRight, ShieldCheck } from 'lucide-react';
 import { MoustacheIcon } from '../common/Icons';
 import { useLanguage } from '../../context/LanguageContext';
+import { BUSINESS } from '../../config/business';
 import { useAdmin } from '../../context/AdminContext';
 
 export const FixedLunchMenuSection = () => {
@@ -222,7 +223,7 @@ export const FixedLunchMenuSection = () => {
               </a>
 
               <a
-                href="tel:03311081917"
+                href={BUSINESS.phoneHref}
                 className="w-full py-3 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-oswald text-xs tracking-wider uppercase flex items-center justify-center gap-2 transition-colors"
               >
                 <Phone className="w-4 h-4 text-[#ffa323]" />

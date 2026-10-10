@@ -17,6 +17,7 @@ import { MoustacheIcon } from '../common/Icons';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAdmin } from '../../context/AdminContext';
 import { api } from '../../services/api';
+import { BUSINESS } from '../../config/business';
 import { summarizeOpeningHours } from '../../utils/schedule';
 import { PrivacyConsent } from '../Legal/PrivacyConsent';
 import { hasMapsConsent, setMapsConsent, openLegal } from '../Legal/legal';
@@ -381,13 +382,13 @@ export const FindUsSection = () => {
                   {t.findUs?.infoPhoneTitle || 'TELEFONO / WHATSAPP'}
                 </h4>
                 <a
-                  href="tel:03311081917"
+                  href={BUSINESS.phoneHref}
                   className="text-sm font-oswald font-bold text-white hover:text-[#ffa323] transition-colors block"
                 >
-                  0331 108 1917
+                  {BUSINESS.phone}
                 </a>
                 <a
-                  href="https://wa.me/3903311081917"
+                  href={BUSINESS.whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[10px] text-emerald-400 hover:underline block mt-1 font-bold"

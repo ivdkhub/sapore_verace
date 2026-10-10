@@ -102,7 +102,7 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             <div>
               <h4 className="font-oswald text-xs uppercase tracking-wider text-white">{t.drawer?.directOrder || 'Telefono / Ordini'}</h4>
               <a href={BUSINESS.phoneHref} className="text-sm text-[#d2401e] hover:underline font-bold font-oswald tracking-wider mt-0.5 block">
-                0331 108 1917
+                {BUSINESS.phone}
               </a>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { Utensils, Calendar, ShoppingCart, Phone } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAdmin } from '../../context/AdminContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { BUSINESS } from '../../config/business';
 
 export const MobileBottomNav = () => {
   const { totalItemsCount, totalPrice, setIsCartOpen } = useCart();
@@ -70,7 +71,7 @@ export const MobileBottomNav = () => {
 
         {/* 4. CONTATTI / CHIAMA SUBITO */}
         <a
-          href="tel:03311081917"
+          href={BUSINESS.phoneHref}
           className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-white/70 hover:text-white active:scale-95 transition-all cursor-pointer"
         >
           <div className="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center mb-0.5 text-emerald-400">

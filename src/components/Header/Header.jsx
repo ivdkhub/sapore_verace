@@ -5,6 +5,7 @@ import { SideDrawer } from './SideDrawer';
 import { LanguageSwitcher } from '../common/Flags';
 import { AnimatedLogoSvg } from '../common/AnimatedLogoSvg';
 import { useLanguage } from '../../context/LanguageContext';
+import { BUSINESS } from '../../config/business';
 import { useCart } from '../../context/CartContext';
 import { useAdmin } from '../../context/AdminContext';
 
@@ -61,10 +62,10 @@ export const Header = () => {
                   {t.orderInNow || 'ORDINA ORA'}
                 </span>
                 <a
-                  href="tel:03311081917"
+                  href={BUSINESS.phoneHref}
                   className="font-oswald text-lg text-white font-semibold hover:text-[#d2401e] transition-colors leading-none tracking-wide"
                 >
-                  0331 108 1917
+                  {BUSINESS.phone}
                 </a>
               </div>
             </div>
@@ -248,14 +249,14 @@ export const Header = () => {
                   <span className="block text-[10px] font-oswald text-white/70 tracking-widest uppercase">
                     {t.orderInNow || 'ORDINA ORA'}
                   </span>
-                  <a href="tel:03311081917" className="font-oswald text-lg text-white font-bold hover:text-[#d2401e] transition-colors">
-                    0331 108 1917
+                  <a href={BUSINESS.phoneHref} className="font-oswald text-lg text-white font-bold hover:text-[#d2401e] transition-colors">
+                    {BUSINESS.phone}
                   </a>
                 </div>
               </div>
 
               <a
-                href="https://wa.me/3903311081917"
+                href={BUSINESS.whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-2 rounded-lg bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 font-oswald text-xs uppercase tracking-wider font-semibold hover:bg-emerald-600 hover:text-white transition-all"

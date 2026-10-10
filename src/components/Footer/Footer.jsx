@@ -58,10 +58,10 @@ export const Footer = () => {
                   <div>
                     <span className="text-white/50 text-[11px] block font-oswald uppercase">TELEFONO:</span>
                     <a
-                      href="tel:03311081917"
+                      href={BUSINESS.phoneHref}
                       className="text-[#d2401e] hover:underline font-bold font-oswald text-base tracking-wider block"
                     >
-                      0331 108 1917
+                      {BUSINESS.phone}
                     </a>
                   </div>
                   <div className="bg-[#ffa323]/10 border border-[#ffa323]/30 px-3 py-1 rounded-md">

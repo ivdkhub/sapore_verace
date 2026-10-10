@@ -177,14 +177,10 @@ export const AdminReservationsManager = () => {
 
   // Quick state toggle
   const handleUpdateStatus = (tableId, currentRes, newStatus) => {
-    saveReservation(
-      tableId,
-      {
-        ...currentRes,
-        status: newStatus,
-      },
-      tableId
-    );
+    // Togli i campi del tavolo aggiunti per la lista: nella prenotazione restano solo i suoi dati
+    // eslint-disable-next-line no-unused-vars
+    const { tableId: _id, tableName, seats, room, ...reservation } = currentRes;
+    saveReservation(tableId, { ...reservation, status: newStatus }, tableId);
   };
 
   // Open modal for NEW reservation
@@ -243,9 +239,11 @@ export const AdminReservationsManager = () => {
 
     const sourceTableId = editingTable ? editingTable.id : null;
 
-    saveReservation(
+    const saved = saveReservation(
       targetTableId,
       {
+        // dati originali (email, origine online, data di creazione) mantenuti nella modifica
+        ...(editingTable?.reservation || {}),
         clientName: formData.clientName.trim(),
         name: formData.clientName.trim(),
         guests: Number(formData.guests),
@@ -258,7 +256,7 @@ export const AdminReservationsManager = () => {
       sourceTableId
     );
 
-    setIsModalOpen(false);
+    if (saved) setIsModalOpen(false);
   };
 
   // Cancel reservation
@@ -903,7 +901,7 @@ export const AdminReservationsManager = () => {
                     const isBusy = t.reservation !== null && !isCurrent;
                     return (
                       <option key={t.id} value={t.id} disabled={isBusy}>
-                        {t.name} ({t.seats} posti) - {isCurrent ? 'Tavolo Attuale' : isBusy ? `Occupato da ${t.reservation.clientName || 'altro'}` : 'Disponibile'}
+                        {t.name} ({t.seats} posti) - {isCurrent ? 'Tavolo Attuale' : isBusy ? `Occupato da ${t.reservation.clientName || t.reservation.name || 'altro'}` : 'Disponibile'}
                       </option>
                     );
                   })}

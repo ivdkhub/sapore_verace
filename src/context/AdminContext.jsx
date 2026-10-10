@@ -454,7 +454,8 @@ export const AdminProvider = ({ children }) => {
         const diffA = (a.seats || 4) - numGuests;
         const diffB = (b.seats || 4) - numGuests;
         if (diffA !== diffB) return diffA - diffB;
-        return (a.name || '').localeCompare(b.name || '');
+        // ordine "naturale" (T6 prima di T10), come strnatcasecmp sul server
+        return (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' });
       });
       return fittingTables[0];
     }
@@ -504,8 +505,21 @@ export const AdminProvider = ({ children }) => {
       targetTableId = best.id;
     }
 
-    setTables((prev) =>
-      prev.map((t) => {
+    // Il tavolo scelto può essere stato preso nel frattempo da una prenotazione online
+    // (arrivata con l'aggiornamento automatico): mai sovrascriverla.
+    const isTakenByOther = (t) =>
+      t && t.reservation && t.id !== sourceTableId && t.reservation.code !== resData.code;
+    const target = tables.find((t) => t.id === targetTableId);
+    if (isTakenByOther(target)) {
+      alert(
+        `Il tavolo ${target.name} è appena stato occupato da "${target.reservation.name || target.reservation.clientName || 'un altro cliente'}". Scegli un altro tavolo.`
+      );
+      return false;
+    }
+
+    setTables((prev) => {
+      if (isTakenByOther(prev.find((t) => t.id === targetTableId))) return prev;
+      return prev.map((t) => {
         // Se la prenotazione è stata spostata da un altro tavolo, libera il vecchio tavolo
         if (sourceTableId && t.id === sourceTableId && sourceTableId !== targetTableId) {
           return {
@@ -519,16 +533,18 @@ export const AdminProvider = ({ children }) => {
           return {
             ...t,
             status: resData.status === 'Seduti' ? 'occupato' : 'in_corso',
-            colorOverride: resData.color || (resData.status === 'Seduti' ? '#d2401e' : '#f59e0b'),
+            // il colore segue lo stato (una prenotazione online nasce gialla e diventa rossa quando si siedono)
+            colorOverride: resData.status === 'Seduti' ? '#d2401e' : '#f59e0b',
             reservation: {
               ...resData,
+              color: undefined,
               updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             },
           };
         }
         return t;
-      })
-    );
+      });
+    });
     return true;
   };
 

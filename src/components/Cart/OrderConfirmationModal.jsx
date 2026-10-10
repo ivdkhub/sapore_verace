@@ -1,15 +1,136 @@
 import React from 'react';
-import { CheckCircle2, Bike, Store, Banknote, CreditCard, Phone, MapPin, Clock, X, ChefHat } from 'lucide-react';
+import { CheckCircle2, Banknote, CreditCard, Phone, MapPin, Clock, X, Store } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { BUSINESS } from '../../config/business';
 import { MoustacheIcon } from '../common/Icons';
+
+// Testi della conferma ordine nelle lingue del sito
+const TEXTS = {
+  it: {
+    title: 'ORDINE RICEVUTO CON SUCCESSO!',
+    intro: 'Grazie per aver scelto Sapore Verace! La cucina ha ricevuto il tuo ordine.',
+    code: 'Codice ordine',
+    payDelivery: 'PAGAMENTO ALLA CONSEGNA',
+    payPickup: 'PAGAMENTO AL RITIRO IN PIZZERIA',
+    amount: 'Importo da pagare:',
+    method: 'Modalità:',
+    cashDelivery: 'Contanti al rider: ti consigliamo di preparare l’importo esatto.',
+    cardDelivery: 'Carta o bancomat al rider, che porta il POS portatile.',
+    cashPickup: 'Contanti alla cassa al momento del ritiro.',
+    cardPickup: 'Carta o bancomat alla cassa al momento del ritiro.',
+    when: 'Orario',
+    asapDelivery: 'Prima possibile (circa 30-45 minuti)',
+    asapPickup: 'Prima possibile (circa 15-20 minuti)',
+    scheduledDelivery: 'Consegna prevista alle',
+    scheduledPickup: 'Ritiro previsto alle',
+    destination: 'Indirizzo di consegna',
+    pickupPoint: 'Punto di ritiro',
+    customer: 'Cliente',
+    summary: 'Riepilogo prodotti:',
+    deliveryFee: 'Spese di consegna:',
+    help: 'Vuoi modificare o aggiungere qualcosa? Chiama il',
+    ok: 'PERFETTO, HO CAPITO!',
+    close: 'Chiudi conferma ordine',
+  },
+  en: {
+    title: 'ORDER RECEIVED!',
+    intro: 'Thank you for choosing Sapore Verace! Our kitchen has received your order.',
+    code: 'Order code',
+    payDelivery: 'PAYMENT ON DELIVERY',
+    payPickup: 'PAYMENT AT PICKUP',
+    amount: 'Amount to pay:',
+    method: 'Method:',
+    cashDelivery: 'Cash to the rider: please have the exact amount ready.',
+    cardDelivery: 'Card to the rider, who brings a portable POS.',
+    cashPickup: 'Cash at the counter when you pick up.',
+    cardPickup: 'Card at the counter when you pick up.',
+    when: 'Time',
+    asapDelivery: 'As soon as possible (about 30-45 minutes)',
+    asapPickup: 'As soon as possible (about 15-20 minutes)',
+    scheduledDelivery: 'Delivery expected at',
+    scheduledPickup: 'Pickup expected at',
+    destination: 'Delivery address',
+    pickupPoint: 'Pickup point',
+    customer: 'Customer',
+    summary: 'Order summary:',
+    deliveryFee: 'Delivery fee:',
+    help: 'Need to change or add something? Call',
+    ok: 'GOT IT, THANKS!',
+    close: 'Close order confirmation',
+  },
+  de: {
+    title: 'BESTELLUNG ERHALTEN!',
+    intro: 'Danke, dass du Sapore Verace gewählt hast! Die Küche hat deine Bestellung erhalten.',
+    code: 'Bestellcode',
+    payDelivery: 'ZAHLUNG BEI LIEFERUNG',
+    payPickup: 'ZAHLUNG BEI ABHOLUNG',
+    amount: 'Zu zahlender Betrag:',
+    method: 'Zahlungsart:',
+    cashDelivery: 'Bar beim Fahrer: bitte den passenden Betrag bereithalten.',
+    cardDelivery: 'Mit Karte beim Fahrer, der ein mobiles Kartenterminal dabei hat.',
+    cashPickup: 'Bar an der Kasse bei der Abholung.',
+    cardPickup: 'Mit Karte an der Kasse bei der Abholung.',
+    when: 'Uhrzeit',
+    asapDelivery: 'So schnell wie möglich (ca. 30-45 Minuten)',
+    asapPickup: 'So schnell wie möglich (ca. 15-20 Minuten)',
+    scheduledDelivery: 'Lieferung voraussichtlich um',
+    scheduledPickup: 'Abholung voraussichtlich um',
+    destination: 'Lieferadresse',
+    pickupPoint: 'Abholort',
+    customer: 'Kunde',
+    summary: 'Bestellübersicht:',
+    deliveryFee: 'Liefergebühr:',
+    help: 'Möchtest du etwas ändern oder hinzufügen? Ruf an:',
+    ok: 'ALLES KLAR, DANKE!',
+    close: 'Bestellbestätigung schließen',
+  },
+  sq: {
+    title: 'POROSIA U MOR ME SUKSES!',
+    intro: 'Faleminderit që zgjodhët Sapore Verace! Kuzhina e ka marrë porosinë tuaj.',
+    code: 'Kodi i porosisë',
+    payDelivery: 'PAGESA NË DORËZIM',
+    payPickup: 'PAGESA NË MARRJE',
+    amount: 'Shuma për të paguar:',
+    method: 'Mënyra:',
+    cashDelivery: 'Para në dorë te korrieri: ju lutemi përgatitni shumën e saktë.',
+    cardDelivery: 'Me kartë te korrieri, që sjell POS portativ.',
+    cashPickup: 'Para në dorë në arkë kur e merrni.',
+    cardPickup: 'Me kartë në arkë kur e merrni.',
+    when: 'Ora',
+    asapDelivery: 'Sa më shpejt (rreth 30-45 minuta)',
+    asapPickup: 'Sa më shpejt (rreth 15-20 minuta)',
+    scheduledDelivery: 'Dorëzimi i parashikuar në orën',
+    scheduledPickup: 'Marrja e parashikuar në orën',
+    destination: 'Adresa e dorëzimit',
+    pickupPoint: 'Vendi i marrjes',
+    customer: 'Klienti',
+    summary: 'Përmbledhja e produkteve:',
+    deliveryFee: 'Kosto e dorëzimit:',
+    help: 'Doni të ndryshoni ose shtoni diçka? Telefononi',
+    ok: 'NË RREGULL, FALEMINDERIT!',
+    close: 'Mbyll konfirmimin e porosisë',
+  },
+};
 
 export const OrderConfirmationModal = () => {
   const { confirmedOrder, setConfirmedOrder } = useCart();
+  const { lang } = useLanguage();
+  const tx = TEXTS[lang] || TEXTS.it;
 
   if (!confirmedOrder) return null;
 
   const isDelivery = confirmedOrder.orderType === 'delivery';
   const isCash = confirmedOrder.paymentMethod === 'cash';
+  const isAsap = !confirmedOrder.requestedTime || confirmedOrder.requestedTime === 'asap';
+  const { address: addr } = BUSINESS;
+
+  const paymentText = isDelivery
+    ? isCash ? tx.cashDelivery : tx.cardDelivery
+    : isCash ? tx.cashPickup : tx.cardPickup;
+  const whenText = isAsap
+    ? isDelivery ? tx.asapDelivery : tx.asapPickup
+    : `${isDelivery ? tx.scheduledDelivery : tx.scheduledPickup} ${confirmedOrder.requestedTime}`;
 
   const handleClose = () => {
     setConfirmedOrder(null);
@@ -25,7 +146,7 @@ export const OrderConfirmationModal = () => {
         <button
           onClick={handleClose}
           className="absolute top-5 right-5 text-white/50 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-          aria-label="Chiudi conferma ordine"
+          aria-label={tx.close}
         >
           <X className="w-5 h-5" />
         </button>
@@ -38,27 +159,25 @@ export const OrderConfirmationModal = () => {
           <div className="flex items-center gap-2">
             <MoustacheIcon className="w-5 h-2.5 text-[#d2401e]" />
             <span className="text-[11px] font-oswald text-[#ffa323] tracking-[0.25em] uppercase font-bold">
-              SAPORE VERACE • CASTELLANZA
+              SAPORE VERACE • {addr.city.toUpperCase()}
             </span>
           </div>
         </div>
 
         {/* Grand Confirmation Title */}
         <h2 className="font-oswald text-2xl sm:text-3xl font-black uppercase text-white tracking-wide">
-          ORDINE RICEVUTO CON SUCCESSO!
+          {tx.title}
         </h2>
         <p className="text-xs sm:text-sm text-stone-300 font-sans mt-1.5 max-w-md mx-auto leading-relaxed">
-          Grazie per aver scelto Sapore Verace! La nostra cucina ha preso in carico la tua comanda ed è al lavoro sul forno a legna.
+          {tx.intro}
         </p>
 
         {/* Order Code Pill */}
         <div className="mt-3.5 inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 font-oswald text-xs tracking-widest uppercase text-white/80">
-          Codice Ordine: <strong className="text-[#ffa323] font-mono text-sm ml-1">#{confirmedOrder.orderId}</strong>
+          {tx.code}: <strong className="text-[#ffa323] font-mono text-sm ml-1">#{confirmedOrder.orderId}</strong>
         </div>
 
-        {/* ============================================================ */}
-        {/* PAYMENT HIGHLIGHT (Only to Courier: Cash or Card)            */}
-        {/* ============================================================ */}
+        {/* Pagamento (alla consegna o al ritiro) */}
         <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#241d13] to-[#1c1611] border-2 border-[#ffa323]/50 text-left shadow-lg">
           <div className="flex items-center gap-2 mb-2">
             {isCash ? (
@@ -67,53 +186,31 @@ export const OrderConfirmationModal = () => {
               <CreditCard className="w-5 h-5 text-[#d2401e]" />
             )}
             <span className="font-oswald text-xs sm:text-sm font-black tracking-wider uppercase text-[#ffa323]">
-              PAGAMENTO AL CORRIERE ALLA CONSEGNA
+              {isDelivery ? tx.payDelivery : tx.payPickup}
             </span>
           </div>
 
           <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-white/10 pb-2 mb-2.5">
-            <span className="text-xs font-oswald text-white/70 uppercase tracking-wider">
-              Importo da corrispondere:
-            </span>
+            <span className="text-xs font-oswald text-white/70 uppercase tracking-wider">{tx.amount}</span>
             <span className="font-oswald text-2xl font-black text-white">
-              €{confirmedOrder.totalPrice.toFixed(2)}
+              €{Number(confirmedOrder.totalPrice || 0).toFixed(2)}
             </span>
           </div>
 
-          <div className="text-xs text-stone-300 font-sans leading-relaxed">
-            {isCash ? (
-              <p className="flex items-start gap-1.5">
-                <span className="text-[#ffa323] font-bold">● Modalità:</span>
-                <span>
-                  <strong>Contanti al corriere</strong>. Ti consigliamo di preparare l'importo esatto all'arrivo del rider per facilitare la consegna.
-                </span>
-              </p>
-            ) : (
-              <p className="flex items-start gap-1.5">
-                <span className="text-emerald-400 font-bold">● Modalità:</span>
-                <span>
-                  <strong>Carta / Bancomat al corriere</strong>. Il nostro rider porterà con sé il POS portatile per pagamenti con carta o smartphone.
-                </span>
-              </p>
-            )}
-          </div>
+          <p className="text-xs text-stone-300 font-sans leading-relaxed flex items-start gap-1.5">
+            <span className={`${isCash ? 'text-[#ffa323]' : 'text-emerald-400'} font-bold`}>● {tx.method}</span>
+            <span>{paymentText}</span>
+          </p>
         </div>
 
-        {/* ============================================================ */}
-        {/* DELIVERY / PICKUP INFO & ESTIMATE                            */}
-        {/* ============================================================ */}
+        {/* Orario e indirizzo */}
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
           <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
             <div className="flex items-center gap-2 text-xs font-oswald text-white/60 uppercase mb-1">
               <Clock className="w-3.5 h-3.5 text-[#ffa323]" />
-              <span>Tempo Indicativo</span>
+              <span>{tx.when}</span>
             </div>
-            <p className="font-oswald text-sm font-bold text-white uppercase">
-              {isDelivery ? '~30 - 45 Minuti' : '~15 - 20 Minuti'}
-            </p>
-            <span className="text-[11px] text-white/50 block font-sans mt-0.5">
-              {isDelivery ? 'Cottura a 450°C e consegna espressa' : 'Pronto caldo da forno per il ritiro'}
-            </span>
+            <p className="font-oswald text-sm font-bold text-white uppercase">{whenText}</p>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
@@ -123,25 +220,23 @@ export const OrderConfirmationModal = () => {
               ) : (
                 <Store className="w-3.5 h-3.5 text-[#ffa323]" />
               )}
-              <span>{isDelivery ? 'Destinazione Consegna' : 'Punto di Ritiro'}</span>
+              <span>{isDelivery ? tx.destination : tx.pickupPoint}</span>
             </div>
             <p className="font-oswald text-xs font-bold text-white truncate">
               {isDelivery
-                ? `${confirmedOrder.customer?.address || ''}, ${confirmedOrder.customer?.city || 'Castellanza'}`
-                : 'Via Borsano 44, Castellanza (VA)'}
+                ? `${confirmedOrder.customer?.address || ''}, ${confirmedOrder.customer?.city || addr.city}`
+                : `${addr.street}, ${addr.city} (${addr.province})`}
             </p>
             <span className="text-[11px] text-white/50 block font-sans mt-0.5 truncate">
-              Cliente: {confirmedOrder.customer?.fullName || ''} {confirmedOrder.customer?.phone ? `(${confirmedOrder.customer?.phone})` : ''}
+              {tx.customer}: {confirmedOrder.customer?.fullName || ''} {confirmedOrder.customer?.phone ? `(${confirmedOrder.customer?.phone})` : ''}
             </span>
           </div>
         </div>
 
-        {/* ============================================================ */}
-        {/* ORDER ITEMS SUMMARY                                          */}
-        {/* ============================================================ */}
+        {/* Riepilogo prodotti */}
         <div className="mt-4 p-4 rounded-2xl bg-[#0f0f0f] border border-white/10 text-left">
           <span className="text-[11px] font-oswald text-white/50 uppercase tracking-wider block mb-2 font-bold">
-            Riepilogo Prodotti Ordinati:
+            {tx.summary}
           </span>
           <div className="divide-y divide-white/5 max-h-40 overflow-y-auto pr-1">
             {confirmedOrder.items.map((item, idx) => (
@@ -161,28 +256,27 @@ export const OrderConfirmationModal = () => {
 
           {confirmedOrder.deliveryFee > 0 && (
             <div className="pt-2 mt-2 border-t border-white/10 flex items-center justify-between text-xs text-white/60">
-              <span>Spese di consegna espressa:</span>
-              <span className="font-oswald text-white">€{confirmedOrder.deliveryFee.toFixed(2)}</span>
+              <span>{tx.deliveryFee}</span>
+              <span className="font-oswald text-white">€{Number(confirmedOrder.deliveryFee).toFixed(2)}</span>
             </div>
           )}
         </div>
 
-        {/* Need Assistance notice */}
-        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white/50 font-sans">
+        {/* Assistenza */}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-white/50 font-sans">
           <Phone className="w-3.5 h-3.5 text-[#ffa323]" />
-          <span>Hai bisogno di modificare o aggiungere qualcosa? Chiama al</span>
-          <a href="tel:03311081917" className="text-[#ffa323] hover:underline font-bold">
-            0331 108 1917
+          <span>{tx.help}</span>
+          <a href={BUSINESS.phoneHref} className="text-[#ffa323] hover:underline font-bold">
+            {BUSINESS.phone}
           </a>
         </div>
 
-        {/* Primary CTA: Close and return to website */}
         <div className="mt-6 pt-4 border-t border-white/10">
           <button
             onClick={handleClose}
             className="w-full py-4 bg-gradient-to-r from-[#d2401e] to-[#ffa323] hover:from-[#b83314] hover:to-[#e68e17] text-white font-oswald text-sm font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl shadow-[#d2401e]/30 cursor-pointer active:scale-95 hover:scale-[1.02]"
           >
-            PERFETTO, HO CAPITO!
+            {tx.ok}
           </button>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { Calendar, Clock, MapPin, Sparkles, Users, ArrowRight, X, Flame, Check, 
 import { MoustacheIcon } from '../common/Icons';
 import ParallaxCard from '../common/ParallaxCard';
 import { useLanguage } from '../../context/LanguageContext';
+import { BUSINESS } from '../../config/business';
 import { api } from '../../services/api';
 import { PrivacyConsent } from '../Legal/PrivacyConsent';
 
@@ -573,7 +574,7 @@ export const EventsSection = () => {
                   <span>PRENOTA UN TAVOLO PER QUESTO EVENTO</span>
                 </a>
                 <a
-                  href="tel:03311081917"
+                  href={BUSINESS.phoneHref}
                   className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/20 text-white font-oswald text-xs sm:text-sm font-medium tracking-wider uppercase transition-all text-center"
                 >
                   📞 Chiamaci
