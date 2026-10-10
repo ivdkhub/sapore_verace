@@ -1,10 +1,30 @@
 import React from 'react';
 import { ArrowUp } from 'lucide-react';
-import { MoustacheIcon, InstagramIcon, FacebookIcon, TwitterIcon, LinkedinIcon } from '../common/Icons';
+import { MoustacheIcon, InstagramIcon, FacebookIcon } from '../common/Icons';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAdmin } from '../../context/AdminContext';
+import { BUSINESS } from '../../config/business';
+import { openLegal } from '../Legal/legal';
+
+const WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 export const Footer = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const { openingHours } = useAdmin();
+
+  // Nome del giorno nella lingua del sito (2024-01-01 era un lunedì)
+  const dayName = (idx) => {
+    const name = new Date(2024, 0, 1 + idx).toLocaleDateString(lang, { weekday: 'long' });
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  };
+  const dayHours = (key) => {
+    const d = openingHours?.[key];
+    if (!d || d.closed) return null;
+    return ['lunch', 'dinner']
+      .filter((shift) => d[shift]?.enabled)
+      .map((shift) => `${d[shift].open} – ${d[shift].close}`)
+      .join(' / ');
+  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -60,25 +80,20 @@ export const Footer = () => {
               <span className="text-[#d2401e]">●</span> {t.footer.hoursTitle}
             </h4>
 
-            <ul className="space-y-4 text-xs sm:text-sm">
-              <li className="flex justify-between border-b border-white/5 pb-2">
-                <span className="font-oswald uppercase text-white font-medium">{t.footer.mon}</span>
-                <span className="text-[#d2401e] font-oswald uppercase tracking-wider font-semibold">
-                  {t.footer.closed}
-                </span>
-              </li>
-              <li className="flex justify-between border-b border-white/5 pb-2">
-                <span className="font-oswald uppercase text-white font-medium">{t.footer.tueFri}</span>
-                <span className="text-white/80 font-oswald">9:00 – 22:00</span>
-              </li>
-              <li className="flex justify-between border-b border-white/5 pb-2">
-                <span className="font-oswald uppercase text-white font-medium">{t.footer.sat}</span>
-                <span className="text-[#ffa323] font-oswald">11:00 AM – Midnight</span>
-              </li>
-              <li className="flex justify-between border-b border-white/5 pb-2">
-                <span className="font-oswald uppercase text-white font-medium">{t.footer.sun}</span>
-                <span className="text-white/80 font-oswald">9:00 – 22:00</span>
-              </li>
+            <ul className="space-y-3 text-xs sm:text-sm">
+              {WEEK.map((key, idx) => {
+                const hours = dayHours(key);
+                return (
+                  <li key={key} className="flex justify-between gap-4 border-b border-white/5 pb-2">
+                    <span className="font-oswald uppercase text-white font-medium">{dayName(idx)}</span>
+                    {hours ? (
+                      <span className="text-white/80 font-oswald text-right">{hours}</span>
+                    ) : (
+                      <span className="text-[#d2401e] font-oswald uppercase tracking-wider font-semibold">{t.footer.closed}</span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
 
             {/* SOCIAL LINKS */}
@@ -88,38 +103,26 @@ export const Footer = () => {
               </span>
               <div className="flex items-center gap-2">
                 <a
-                  href="https://www.instagram.com/sapore_verace/"
+                  href={BUSINESS.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Instagram @sapore_verace"
+                  aria-label="Instagram"
                   className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#d2401e] text-white/80 hover:text-white flex items-center justify-center transition-colors"
                 >
                   <InstagramIcon className="w-4 h-4" />
                 </a>
-                <a
-                  href="https://www.facebook.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#d2401e] text-white/80 hover:text-white flex items-center justify-center transition-colors"
-                >
-                  <FacebookIcon className="w-4 h-4" />
-                </a>
-                <a
-                  href="https://twitter.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#d2401e] text-white/80 hover:text-white flex items-center justify-center transition-colors"
-                >
-                  <TwitterIcon className="w-4 h-4" />
-                </a>
-                <a
-                  href="https://www.linkedin.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#d2401e] text-white/80 hover:text-white flex items-center justify-center transition-colors"
-                >
-                  <LinkedinIcon className="w-4 h-4" />
-                </a>
+                {BUSINESS.facebookUrl && (
+                  <a
+                    href={BUSINESS.facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#d2401e] text-white/80 hover:text-white flex items-center justify-center transition-colors"
+                  >
+                    <FacebookIcon className="w-4 h-4" />
+                  </a>
+                )}
               </div>
             </div>
             <a
@@ -153,8 +156,17 @@ export const Footer = () => {
 
         {/* BOTTOM BAR */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-oswald tracking-widest text-white/50 uppercase">
-          <div className="flex items-center gap-2">
-            <span>© 2026 SAPORE VERACE. {t.footer.rights}</span>
+          <div className="flex flex-col sm:items-start items-center gap-1.5 text-center sm:text-left">
+            <span>© {new Date().getFullYear()} {BUSINESS.legalName || 'SAPORE VERACE'}. {t.footer.rights}</span>
+            {BUSINESS.vatNumber && <span className="normal-case tracking-normal">P.IVA {BUSINESS.vatNumber}</span>}
+            <span className="flex gap-3 normal-case tracking-normal">
+              <button type="button" onClick={() => openLegal('privacy')} className="hover:text-white underline cursor-pointer">
+                {t.legal?.privacyTitle || 'Privacy policy'}
+              </button>
+              <button type="button" onClick={() => openLegal('cookie')} className="hover:text-white underline cursor-pointer">
+                {t.legal?.cookieLink || 'Cookie policy'}
+              </button>
+            </span>
           </div>
 
           {/* Center moustache */}

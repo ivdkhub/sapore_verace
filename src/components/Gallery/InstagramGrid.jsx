@@ -82,6 +82,8 @@ export const InstagramGrid = () => {
           >
             {/* Image */}
             <img
+              loading="lazy"
+              decoding="async"
               src={item.image}
               alt={item.title}
               className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"

@@ -52,6 +52,8 @@ export const AdminProvider = ({ children }) => {
   const [isAdminView, setIsAdminViewState] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const isAuthenticatedRef = useRef(false);
+  isAuthenticatedRef.current = isAuthenticated;
 
   const [activeTab, setActiveTab] = useState('tavoli');
   const [isStructureEditMode, setIsStructureEditMode] = useState(false);
@@ -88,19 +90,23 @@ export const AdminProvider = ({ children }) => {
     setIsAdminViewState(false);
   };
 
+  // L'area admin si apre dall'indirizzo del sito + "#admin" (es. https://www.saporeverace.it/#admin)
   useEffect(() => {
+    const openFromHash = (authenticated) => {
+      if (window.location.hash !== '#admin') return;
+      if (authenticated) setIsAdminViewState(true);
+      else setIsLoginOpen(true);
+    };
     api
       .get('auth.php')
       .then((res) => {
         setIsAuthenticated(!!res.authenticated);
-        if (window.location.hash === '#admin') {
-          if (res.authenticated) setIsAdminViewState(true);
-          else setIsLoginOpen(true);
-        }
+        openFromHash(!!res.authenticated);
       })
-      .catch(() => {
-        if (window.location.hash === '#admin') setIsLoginOpen(true);
-      });
+      .catch(() => openFromHash(false));
+    const onHash = () => openFromHash(isAuthenticatedRef.current);
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
   // ============================================================

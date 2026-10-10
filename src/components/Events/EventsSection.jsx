@@ -268,6 +268,8 @@ export const EventsSection = () => {
               {/* Event Image Container with overlay */}
               <div className="relative aspect-[16/10] w-full overflow-hidden bg-black/60">
                 <img
+                  loading="lazy"
+                  decoding="async"
                   src={ev.image}
                   alt={ev.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
@@ -503,6 +505,8 @@ export const EventsSection = () => {
             {/* Modal Hero Image */}
             <div className="relative aspect-[16/9] w-full bg-black">
               <img
+                loading="lazy"
+                decoding="async"
                 src={activeModalEvent.image}
                 alt={activeModalEvent.title}
                 className="w-full h-full object-cover"

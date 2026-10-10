@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { EXTRA_TRANSLATIONS, mergeTranslations } from './extraTranslations';
 
 export const TRANSLATIONS = {
   it: {
@@ -1297,10 +1298,40 @@ export const TRANSLATIONS = {
 
 const LanguageContext = createContext();
 
-export const LanguageProvider = ({ children }) => {
-  const [lang, setLang] = useState('it');
+// Dizionari completi: base + testi aggiuntivi (vedi extraTranslations.js)
+const MERGED_TRANSLATIONS = Object.fromEntries(
+  Object.keys(TRANSLATIONS).map((code) => [code, mergeTranslations(TRANSLATIONS[code], EXTRA_TRANSLATIONS[code])])
+);
 
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.it;
+const LANG_STORAGE_KEY = 'sv_lang';
+
+const initialLang = () => {
+  try {
+    const saved = localStorage.getItem(LANG_STORAGE_KEY);
+    if (saved && TRANSLATIONS[saved]) return saved;
+  } catch {
+    // archiviazione non disponibile
+  }
+  return 'it';
+};
+
+export const LanguageProvider = ({ children }) => {
+  const [lang, setLangState] = useState(initialLang);
+
+  const setLang = (code) => {
+    setLangState(code);
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, code);
+    } catch {
+      // la lingua vale solo per questa visita
+    }
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  const t = MERGED_TRANSLATIONS[lang] || MERGED_TRANSLATIONS.it;
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>
