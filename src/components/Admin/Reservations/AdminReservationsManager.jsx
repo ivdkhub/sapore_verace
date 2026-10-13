@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { useAdmin, getTodayDateString } from '../../../context/AdminContext';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useAdmin, getTodayDateString, PENDING_STATUS } from '../../../context/AdminContext';
 import {
   Users,
   Clock,
@@ -31,7 +31,19 @@ export const AdminReservationsManager = () => {
     saveReservation,
     clearTable,
     findBestFreeTable,
+    coversCapacity,
+    getMaxCovers,
+    setMaxCoversForShift,
+    setDefaultMaxCovers,
   } = useAdmin();
+
+  // Coperti massimi del turno selezionato e valore predefinito (campi modificabili)
+  const maxCovers = getMaxCovers(selectedDate, activeShift);
+  const hasShiftOverride = coversCapacity?.overrides?.[`${selectedDate}_${activeShift}`] !== undefined;
+  const [shiftCoversInput, setShiftCoversInput] = useState(String(maxCovers));
+  const [defaultCoversInput, setDefaultCoversInput] = useState(String(coversCapacity?.default ?? ''));
+  useEffect(() => setShiftCoversInput(String(maxCovers)), [maxCovers, selectedDate, activeShift]);
+  useEffect(() => setDefaultCoversInput(String(coversCapacity?.default ?? '')), [coversCapacity?.default]);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -99,7 +111,11 @@ export const AdminReservationsManager = () => {
   // Real-time quick stats
   const stats = useMemo(() => {
     const totalReservations = reservedTables.length;
-    const totalGuests = reservedTables.reduce((sum, r) => sum + (Number(r.guests) || 0), 0);
+    const isPending = (r) => r.status === PENDING_STATUS;
+    // le richieste "Da Confermare" non occupano coperti finché lo staff non le conferma (come sul server)
+    const totalGuests = reservedTables.filter((r) => !isPending(r)).reduce((sum, r) => sum + (Number(r.guests) || 0), 0);
+    const pendingCount = reservedTables.filter(isPending).length;
+    const pendingGuests = reservedTables.filter(isPending).reduce((sum, r) => sum + (Number(r.guests) || 0), 0);
     const waitingCount = reservedTables.filter((r) => (r.status || '').toLowerCase().includes('attesa')).length;
     const seatedCount = reservedTables.filter((r) => (r.status || '').toLowerCase().includes('sedut')).length;
     const availableTablesCount = freeTables.length;
@@ -108,12 +124,19 @@ export const AdminReservationsManager = () => {
     return {
       totalReservations,
       totalGuests,
+      pendingCount,
+      pendingGuests,
       waitingCount,
       seatedCount,
       availableTablesCount,
       totalTablesCount,
     };
   }, [reservedTables, freeTables, tables]);
+
+  // Filtro "Da Confermare" attivo ma nessuna richiesta rimasta (es. appena confermata): torna a "Tutti"
+  useEffect(() => {
+    if (statusFilter === PENDING_STATUS && stats.pendingCount === 0) setStatusFilter('all');
+  }, [statusFilter, stats.pendingCount]);
 
   // Date stepper
   const handleStepDay = (delta) => {
@@ -419,9 +442,16 @@ export const AdminReservationsManager = () => {
             </span>
             <h3 className="font-oswald text-3xl font-black text-[#d2401e] mt-1">
               {stats.totalGuests}
+              <span className="text-base text-white/40 font-bold"> / {maxCovers}</span>
             </h3>
-            <span className="text-[11px] text-white/40 font-oswald">
-              persone attese in sala
+            <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden mt-1 mb-1">
+              <div
+                className={`h-full rounded-full ${stats.totalGuests >= maxCovers ? 'bg-rose-500' : stats.totalGuests >= maxCovers * 0.8 ? 'bg-amber-400' : 'bg-emerald-500'}`}
+                style={{ width: `${Math.min(100, maxCovers > 0 ? (stats.totalGuests / maxCovers) * 100 : 100)}%` }}
+              />
+            </div>
+            <span className={`text-[11px] font-oswald ${stats.totalGuests >= maxCovers ? 'text-rose-400 font-bold' : 'text-white/40'}`}>
+              {stats.totalGuests >= maxCovers ? 'COMPLETO' : `${maxCovers - stats.totalGuests} coperti ancora liberi`}
             </span>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-[#d2401e]/10 border border-[#d2401e]/30 flex items-center justify-center text-[#d2401e]">
@@ -467,6 +497,96 @@ export const AdminReservationsManager = () => {
       </div>
 
       {/* ============================================================ */}
+      {/* 2b. COPERTI MASSIMI (limite oltre il quale le prenotazioni online restano "Da Confermare") */}
+      {/* ============================================================ */}
+      <div className="bg-[#181818] p-4 sm:p-5 rounded-2xl border border-white/10 shadow-xl flex flex-col lg:flex-row lg:items-end gap-4 lg:gap-8">
+        <div className="flex-1 min-w-0">
+          <span className="text-xs font-oswald text-[#ffa323] uppercase tracking-widest block font-bold">
+            Coperti massimi · {activeShift === 'pranzo' ? 'pranzo' : 'cena'} del {formattedDate.main}
+          </span>
+          <p className="text-xs text-white/50 font-sans mt-1">
+            Oltre questo numero le prenotazioni online arrivano come <strong className="text-purple-300">Da Confermare</strong> e il
+            cliente viene avvisato che lo staff lo contatterà.{' '}
+            {hasShiftOverride ? 'Valore impostato solo per questo turno.' : `Si usa il valore predefinito (${coversCapacity?.default}).`}
+          </p>
+          <form
+            className="flex flex-wrap items-center gap-2 mt-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const n = parseInt(shiftCoversInput, 10);
+              if (Number.isNaN(n) || n < 0 || n > 999) return alert('Inserisci un numero di coperti tra 0 e 999.');
+              setMaxCoversForShift(selectedDate, activeShift, n);
+            }}
+          >
+            <input
+              type="number"
+              min="0"
+              max="999"
+              value={shiftCoversInput}
+              onChange={(e) => setShiftCoversInput(e.target.value)}
+              aria-label="Coperti massimi per questo turno"
+              className="w-24 bg-[#0f0f0f] border border-white/15 rounded-xl px-3 py-2 text-sm text-white font-bold focus:outline-none focus:border-[#ffa323]"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-[#ffa323] hover:bg-[#e68e17] text-black text-xs font-oswald font-bold uppercase rounded-xl cursor-pointer"
+            >
+              Salva per questo turno
+            </button>
+            {hasShiftOverride && (
+              <button
+                type="button"
+                onClick={() => setMaxCoversForShift(selectedDate, activeShift, null)}
+                className="px-3 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-oswald font-bold uppercase rounded-xl cursor-pointer"
+              >
+                Torna al predefinito
+              </button>
+            )}
+          </form>
+        </div>
+        <form
+          className="lg:border-l lg:border-white/10 lg:pl-8"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const n = parseInt(defaultCoversInput, 10);
+            if (Number.isNaN(n) || n < 1 || n > 999) return alert('Inserisci un numero di coperti tra 1 e 999.');
+            setDefaultMaxCovers(n);
+          }}
+        >
+          <span className="text-xs font-oswald text-white/60 uppercase tracking-widest block font-bold mb-2">
+            Predefinito (ogni pranzo e cena)
+          </span>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min="1"
+              max="999"
+              value={defaultCoversInput}
+              onChange={(e) => setDefaultCoversInput(e.target.value)}
+              aria-label="Coperti massimi predefiniti"
+              className="w-24 bg-[#0f0f0f] border border-white/15 rounded-xl px-3 py-2 text-sm text-white font-bold focus:outline-none focus:border-[#ffa323]"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-oswald font-bold uppercase rounded-xl cursor-pointer"
+            >
+              Salva predefinito
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {stats.pendingCount > 0 && (
+        <div className="bg-purple-500/10 border border-purple-400/30 rounded-2xl p-4 text-sm text-purple-200 font-sans flex items-start gap-3">
+          <Phone className="w-5 h-5 shrink-0 mt-0.5 text-purple-300" />
+          <span>
+            <strong>{stats.pendingCount} {stats.pendingCount === 1 ? 'prenotazione da confermare' : 'prenotazioni da confermare'}</strong>{' '}
+            ({stats.pendingGuests} coperti) arrivate a sala piena: chiama il cliente, poi premi «Conferma» oppure cancellala.
+          </span>
+        </div>
+      )}
+
+      {/* ============================================================ */}
       {/* 3. FILTER, SEARCH AND VIEW TOGGLE BAR                        */}
       {/* ============================================================ */}
       <div className="bg-[#181818] p-4 rounded-2xl border border-white/10 shadow-xl flex flex-wrap items-center justify-between gap-4">
@@ -497,6 +617,7 @@ export const AdminReservationsManager = () => {
           </span>
           {[
             { id: 'all', label: 'Tutti', count: reservedTables.length },
+            ...(stats.pendingCount > 0 ? [{ id: PENDING_STATUS, label: 'Da Confermare', count: stats.pendingCount }] : []),
             { id: 'In Attesa', label: 'In Attesa', count: stats.waitingCount },
             { id: 'Seduti', label: 'Seduti', count: stats.seatedCount },
             { id: 'Confermata', label: 'Confermate', count: reservedTables.filter((r) => (r.status || '').toLowerCase() === 'confermata').length },
@@ -575,11 +696,14 @@ export const AdminReservationsManager = () => {
             const isWaiting = (res.status || '').toLowerCase().includes('attesa');
             const isSeated = (res.status || '').toLowerCase().includes('sedut');
             const isCompleted = (res.status || '').toLowerCase().includes('completat');
+            const isPendingRes = res.status === PENDING_STATUS;
 
             return (
               <div
                 key={res.tableId}
-                className="bg-[#181818] hover:bg-[#1d1d1d] border border-white/10 hover:border-white/20 rounded-2xl p-5 shadow-xl transition-all flex flex-col justify-between gap-4 group"
+                className={`bg-[#181818] hover:bg-[#1d1d1d] border rounded-2xl p-5 shadow-xl transition-all flex flex-col justify-between gap-4 group ${
+                  isPendingRes ? 'border-purple-400/50 hover:border-purple-400/70' : 'border-white/10 hover:border-white/20'
+                }`}
               >
                 <div>
                   {/* Card Header: Time, Table & Status Badge */}
@@ -597,7 +721,9 @@ export const AdminReservationsManager = () => {
                     {/* Status Pill */}
                     <span
                       className={`px-2.5 py-0.5 rounded-full font-oswald text-[11px] font-bold uppercase tracking-wider ${
-                        isSeated
+                        isPendingRes
+                          ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
+                          : isSeated
                           ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                           : isWaiting
                           ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
@@ -655,7 +781,17 @@ export const AdminReservationsManager = () => {
                 <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
                   {/* Quick Status Changers */}
                   <div className="flex items-center gap-1.5">
-                    {!isSeated && (
+                    {isPendingRes && (
+                      <button
+                        onClick={() => handleUpdateStatus(res.tableId, res, 'Confermata')}
+                        title="Cliente richiamato: conferma la prenotazione"
+                        className="px-2.5 py-1.5 bg-purple-500/20 hover:bg-purple-500/35 text-purple-200 border border-purple-400/40 rounded-lg text-xs font-oswald font-bold uppercase transition-all cursor-pointer flex items-center gap-1"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Conferma</span>
+                      </button>
+                    )}
+                    {!isSeated && !isPendingRes && (
                       <button
                         onClick={() => handleUpdateStatus(res.tableId, res, 'Seduti')}
                         title="Segna come Seduti al tavolo"
@@ -747,7 +883,9 @@ export const AdminReservationsManager = () => {
                     </td>
                     <td className="py-3.5 px-4">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-oswald font-bold uppercase ${
-                        (res.status || '').toLowerCase().includes('sedut')
+                        res.status === PENDING_STATUS
+                          ? 'bg-purple-500/20 text-purple-300'
+                          : (res.status || '').toLowerCase().includes('sedut')
                           ? 'bg-emerald-500/20 text-emerald-400'
                           : (res.status || '').toLowerCase().includes('attesa')
                           ? 'bg-amber-500/20 text-amber-400'
@@ -877,6 +1015,7 @@ export const AdminReservationsManager = () => {
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     className="w-full bg-[#0f0f0f] border border-white/15 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#ffa323]"
                   >
+                    <option value={PENDING_STATUS}>Da Confermare (da richiamare)</option>
                     <option value="In Attesa">In Attesa</option>
                     <option value="Confermata">Confermata</option>
                     <option value="Seduti">Seduti al Tavolo</option>

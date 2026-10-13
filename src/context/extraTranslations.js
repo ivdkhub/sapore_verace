@@ -3,6 +3,8 @@
 
 export const EXTRA_TRANSLATIONS = {
   it: {
+    call: 'Chiama',
+    menu: { addToCartShort: 'Aggiungi' },
     legal: {
       consentPrefix: 'Ho letto l’',
       privacyLink: 'informativa privacy',
@@ -27,6 +29,12 @@ export const EXTRA_TRANSLATIONS = {
       closedShort: 'chiuso',
       noSlots: 'Nessun orario prenotabile per questo turno: scegli un altro giorno o turno.',
       errorSlot: 'Scegli uno degli orari disponibili.',
+      pendingBadge: 'RICHIESTA DI PRENOTAZIONE RICEVUTA',
+      pendingTitle: 'Grazie',
+      pendingDesc: 'Sarai contattato a breve dal nostro staff per confermare la prenotazione.',
+      pendingStatus: 'In attesa di conferma',
+      statusLabel: 'Stato',
+      pendingCode: 'Codice Richiesta:',
     },
     findUs: {
       lunchLabel: 'Pranzo',
@@ -45,6 +53,8 @@ export const EXTRA_TRANSLATIONS = {
   },
 
   en: {
+    call: 'Call',
+    menu: { addToCartShort: 'Add' },
     legal: {
       consentPrefix: 'I have read the ',
       privacyLink: 'privacy policy',
@@ -69,6 +79,12 @@ export const EXTRA_TRANSLATIONS = {
       closedShort: 'closed',
       noSlots: 'No bookable times for this shift: choose another day or shift.',
       errorSlot: 'Please choose one of the available times.',
+      pendingBadge: 'BOOKING REQUEST RECEIVED',
+      pendingTitle: 'Thank you',
+      pendingDesc: 'Our staff will contact you shortly to confirm your booking.',
+      pendingStatus: 'Awaiting confirmation',
+      statusLabel: 'Status',
+      pendingCode: 'Request Code:',
     },
     findUs: {
       lunchLabel: 'Lunch',
@@ -87,6 +103,8 @@ export const EXTRA_TRANSLATIONS = {
   },
 
   de: {
+    call: 'Anrufen',
+    menu: { addToCartShort: 'Hinzufügen' },
     legal: {
       consentPrefix: 'Ich habe die ',
       privacyLink: 'Datenschutzerklärung',
@@ -161,6 +179,12 @@ export const EXTRA_TRANSLATIONS = {
       closedShort: 'geschlossen',
       noSlots: 'Für diese Schicht sind keine Uhrzeiten buchbar: wähle einen anderen Tag oder eine andere Schicht.',
       errorSlot: 'Bitte wähle eine der verfügbaren Uhrzeiten.',
+      pendingBadge: 'RESERVIERUNGSANFRAGE ERHALTEN',
+      pendingTitle: 'Danke',
+      pendingDesc: 'Unser Team meldet sich in Kürze bei dir, um die Reservierung zu bestätigen.',
+      pendingStatus: 'Wartet auf Bestätigung',
+      statusLabel: 'Status',
+      pendingCode: 'Anfrage-Code:',
     },
     findUs: {
       lunchLabel: 'Mittag',
@@ -179,6 +203,8 @@ export const EXTRA_TRANSLATIONS = {
   },
 
   sq: {
+    call: 'Telefono',
+    menu: { addToCartShort: 'Shto' },
     legal: {
       consentPrefix: 'Kam lexuar ',
       privacyLink: 'politikën e privatësisë',
@@ -203,6 +229,12 @@ export const EXTRA_TRANSLATIONS = {
       closedShort: 'mbyllur',
       noSlots: 'Nuk ka orare të rezervueshme për këtë turn: zgjidh një ditë ose turn tjetër.',
       errorSlot: 'Zgjidh një nga oraret e disponueshme.',
+      pendingBadge: 'KËRKESA PËR REZERVIM U MOR',
+      pendingTitle: 'Faleminderit',
+      pendingDesc: 'Stafi ynë do t’ju kontaktojë së shpejti për të konfirmuar rezervimin.',
+      pendingStatus: 'Në pritje të konfirmimit',
+      statusLabel: 'Statusi',
+      pendingCode: 'Kodi i Kërkesës:',
     },
     findUs: {
       lunchLabel: 'Drekë',

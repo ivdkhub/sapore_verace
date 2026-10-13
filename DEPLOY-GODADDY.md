@@ -62,7 +62,9 @@ In alternativa, via FTP carica tutto il contenuto di `dist/`, compresi i file na
 1. Vai su **`https://www.TUODOMINIO/#admin`** e inserisci la password.
 2. Scheda **Notifiche**: attiva almeno un canale (Telegram consigliato) e premi *Invia di prova*.
 3. Controlla **Orari & Ferie**: gli orari salvati qui valgono per prenotazioni, ordini, footer e sezione "Dove siamo".
-4. Nella scheda **Ordini & Eventi** trovi ordini online, richieste per feste e messaggi dal sito.
+4. Nella scheda **Ordini & Richieste** trovi ordini online, richieste per feste e messaggi dal sito.
+5. Scheda **Gestione Prenotazioni**: imposta i **coperti massimi** (predefinito 65 per ogni pranzo e cena, modificabile per singole serate). Oltre il limite le prenotazioni online arrivano come *Da Confermare* e il cliente viene avvisato che lo staff lo richiamerà.
+6. Schede **Prodotti Settimana**, **Menù Fisso** ed **Eventi**: inserisci i contenuti definitivi (i dati del computer di sviluppo non vengono caricati sul server).
 
 ## 6. Checklist prima di andare online
 

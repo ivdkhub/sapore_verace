@@ -8,6 +8,7 @@ import { AdminReservationsManager } from './Reservations/AdminReservationsManage
 import { AdminNotificationSettings } from './Notifications/AdminNotificationSettings';
 import { AdminOrdersManager } from './Orders/AdminOrdersManager';
 import { AdminEventsManager } from './Events/AdminEventsManager';
+import { AdminFixedMenuManager } from './FixedMenu/AdminFixedMenuManager';
 import { Calendar, Users, ArrowLeft, ChevronLeft, ChevronRight, UtensilsCrossed, LayoutDashboard, Flame, Star, Clock, Bell, ShoppingBag, LogOut, PartyPopper } from 'lucide-react';
 import { MoustacheIcon } from '../common/Icons';
 
@@ -84,6 +85,18 @@ export const AdminDashboard = () => {
             >
               <UtensilsCrossed className="w-4 h-4" />
               <span>🍕 Gestione Menù</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('menufisso')}
+              className={`px-4 py-2 rounded-xl font-oswald text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                activeTab === 'menufisso'
+                  ? 'bg-gradient-to-r from-[#d2401e] to-[#ffa323] text-white shadow-lg shadow-[#d2401e]/30 scale-105'
+                  : 'text-white/60 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <UtensilsCrossed className="w-4 h-4" />
+              <span>🍝 Menù Fisso</span>
             </button>
 
             <button
@@ -200,6 +213,13 @@ export const AdminDashboard = () => {
         )}
 
         {/* ========================================================== */}
+        {/* TAB MENÙ FISSO: PRANZO LAVORO MOSTRATO SUL SITO            */}
+        {/* ========================================================== */}
+        {activeTab === 'menufisso' && (
+          <AdminFixedMenuManager />
+        )}
+
+        {/* ========================================================== */}
         {/* TAB EVENTI: SERATE A TEMA MOSTRATE SUL SITO                */}
         {/* ========================================================== */}
         {activeTab === 'eventi' && (
@@ -254,7 +274,9 @@ export const AdminDashboard = () => {
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] font-oswald tracking-[0.2em] text-[#ffa323] uppercase font-bold flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  NUOVA PRENOTAZIONE ONLINE!
+                  {newReservationToast.reservation.status === 'Da Confermare'
+                    ? 'DA CONFERMARE · SALA PIENA, RICHIAMA IL CLIENTE'
+                    : 'NUOVA PRENOTAZIONE ONLINE!'}
                 </span>
                 <button
                   onClick={() => setNewReservationToast(null)}

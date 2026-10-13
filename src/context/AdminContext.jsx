@@ -8,6 +8,11 @@ const AdminContext = createContext();
 
 export { INITIAL_TABLES, DEFAULT_OPENING_HOURS, DEFAULT_HOLIDAYS };
 
+// Coperti massimi per turno se l'admin non ha impostato altro (come SV_DEFAULT_MAX_COVERS sul server)
+export const DEFAULT_MAX_COVERS = 65;
+// Stato delle prenotazioni online arrivate a coperti esauriti (come SV_PENDING_STATUS sul server)
+export const PENDING_STATUS = 'Da Confermare';
+
 export const getTodayDateString = (d = new Date()) => {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -152,6 +157,56 @@ export const AdminProvider = ({ children }) => {
       setTimeout(() => setSaveSuccessMessage(''), 5000);
     });
   }, [holidays]);
+
+  // ============================================================
+  // COPERTI MASSIMI PER TURNO (solo admin, sul server)
+  // { default: 65, overrides: { "YYYY-MM-DD_cena": 60 } }: oltre il limite le prenotazioni online restano "Da Confermare"
+  // ============================================================
+  const [coversCapacity, setCoversCapacity] = useState({ default: DEFAULT_MAX_COVERS, overrides: {} });
+  const [coversLoaded, setCoversLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    api
+      .get('state.php?keys=covers_capacity')
+      .then(({ data }) => {
+        if (data.covers_capacity) setCoversCapacity({ ...data.covers_capacity, overrides: data.covers_capacity.overrides || {} });
+        setCoversLoaded(true);
+      })
+      .catch((err) => console.warn('Coperti massimi non caricati:', err.message));
+  }, [isAuthenticated]);
+
+  const getMaxCovers = (date, shift) => {
+    const override = coversCapacity.overrides?.[`${date}_${shift}`];
+    return override !== undefined ? Number(override) : Number(coversCapacity.default) || DEFAULT_MAX_COVERS;
+  };
+
+  // Salva sul server; restituisce true se riuscito. Con loaded=false non si salva (si perderebbero gli altri valori).
+  const saveCoversCapacity = async (next) => {
+    if (!coversLoaded) {
+      flashMessage('⚠️ Coperti NON salvati: impostazioni del server non caricate. Ricarica la pagina e riprova.', 6000);
+      return false;
+    }
+    try {
+      const res = await api.put('state.php', { key: 'covers_capacity', value: next });
+      setCoversCapacity({ ...res.value, overrides: res.value.overrides || {} });
+      flashMessage('✅ Coperti massimi aggiornati.');
+      return true;
+    } catch (err) {
+      flashMessage(`⚠️ Coperti NON salvati: ${err.message}`, 6000);
+      return false;
+    }
+  };
+
+  // Limite per una sola data/turno (null = torna al valore predefinito)
+  const setMaxCoversForShift = (date, shift, value) => {
+    const overrides = { ...(coversCapacity.overrides || {}) };
+    if (value === null || value === '' || value === undefined) delete overrides[`${date}_${shift}`];
+    else overrides[`${date}_${shift}`] = Number(value);
+    return saveCoversCapacity({ ...coversCapacity, overrides });
+  };
+
+  const setDefaultMaxCovers = (value) => saveCoversCapacity({ ...coversCapacity, default: Number(value) });
 
   // ============================================================
   // CONFIGURAZIONI GIORNALIERE DELLA SALA (solo admin, sul server)
@@ -534,7 +589,8 @@ export const AdminProvider = ({ children }) => {
             ...t,
             status: resData.status === 'Seduti' ? 'occupato' : 'in_corso',
             // il colore segue lo stato (una prenotazione online nasce gialla e diventa rossa quando si siedono)
-            colorOverride: resData.status === 'Seduti' ? '#d2401e' : '#f59e0b',
+            colorOverride:
+              resData.status === 'Seduti' ? '#d2401e' : resData.status === PENDING_STATUS ? '#a855f7' : '#f59e0b',
             reservation: {
               ...resData,
               color: undefined,
@@ -747,6 +803,11 @@ export const AdminProvider = ({ children }) => {
         findBestFreeTable,
         saveReservation,
         clearTable,
+        // Coperti massimi per turno
+        coversCapacity,
+        getMaxCovers,
+        setMaxCoversForShift,
+        setDefaultMaxCovers,
         // Opening hours & Holidays management
         openingHours,
         holidays,

@@ -81,8 +81,13 @@ try {
     $data = $current ? $current['data'] : default_day_config();
     $version = $current ? $current['version'] : 0;
 
+    // Coperti: oltre il massimo del turno la prenotazione resta "Da Confermare" e lo staff richiama il cliente
+    $maxCovers = max_covers_for($key);
+    $bookedCovers = booked_covers((array)$data['tables']);
+    $pending = $bookedCovers + $guests > $maxCovers;
+
     $table = find_best_free_table((array)$data['tables'], $guests);
-    if (!$table) {
+    if (!$table && !$pending) {
         db_rollback($pdo);
         fail("Siamo spiacenti, non ci sono tavoli liberi per $guests persone in questo turno. Prova un altro giorno o chiamaci.", 409);
     }
@@ -94,31 +99,47 @@ try {
         $check->execute([$code]);
     } while ($check->fetchColumn());
 
+    $color = $pending ? '#a855f7' : '#f59e0b';
     $reservation = [
         'name' => $name,
         'phone' => $phone,
         'email' => $email,
         'time' => $time,
         'guests' => $guests,
-        'status' => 'In Attesa',
+        'status' => $pending ? SV_PENDING_STATUS : 'In Attesa',
         'notes' => $notes,
-        'color' => '#f59e0b',
+        'color' => $color,
         'code' => $code,
         'createdAt' => now_iso(),
         'updatedAt' => date('H:i'),
         'source' => 'online_client',
     ];
+    if ($pending) $reservation['coversAtRequest'] = "$bookedCovers/$maxCovers";
 
-    foreach ($data['tables'] as $i => $t) {
-        if (($t['id'] ?? null) === $table['id']) {
-            $data['tables'][$i]['status'] = 'in_corso';
-            $data['tables'][$i]['colorOverride'] = '#f59e0b';
-            $data['tables'][$i]['reservation'] = $reservation;
+    if ($table) {
+        foreach ($data['tables'] as $i => $t) {
+            if (($t['id'] ?? null) === $table['id']) {
+                $data['tables'][$i]['status'] = 'in_corso';
+                $data['tables'][$i]['colorOverride'] = $color;
+                $data['tables'][$i]['reservation'] = $reservation;
+            }
         }
+        store_day_config($key, $data, $version + 1);
+    } else {
+        // Sala piena e nessun tavolo libero: la richiesta finisce tra le "Richieste" dell'admin
+        $pdo->prepare('INSERT INTO inquiries (status, data, created_at) VALUES (?, ?, ?)')->execute(['nuova', json_encode([
+            'name' => $name,
+            'phone' => $phone,
+            'email' => $email,
+            'eventType' => "Prenotazione tavolo da confermare ($code) - sala piena",
+            'date' => $date,
+            'guests' => (string)$guests,
+            'notes' => 'Ore ' . $time . ' (' . $shift . '), coperti già prenotati ' . $bookedCovers . '/' . $maxCovers
+                . ', nessun tavolo libero.' . ($notes !== '' ? "\n" . $notes : ''),
+        ], JSON_UNESCAPED_UNICODE), now_iso()]);
     }
-    store_day_config($key, $data, $version + 1);
     $pdo->prepare('INSERT INTO reservations (code, config_key, table_id, data, created_at) VALUES (?, ?, ?, ?, ?)')
-        ->execute([$code, $key, (string)$table['id'], json_encode($reservation, JSON_UNESCAPED_UNICODE), now_iso()]);
+        ->execute([$code, $key, $table ? (string)$table['id'] : null, json_encode($reservation, JSON_UNESCAPED_UNICODE), now_iso()]);
     db_commit($pdo);
     rate_limit_record('reservation');
 } catch (Throwable $e) {
@@ -132,16 +153,20 @@ $payload = [
     'ok' => true,
     'success' => true,
     'bookingCode' => $code,
+    'pending' => $pending, // true = coperti esauriti: lo staff contatterà il cliente per confermare
     'date' => $date,
     'shift' => $shift,
     'time' => $time,
-    'table' => ['id' => $table['id'], 'name' => $table['name'] ?? ''],
+    // il tavolo si comunica solo per le prenotazioni confermate
+    'table' => $table && !$pending ? ['id' => $table['id'], 'name' => $table['name'] ?? ''] : null,
     'reservation' => ['name' => $name, 'guests' => $guests, 'time' => $time, 'code' => $code, 'notes' => $notes],
 ];
 
-finish_response_then(function () use ($code, $name, $guests, $date, $time, $shift, $phone, $email, $table, $notes) {
+$covers = "$bookedCovers/$maxCovers";
+finish_response_then(function () use ($code, $name, $guests, $date, $time, $shift, $phone, $email, $table, $notes, $pending, $covers) {
     dispatch_notification('notifyOnReservation', reservation_messages([
         'code' => $code, 'name' => $name, 'guests' => $guests, 'date' => $date, 'time' => $time, 'shift' => $shift,
         'phone' => $phone, 'email' => $email, 'tableName' => (string)($table['name'] ?? ''), 'notes' => $notes,
+        'pending' => $pending, 'covers' => $covers,
     ]));
 }, $payload);

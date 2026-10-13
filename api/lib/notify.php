@@ -201,7 +201,13 @@ function reservation_messages(array $r): array
 {
     $shiftLabel = $r['shift'] === 'pranzo' ? 'Pranzo' : 'Cena';
     $dateIt = date('d/m/Y', strtotime($r['date']));
-    $tg = "📅 <b>NUOVA PRENOTAZIONE — Sapore Verace</b>\n"
+    // Coperti esauriti: la prenotazione va confermata dallo staff richiamando il cliente
+    $pending = !empty($r['pending']);
+    $title = $pending ? 'PRENOTAZIONE DA CONFERMARE' : 'NUOVA PRENOTAZIONE';
+    $icon = $pending ? '⚠️' : '📅';
+    $warn = 'COPERTI ESAURITI (' . ($r['covers'] ?? '') . ' già prenotati): richiama il cliente per confermare.';
+    $tg = "$icon <b>$title — Sapore Verace</b>\n"
+        . ($pending ? '❗ <b>' . h($warn) . "</b>\n" : '')
         . 'Codice: <code>' . h($r['code']) . "</code>\n\n"
         . '👤 <b>Cliente:</b> ' . h($r['name']) . "\n"
         . '👥 <b>Coperti:</b> ' . (int)$r['guests'] . "\n"
@@ -210,15 +216,16 @@ function reservation_messages(array $r): array
         . '📞 <b>Telefono:</b> ' . h($r['phone']) . "\n"
         . ($r['email'] ? '✉️ <b>Email:</b> ' . h($r['email']) . "\n" : '')
         . ($r['notes'] ? '💬 <b>Note:</b> ' . h($r['notes']) . "\n" : '');
-    $wa = "*📅 NUOVA PRENOTAZIONE — Sapore Verace*\nCodice: {$r['code']}\n\n"
+    $wa = "*$icon $title — Sapore Verace*\n" . ($pending ? "*$warn*\n" : '') . "Codice: {$r['code']}\n\n"
         . "*Cliente:* {$r['name']}\n*Coperti:* {$r['guests']}\n*Data:* $dateIt ore {$r['time']} ($shiftLabel)\n"
         . ($r['tableName'] ? "*Tavolo:* {$r['tableName']}\n" : '')
         . "*Telefono:* {$r['phone']}\n"
         . ($r['notes'] ? "*Note:* {$r['notes']}\n" : '');
-    $text = "Nuova prenotazione {$r['code']}\nCliente: {$r['name']}\nCoperti: {$r['guests']}\nData: $dateIt ore {$r['time']} ($shiftLabel)\n"
+    $text = ($pending ? "$warn\nPrenotazione da confermare" : 'Nuova prenotazione') . " {$r['code']}\nCliente: {$r['name']}\nCoperti: {$r['guests']}\nData: $dateIt ore {$r['time']} ($shiftLabel)\n"
         . "Tavolo: {$r['tableName']}\nTelefono: {$r['phone']}\nEmail: {$r['email']}\nNote: {$r['notes']}";
     $html = '<div style="font-family:sans-serif;max-width:600px;padding:24px;background:#181818;color:#fff;border-radius:12px">'
-        . '<h2 style="color:#ffa323;margin-top:0">Nuova prenotazione ' . h($r['code']) . '</h2>'
+        . '<h2 style="color:#ffa323;margin-top:0">' . ($pending ? 'Prenotazione da confermare ' : 'Nuova prenotazione ') . h($r['code']) . '</h2>'
+        . ($pending ? '<p style="color:#f87171;font-weight:bold">' . h($warn) . '</p>' : '')
         . '<p><strong>Cliente:</strong> ' . h($r['name']) . '</p>'
         . '<p><strong>Coperti:</strong> ' . (int)$r['guests'] . '</p>'
         . '<p><strong>Data e ora:</strong> ' . h($dateIt) . ' ore ' . h($r['time']) . ' (' . $shiftLabel . ')</p>'
@@ -230,7 +237,7 @@ function reservation_messages(array $r): array
     return [
         'telegram' => $tg,
         'whatsapp' => $wa,
-        'subject' => "Nuova prenotazione {$r['code']} - {$r['name']} ({$r['guests']} persone) - $dateIt",
+        'subject' => ($pending ? 'DA CONFERMARE - Prenotazione' : 'Nuova prenotazione') . " {$r['code']} - {$r['name']} ({$r['guests']} persone) - $dateIt",
         'text' => $text,
         'html' => $html,
     ];

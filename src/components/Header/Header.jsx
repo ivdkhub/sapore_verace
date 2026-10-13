@@ -8,11 +8,13 @@ import { useLanguage } from '../../context/LanguageContext';
 import { BUSINESS } from '../../config/business';
 import { useCart } from '../../context/CartContext';
 import { useAdmin } from '../../context/AdminContext';
+import { useMenu } from '../../context/MenuContext';
 
 export const Header = () => {
   const { t } = useLanguage();
   const { totalItemsCount, setIsCartOpen } = useCart();
   const { setIsBookingModalOpen } = useAdmin();
+  const { fixedMenu } = useMenu();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -33,7 +35,10 @@ export const Header = () => {
 
   const NAV_ITEMS_LEFT = [
     { label: t.nav?.menu || 'MENÙ', href: '#menu', key: 'MENU' },
-    { label: t.nav?.fixedMenu || t.fixedMenu || 'MENÙ FISSO', href: '#menu-fisso', key: 'MENU_FISSO' },
+    // il link sparisce se l'admin ha disattivato il menù fisso
+    ...(fixedMenu?.active === false
+      ? []
+      : [{ label: t.nav?.fixedMenu || t.fixedMenu || 'MENÙ FISSO', href: '#menu-fisso', key: 'MENU_FISSO' }]),
   ];
 
   const NAV_ITEMS_RIGHT = [

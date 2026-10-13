@@ -28,6 +28,8 @@ export const MenuProvider = ({ children }) => {
   const [menuItems, setMenuItemsState] = useState(DEFAULT_MENU_ITEMS);
   const [weeklyProducts, setWeeklyProductsState] = useState(DEFAULT_WEEKLY_PRODUCTS);
   const [events, setEventsState] = useState(DEFAULT_EVENTS);
+  // Menù fisso: null = non ancora modificato dall'admin (il sito usa i testi tradotti di fixedMenuData)
+  const [fixedMenu, setFixedMenuState] = useState(null);
   const [isMenuLoaded, setIsMenuLoaded] = useState(false);
 
   // Solo le modifiche fatte dall'admin vengono salvate sul server
@@ -59,8 +61,11 @@ export const MenuProvider = ({ children }) => {
   // Carica menu e prodotti della settimana dal server
   useEffect(() => {
     let cancelled = false;
+    // Banner e menu restano nascosti finché arrivano i dati veri (niente "sfarfallio" dei valori
+    // predefiniti); se il server non risponde entro 4 secondi si mostrano comunque quelli predefiniti.
+    const safety = setTimeout(() => !cancelled && setIsMenuLoaded(true), 4000);
     api
-      .get('state.php?keys=menu_items,weekly_products,events')
+      .get('state.php?keys=menu_items,weekly_products,events,fixed_menu')
       .then(({ data }) => {
         if (cancelled) return;
         loadedFromServerRef.current = true;
@@ -70,11 +75,16 @@ export const MenuProvider = ({ children }) => {
         }
         // Una lista vuota è valida: l'admin può aver tolto tutti gli eventi
         if (Array.isArray(data.events)) setEventsState(data.events);
+        if (data.fixed_menu && Array.isArray(data.fixed_menu.sections)) setFixedMenuState(data.fixed_menu);
       })
       .catch((err) => console.warn('Menu: uso i dati predefiniti, server non raggiungibile.', err.message))
-      .finally(() => !cancelled && setIsMenuLoaded(true));
+      .finally(() => {
+        clearTimeout(safety);
+        if (!cancelled) setIsMenuLoaded(true);
+      });
     return () => {
       cancelled = true;
+      clearTimeout(safety);
     };
   }, []);
 
@@ -435,6 +445,23 @@ export const MenuProvider = ({ children }) => {
     });
   };
 
+  // Menù fisso: salvataggio esplicito dall'editor admin (null = torna ai testi originali tradotti)
+  const saveFixedMenu = async (value) => {
+    if (!loadedFromServerRef.current) {
+      showToast('Menù fisso NON salvato: dati del server non caricati. Ricarica la pagina e riprova.', 'delete');
+      return false;
+    }
+    try {
+      await api.put('state.php', { key: 'fixed_menu', value });
+      setFixedMenuState(value);
+      showToast(value ? 'Menù fisso salvato e pubblicato sul sito!' : 'Menù fisso ripristinato ai testi originali.');
+      return true;
+    } catch (err) {
+      showToast(`Menù fisso NON salvato sul server: ${err.message}`, 'delete');
+      return false;
+    }
+  };
+
   const resetEventsToDefault = () => {
     setEvents(DEFAULT_EVENTS);
     showToast('Eventi ripristinati a quelli iniziali.');
@@ -465,6 +492,8 @@ export const MenuProvider = ({ children }) => {
         toggleEventActive,
         moveEvent,
         resetEventsToDefault,
+        fixedMenu,
+        saveFixedMenu,
         toastMessage,
       }}
     >

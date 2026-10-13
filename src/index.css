@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* "font-sans" = Open Sans, il carattere dei testi del sito (prima usava quello di sistema) */
+@theme {
+  --font-sans: 'Open Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
 @layer base {
   :root {
     --color-primary: #d2401e;

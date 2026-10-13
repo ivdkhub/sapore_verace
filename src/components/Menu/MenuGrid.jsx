@@ -10,7 +10,7 @@ import { getLocalizedItem, getLocalizedCategories } from '../../data/menuTransla
 export const MenuGrid = () => {
   const { t, lang } = useLanguage();
   const { addToCart } = useCart();
-  const { menuItems, categories } = useMenu();
+  const { menuItems, categories, isMenuLoaded } = useMenu();
   const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'classiche' | 'gourmet' | 'ripieni' | 'cucina' | 'bevande'
   const [selectedPizza, setSelectedPizza] = useState(null);
   const [cartAlert, setCartAlert] = useState(null);
@@ -323,7 +323,11 @@ export const MenuGrid = () => {
         </div>
 
         {/* 3xN Dynamic Floating Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 animate-in fade-in duration-300">
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 transition-opacity duration-500 ${
+            isMenuLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
           {filteredItems.map((item) => (
             <PizzaCard
               key={item.id}
