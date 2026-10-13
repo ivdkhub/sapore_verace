@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Phone, MapPin, Clock } from 'lucide-react';
+import { X, Phone, MapPin, Clock, Lock } from 'lucide-react';
 import { InstagramIcon, FacebookIcon } from '../common/Icons';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAdmin } from '../../context/AdminContext';
@@ -8,14 +8,25 @@ import { summarizeOpeningHours } from '../../utils/schedule';
 import { LanguageSwitcher } from '../common/Flags';
 import { AnimatedLogoSvg } from '../common/AnimatedLogoSvg';
 
+const STAFF_LABELS = {
+  login: { it: 'Area riservata staff', en: 'Staff area', de: 'Mitarbeiterbereich', sq: 'Zona e stafit' },
+  open: { it: 'Apri pannello admin', en: 'Open admin panel', de: 'Admin-Bereich öffnen', sq: 'Hap panelin e administrimit' },
+};
+
 export const SideDrawer = ({ isOpen, onClose }) => {
   const { t, lang } = useLanguage();
-  const { setIsBookingModalOpen, openingHours } = useAdmin();
+  const { setIsBookingModalOpen, openingHours, setIsAdminView, isAuthenticated } = useAdmin();
   const hours = summarizeOpeningHours(openingHours, lang);
 
   const handleOpenReservation = () => {
     onClose();
     setIsBookingModalOpen(true);
+  };
+
+  // Apre la dashboard se l'admin è già collegato, altrimenti la finestra di login
+  const handleOpenAdmin = () => {
+    onClose();
+    setIsAdminView(true);
   };
 
   return (
@@ -160,6 +171,18 @@ export const SideDrawer = ({ isOpen, onClose }) => {
           >
             @SAPORE_VERACE
           </a>
+        </div>
+
+        {/* Accesso all'area admin per il personale (se non si è collegati chiede la password) */}
+        <div className="mt-10 pt-6 border-t border-white/10">
+          <button
+            type="button"
+            onClick={handleOpenAdmin}
+            className="w-full py-3 px-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#ffa323]/50 text-white/70 hover:text-white font-oswald text-xs tracking-[0.2em] font-bold uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Lock className="w-4 h-4 text-[#ffa323]" />
+            <span>{isAuthenticated ? STAFF_LABELS.open[lang] || STAFF_LABELS.open.it : STAFF_LABELS.login[lang] || STAFF_LABELS.login.it}</span>
+          </button>
         </div>
 
       </div>
