@@ -2,18 +2,64 @@
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo-moustache.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sapore Verace - Castellanza | Pizza e cucina</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Oswald:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
+    <title>Sapore Verace – Pizzeria Napoletana a Castellanza (VA) | Prenota e ordina online</title>
+    <meta
+      name="description"
+      content="Pizzeria napoletana con piccola cucina in Via Borsano 44 a Castellanza (VA). Impasto a lunga lievitazione, forno a legna, prenotazione del tavolo e ordini a domicilio o da asporto online."
     />
+    <link rel="canonical" href="__SITE_URL__/" />
+    <meta name="theme-color" content="#121212" />
+
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Anteprima su WhatsApp, Facebook, ecc. -->
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:site_name" content="Sapore Verace" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:title" content="Sapore Verace – Pizzeria Napoletana a Castellanza" />
+    <meta property="og:description" content="Vera pizza napoletana e piccola cucina. Prenota il tavolo o ordina online a domicilio e da asporto." />
+    <meta property="og:url" content="__SITE_URL__/" />
+    <meta property="og:image" content="__SITE_URL__/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Dati strutturati per Google (scheda ristorante) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": "Sapore Verace",
+        "description": "Pizzeria napoletana con piccola cucina",
+        "servesCuisine": ["Pizza", "Cucina napoletana"],
+        "url": "__SITE_URL__/",
+        "image": "__SITE_URL__/og-image.jpg",
+        "telephone": "+39 0331 108 1917",
+        "priceRange": "€€",
+        "acceptsReservations": true,
+        "hasMenu": "__SITE_URL__/#menu",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Via Borsano 44",
+          "postalCode": "21053",
+          "addressLocality": "Castellanza",
+          "addressRegion": "VA",
+          "addressCountry": "IT"
+        },
+        "sameAs": ["https://www.instagram.com/sapore_verace/"]
+      }
+    </script>
   </head>
   <body class="bg-[#121212] text-[#b2b2b2] font-sans antialiased overflow-x-hidden selection:bg-[#d2401e] selection:text-white">
+    <noscript>
+      <p style="padding:24px;color:#fff;font-family:sans-serif">
+        Sapore Verace – Pizzeria Napoletana, Via Borsano 44, 21053 Castellanza (VA). Tel. 0331 108 1917.
+        Per prenotare e ordinare online attiva JavaScript nel browser.
+      </p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

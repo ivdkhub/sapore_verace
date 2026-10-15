@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useMenu } from '../../../context/MenuContext';
+import { api } from '../../../services/api';
+import { compressImage } from '../../../utils/image';
 import {
   Plus,
   Edit,
@@ -129,17 +131,23 @@ export const AdminWeeklyProductsManager = () => {
   };
 
   // Image upload from local PC
-  const handleImageUpload = (file) => {
-    if (!file || !file.type.startsWith('image/')) {
+  const handleImageUpload = async (original) => {
+    if (!original || !original.type.startsWith('image/')) {
       setErrorMessage('Seleziona un\'immagine valida.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImage(e.target.result);
-      setErrorMessage('');
-    };
-    reader.readAsDataURL(file);
+    // Ridotta nel browser prima dell'upload (le foto del telefono pesano diversi MB)
+    const file = await compressImage(original);
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('L\'immagine è troppo grande (max 5MB).');
+      return;
+    }
+    // Caricata sul server: nei dati resta solo il percorso del file
+    setErrorMessage('');
+    api
+      .upload('upload.php', file)
+      .then(({ url }) => setImage(url))
+      .catch((err) => setErrorMessage(`Caricamento immagine non riuscito: ${err.message}`));
   };
 
   const handleSaveModal = (e) => {

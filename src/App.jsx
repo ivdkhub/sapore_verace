@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { LanguageProvider } from './context/LanguageContext';
 import { CartProvider } from './context/CartContext';
 import { MenuProvider } from './context/MenuContext';
@@ -14,19 +14,28 @@ import { FindUsSection } from './components/Location/FindUsSection';
 import { Footer } from './components/Footer/Footer';
 import { CartDrawer } from './components/Cart/CartDrawer';
 import { CheckoutModal } from './components/Cart/CheckoutModal';
-import { OrderTrackingModal } from './components/Cart/OrderTrackingModal';
+import { OrderConfirmationModal } from './components/Cart/OrderConfirmationModal';
 import { ReservationSection } from './components/Reservation/ReservationSection';
 import { ClientReservationModal } from './components/Reservation/ClientReservationModal';
-import { AdminDashboard } from './components/Admin/AdminDashboard';
-import { AdminToggleFloating } from './components/Admin/AdminToggleFloating';
+import { AdminLoginModal } from './components/Admin/AdminLoginModal';
+import { LegalModal } from './components/Legal/LegalModal';
 import { MobileBottomNav } from './components/common/MobileBottomNav';
 import { ScrollToTop } from './components/common/ScrollToTop';
+
+// La dashboard admin viene scaricata solo da chi accede all'area riservata
+const AdminDashboard = lazy(() =>
+  import('./components/Admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
+);
 
 function MainAppContent() {
   const { isAdminView } = useAdmin();
 
   if (isAdminView) {
-    return <AdminDashboard />;
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#121212] flex items-center justify-center text-white/60 font-oswald tracking-widest">CARICAMENTO AREA ADMIN...</div>}>
+        <AdminDashboard />
+      </Suspense>
+    );
   }
 
   return (
@@ -70,11 +79,13 @@ function MainAppContent() {
       {/* 11. MINIMAL FLOATING BACK TO TOP BUTTON */}
       <ScrollToTop />
 
-      {/* SHOPPING CART, CHECKOUT, BOOKING & LIVE ORDER TRACKING MODALS */}
+      {/* SHOPPING CART, CHECKOUT, BOOKING & ORDER CONFIRMATION MODALS */}
       <CartDrawer />
       <CheckoutModal />
-      <OrderTrackingModal />
+      <OrderConfirmationModal />
       <ClientReservationModal />
+      <AdminLoginModal />
+      <LegalModal />
     </div>
   );
 }

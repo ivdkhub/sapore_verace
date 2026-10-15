@@ -1,60 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MENU_ITEMS as DEFAULT_MENU_ITEMS, CATEGORIES as DEFAULT_CATEGORIES } from '../data/menuData';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { MENU_ITEMS as DEFAULT_MENU_ITEMS } from '../data/menuData';
+import { DEFAULT_WEEKLY_PRODUCTS } from '../data/weeklyData';
+import { DEFAULT_EVENTS, EVENT_CATEGORIES } from '../data/eventsData';
+import { api } from '../services/api';
 
 const MenuContext = createContext();
-const MENU_STORAGE_KEY = 'sapore_verace_menu_items_v1';
-const WEEKLY_STORAGE_KEY = 'sapore_verace_weekly_products_v1';
 
-export const DEFAULT_WEEKLY_PRODUCTS = [
-  {
-    id: 'weekly_1',
-    badge: 'PRODOTTO DELLA SETTIMANA',
-    subtitle: 'PIZZERIA NAPOLETANA & PICCOLA CUCINA',
-    titlePrefix: "L'ARTE DELLA",
-    titleHighlight: 'VERA PIZZA',
-    name: "L'Arte della Vera Pizza",
-    desc: 'Impasto ad alta idratazione con lievitazione naturale di 48 ore, pomodoro San Marzano DOP, mozzarella di bufala campana e cottura rapida a 450°C.',
-    price: '11,50 €',
-    oldPrice: '13,50 €',
-    numericPrice: 11.5,
-    primaryBtn: 'ORDINA ORA',
-    secondaryBtn: 'PRENOTA UN TAVOLO',
-    image: '/images/hero_section_1.png',
-    floatingImage: '/images/hero_section_2.png',
-  },
-  {
-    id: 'weekly_2',
-    badge: 'SPECIALITÀ DELLA SETTIMANA',
-    subtitle: 'TRADIZIONE, PASSIONE & QUALITÀ',
-    titlePrefix: 'SAPORE',
-    titleHighlight: 'VERACE GOURMET',
-    name: 'Sapore Verace Gourmet',
-    desc: 'Croccante alla base e straordinariamente soffice all’interno. Scopri il vero gusto della pizza napoletana a Castellanza con ingredienti selezionati.',
-    price: '13,50 €',
-    oldPrice: '15,50 €',
-    numericPrice: 13.5,
-    primaryBtn: 'ORDINA ORA',
-    secondaryBtn: 'PRENOTA UN TAVOLO',
-    image: '/images/hero_section_2.png',
-    floatingImage: '/images/hero_section_1.png',
-  },
-  {
-    id: 'weekly_3',
-    badge: 'CREAZIONE DELLO CHEF',
-    subtitle: 'PICCOLA CUCINA & SFIZI VERACI',
-    titlePrefix: 'CUOPPO',
-    titleHighlight: 'FRITTI NAPOLETANI',
-    name: 'Cuoppo Fritti Napoletani',
-    desc: 'Frittura mista della tradizione partenopea con crocchè di patate, arancini al ragù, zeppoline alle alghe e montanarine calde.',
-    price: '9,00 €',
-    oldPrice: '11,00 €',
-    numericPrice: 9.0,
-    primaryBtn: 'ORDINA ORA',
-    secondaryBtn: 'PRENOTA UN TAVOLO',
-    image: '/images/cucina_cuoppo.jpg',
-    floatingImage: '/images/hero_section_1.png',
-  },
-];
+export { DEFAULT_WEEKLY_PRODUCTS };
 
 // Format numeric price to Italian display string (e.g. 9.5 -> '9,00 €' or '9,50 €')
 export const formatPriceString = (val) => {
@@ -72,35 +24,30 @@ export const parseNumericPrice = (val) => {
 };
 
 export const MenuProvider = ({ children }) => {
-  const [menuItems, setMenuItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem(MENU_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {
-      console.error('Error loading menu items from storage:', e);
-    }
-    return DEFAULT_MENU_ITEMS;
-  });
+  // Valori iniziali dal codice (render immediato), poi sostituiti da quelli salvati sul server
+  const [menuItems, setMenuItemsState] = useState(DEFAULT_MENU_ITEMS);
+  const [weeklyProducts, setWeeklyProductsState] = useState(DEFAULT_WEEKLY_PRODUCTS);
+  const [events, setEventsState] = useState(DEFAULT_EVENTS);
+  // Menù fisso: null = non ancora modificato dall'admin (il sito usa i testi tradotti di fixedMenuData)
+  const [fixedMenu, setFixedMenuState] = useState(null);
+  const [isMenuLoaded, setIsMenuLoaded] = useState(false);
 
-  const [weeklyProducts, setWeeklyProducts] = useState(() => {
-    try {
-      const saved = localStorage.getItem(WEEKLY_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.slice(0, 3);
-        }
-      }
-    } catch (e) {
-      console.error('Error loading weekly products from storage:', e);
-    }
-    return DEFAULT_WEEKLY_PRODUCTS;
-  });
+  // Solo le modifiche fatte dall'admin vengono salvate sul server
+  const dirtyRef = useRef({ menu: false, weekly: false, events: false });
+  // Se il menu non è arrivato dal server non si salva: si sovrascriverebbe con quello predefinito
+  const loadedFromServerRef = useRef(false);
+  const setMenuItems = (updater) => {
+    dirtyRef.current.menu = true;
+    setMenuItemsState(updater);
+  };
+  const setWeeklyProducts = (updater) => {
+    dirtyRef.current.weekly = true;
+    setWeeklyProductsState(updater);
+  };
+  const setEvents = (updater) => {
+    dirtyRef.current.events = true;
+    setEventsState(updater);
+  };
 
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -111,51 +58,84 @@ export const MenuProvider = ({ children }) => {
     }, 3500);
   };
 
-  // Save menuItems to localStorage
+  // Carica menu e prodotti della settimana dal server
   useEffect(() => {
-    try {
-      localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(menuItems));
-    } catch (e) {
-      console.error('Error saving menu items to localStorage:', e);
+    let cancelled = false;
+    // Banner e menu restano nascosti finché arrivano i dati veri (niente "sfarfallio" dei valori
+    // predefiniti); se il server non risponde entro 4 secondi si mostrano comunque quelli predefiniti.
+    const safety = setTimeout(() => !cancelled && setIsMenuLoaded(true), 4000);
+    api
+      .get('state.php?keys=menu_items,weekly_products,events,fixed_menu')
+      .then(({ data }) => {
+        if (cancelled) return;
+        loadedFromServerRef.current = true;
+        if (Array.isArray(data.menu_items) && data.menu_items.length > 0) setMenuItemsState(data.menu_items);
+        if (Array.isArray(data.weekly_products) && data.weekly_products.length > 0) {
+          setWeeklyProductsState(data.weekly_products.slice(0, 3));
+        }
+        // Una lista vuota è valida: l'admin può aver tolto tutti gli eventi
+        if (Array.isArray(data.events)) setEventsState(data.events);
+        if (data.fixed_menu && Array.isArray(data.fixed_menu.sections)) setFixedMenuState(data.fixed_menu);
+      })
+      .catch((err) => console.warn('Menu: uso i dati predefiniti, server non raggiungibile.', err.message))
+      .finally(() => {
+        clearTimeout(safety);
+        if (!cancelled) setIsMenuLoaded(true);
+      });
+    return () => {
+      cancelled = true;
+      clearTimeout(safety);
+    };
+  }, []);
+
+  // Salvataggio sul server (con piccolo ritardo per raggruppare modifiche ravvicinate)
+  useEffect(() => {
+    if (!dirtyRef.current.menu) return;
+    if (!loadedFromServerRef.current) {
+      showToast('Menù NON salvato: dati del server non caricati. Ricarica la pagina e riprova.', 'delete');
+      return;
     }
+    const timer = setTimeout(() => {
+      dirtyRef.current.menu = false;
+      api.put('state.php', { key: 'menu_items', value: menuItems }).catch((err) => {
+        dirtyRef.current.menu = true;
+        showToast(`Menù NON salvato sul server: ${err.message}`, 'delete');
+      });
+    }, 500);
+    return () => clearTimeout(timer);
   }, [menuItems]);
 
-  // Save weeklyProducts to localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem(WEEKLY_STORAGE_KEY, JSON.stringify(weeklyProducts));
-    } catch (e) {
-      console.error('Error saving weekly products to localStorage:', e);
+    if (!dirtyRef.current.weekly) return;
+    if (!loadedFromServerRef.current) {
+      showToast('Prodotti della settimana NON salvati: dati del server non caricati. Ricarica la pagina e riprova.', 'delete');
+      return;
     }
+    const timer = setTimeout(() => {
+      dirtyRef.current.weekly = false;
+      api.put('state.php', { key: 'weekly_products', value: weeklyProducts }).catch((err) => {
+        dirtyRef.current.weekly = true;
+        showToast(`Prodotti della settimana NON salvati sul server: ${err.message}`, 'delete');
+      });
+    }, 500);
+    return () => clearTimeout(timer);
   }, [weeklyProducts]);
 
-  // Sync across tabs
   useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === MENU_STORAGE_KEY && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setMenuItems(parsed);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === WEEKLY_STORAGE_KEY && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setWeeklyProducts(parsed.slice(0, 3));
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+    if (!dirtyRef.current.events) return;
+    if (!loadedFromServerRef.current) {
+      showToast('Eventi NON salvati: dati del server non caricati. Ricarica la pagina e riprova.', 'delete');
+      return;
+    }
+    const timer = setTimeout(() => {
+      dirtyRef.current.events = false;
+      api.put('state.php', { key: 'events', value: events }).catch((err) => {
+        dirtyRef.current.events = true;
+        showToast(`Eventi NON salvati sul server: ${err.message}`, 'delete');
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [events]);
 
   // Compute dynamic categories and item counts
   const categories = React.useMemo(() => {
@@ -299,9 +279,6 @@ export const MenuProvider = ({ children }) => {
   // RESET TO FACTORY DEFAULT
   const resetMenuToDefault = () => {
     setMenuItems(DEFAULT_MENU_ITEMS);
-    try {
-      localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(DEFAULT_MENU_ITEMS));
-    } catch (e) {}
     showToast(`Menù ripristinato ai prodotti di fabbrica iniziali.`);
   };
 
@@ -389,16 +366,112 @@ export const MenuProvider = ({ children }) => {
   // RESET WEEKLY PRODUCTS TO DEFAULT
   const resetWeeklyProductsToDefault = () => {
     setWeeklyProducts(DEFAULT_WEEKLY_PRODUCTS);
-    try {
-      localStorage.setItem(WEEKLY_STORAGE_KEY, JSON.stringify(DEFAULT_WEEKLY_PRODUCTS));
-    } catch (e) {}
     showToast('Prodotti della settimana ripristinati ai valori iniziali.');
+  };
+
+  // ==========================================
+  // EVENTI E SERATE A TEMA
+  // ==========================================
+  const categoryLabelFor = (id) => EVENT_CATEGORIES.find((c) => c.id === id)?.label || 'Evento';
+
+  // Normalizza i campi inviati dal modulo admin
+  const normalizeEvent = (data) => ({
+    title: (data.title || 'Nuovo evento').trim(),
+    category: EVENT_CATEGORIES.some((c) => c.id === data.category) ? data.category : 'degustazioni',
+    categoryLabel: (data.categoryLabel || '').trim() || categoryLabelFor(data.category),
+    date: (data.date || '').trim(),
+    time: (data.time || '').trim(),
+    price: (data.price || '').trim(),
+    image: data.image || '/images/ev1.jpg',
+    shortDesc: (data.shortDesc || '').trim(),
+    fullDesc: (data.fullDesc || '').trim(),
+    highlights: (Array.isArray(data.highlights) ? data.highlights : String(data.highlights || '').split('\n'))
+      .map((h) => h.trim())
+      .filter(Boolean),
+    active: data.active !== false,
+    endDate: data.endDate || '',
+  });
+
+  const addEvent = (data) => {
+    const newEvent = { id: `ev_${Date.now()}`, ...normalizeEvent(data), createdAt: new Date().toISOString() };
+    setEvents((prev) => [newEvent, ...prev]);
+    showToast(`Evento "${newEvent.title}" aggiunto!`);
+    return newEvent;
+  };
+
+  const updateEvent = (id, data) => {
+    setEvents((prev) =>
+      prev.map((ev) => (ev.id === id ? { ...ev, ...normalizeEvent({ ...ev, ...data }), updatedAt: new Date().toISOString() } : ev))
+    );
+    showToast('Evento aggiornato!');
+  };
+
+  const deleteEvent = (id) => {
+    const target = events.find((ev) => ev.id === id);
+    setEvents((prev) => prev.filter((ev) => ev.id !== id));
+    showToast(`Evento "${target?.title || ''}" eliminato.`, 'delete');
+  };
+
+  const duplicateEvent = (id) => {
+    const original = events.find((ev) => ev.id === id);
+    if (!original) return;
+    const copy = { ...original, id: `ev_${Date.now()}`, title: `${original.title} (Copia)`, active: false, createdAt: new Date().toISOString() };
+    setEvents((prev) => {
+      const idx = prev.findIndex((ev) => ev.id === id);
+      const next = [...prev];
+      next.splice(idx + 1, 0, copy);
+      return next;
+    });
+    showToast(`Evento duplicato (nascosto finché non lo attivi).`);
+  };
+
+  const toggleEventActive = (id) => {
+    const target = events.find((ev) => ev.id === id);
+    setEvents((prev) => prev.map((ev) => (ev.id === id ? { ...ev, active: ev.active === false } : ev)));
+    if (target) {
+      showToast(target.active === false ? `"${target.title}" ora è visibile sul sito.` : `"${target.title}" nascosto dal sito.`, target.active === false ? 'success' : 'warning');
+    }
+  };
+
+  // Sposta un evento in su (-1) o in giù (+1) nell'ordine mostrato sul sito
+  const moveEvent = (id, delta) => {
+    setEvents((prev) => {
+      const idx = prev.findIndex((ev) => ev.id === id);
+      const to = idx + delta;
+      if (idx < 0 || to < 0 || to >= prev.length) return prev;
+      const next = [...prev];
+      [next[idx], next[to]] = [next[to], next[idx]];
+      return next;
+    });
+  };
+
+  // Menù fisso: salvataggio esplicito dall'editor admin (null = torna ai testi originali tradotti)
+  const saveFixedMenu = async (value) => {
+    if (!loadedFromServerRef.current) {
+      showToast('Menù fisso NON salvato: dati del server non caricati. Ricarica la pagina e riprova.', 'delete');
+      return false;
+    }
+    try {
+      await api.put('state.php', { key: 'fixed_menu', value });
+      setFixedMenuState(value);
+      showToast(value ? 'Menù fisso salvato e pubblicato sul sito!' : 'Menù fisso ripristinato ai testi originali.');
+      return true;
+    } catch (err) {
+      showToast(`Menù fisso NON salvato sul server: ${err.message}`, 'delete');
+      return false;
+    }
+  };
+
+  const resetEventsToDefault = () => {
+    setEvents(DEFAULT_EVENTS);
+    showToast('Eventi ripristinati a quelli iniziali.');
   };
 
   return (
     <MenuContext.Provider
       value={{
         menuItems,
+        isMenuLoaded,
         categories,
         weeklyProducts,
         addMenuItem,
@@ -411,6 +484,16 @@ export const MenuProvider = ({ children }) => {
         updateWeeklyProduct,
         deleteWeeklyProduct,
         resetWeeklyProductsToDefault,
+        events,
+        addEvent,
+        updateEvent,
+        deleteEvent,
+        duplicateEvent,
+        toggleEventActive,
+        moveEvent,
+        resetEventsToDefault,
+        fixedMenu,
+        saveFixedMenu,
         toastMessage,
       }}
     >

@@ -10,7 +10,7 @@ import { getLocalizedItem, getLocalizedCategories } from '../../data/menuTransla
 export const MenuGrid = () => {
   const { t, lang } = useLanguage();
   const { addToCart } = useCart();
-  const { menuItems, categories } = useMenu();
+  const { menuItems, categories, isMenuLoaded } = useMenu();
   const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'classiche' | 'gourmet' | 'ripieni' | 'cucina' | 'bevande'
   const [selectedPizza, setSelectedPizza] = useState(null);
   const [cartAlert, setCartAlert] = useState(null);
@@ -167,6 +167,8 @@ export const MenuGrid = () => {
               <div className="flex items-center justify-between pt-4 border-t border-white/10">
                 <div className="flex items-center gap-3">
                   <img
+                    loading="lazy"
+                    decoding="async"
                     src="/images/menu_pizza_1.png"
                     alt="Pizza Preview"
                     className="w-14 h-14 object-contain filter drop-shadow-md group-hover:rotate-12 transition-transform duration-500"
@@ -243,6 +245,8 @@ export const MenuGrid = () => {
               <div className="flex items-center justify-between pt-4 border-t border-white/10">
                 <div className="flex items-center gap-3">
                   <img
+                    loading="lazy"
+                    decoding="async"
                     src="/images/cucina_frittura.jpg"
                     alt="Cucina Preview"
                     className="w-14 h-14 object-cover rounded-full border border-white/20 shadow-md group-hover:scale-110 transition-transform duration-500"
@@ -319,7 +323,11 @@ export const MenuGrid = () => {
         </div>
 
         {/* 3xN Dynamic Floating Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 animate-in fade-in duration-300">
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 transition-opacity duration-500 ${
+            isMenuLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
           {filteredItems.map((item) => (
             <PizzaCard
               key={item.id}
@@ -348,6 +356,8 @@ export const MenuGrid = () => {
                 {selectedPizza.image?.endsWith('.jpg') || selectedPizza.image?.endsWith('.jpeg') ? (
                   <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl shadow-black/80">
                     <img
+                      loading="lazy"
+                      decoding="async"
                       src={selectedPizza.image}
                       alt={selectedPizza.name}
                       className="w-full h-full object-cover animate-float"
@@ -355,6 +365,8 @@ export const MenuGrid = () => {
                   </div>
                 ) : (
                   <img
+                    loading="lazy"
+                    decoding="async"
                     src={selectedPizza.image || '/images/menu_pizza_1.png'}
                     alt={selectedPizza.name}
                     className="w-44 h-44 sm:w-56 sm:h-56 object-contain filter drop-shadow-[0_20px_25px_rgba(0,0,0,0.8)] animate-float"

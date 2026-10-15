@@ -123,6 +123,8 @@ export const CartDrawer = () => {
                 {item.image?.endsWith('.jpg') || item.image?.endsWith('.jpeg') ? (
                   <div className="w-16 h-16 rounded-xl overflow-hidden border border-white/10 shrink-0 shadow-md">
                     <img
+                      loading="lazy"
+                      decoding="async"
                       src={item.image}
                       alt={item.name}
                       className="w-full h-full object-cover"
@@ -130,6 +132,8 @@ export const CartDrawer = () => {
                   </div>
                 ) : (
                   <img
+                    loading="lazy"
+                    decoding="async"
                     src={item.image}
                     alt={item.name}
                     className="w-16 h-16 object-contain shrink-0 filter drop-shadow-md"

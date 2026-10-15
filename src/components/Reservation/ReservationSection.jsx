@@ -16,9 +16,11 @@ import {
 } from 'lucide-react';
 import { useAdmin, getTodayDateString } from '../../context/AdminContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { PrivacyConsent } from '../Legal/PrivacyConsent';
+import { shiftMinutes } from '../../utils/schedule';
 
 export const ReservationSection = ({ isModal = false }) => {
-  const { createClientReservation, isRestaurantOpenOnDate, holidays } = useAdmin();
+  const { createClientReservation, isRestaurantOpenOnDate, holidays, getBookingSlots } = useAdmin();
   const { t, lang } = useLanguage();
 
   const tr = t.reservation || {};
@@ -32,23 +34,38 @@ export const ReservationSection = ({ isModal = false }) => {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [confirmedBooking, setConfirmedBooking] = useState(null);
 
-  const LUNCH_SLOTS = ['12:00', '12:30', '13:00', '13:30', '14:00'];
-  const DINNER_SLOTS = ['19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00'];
+  // Fasce orarie dagli orari impostati in admin; per oggi solo quelle tra almeno 30 minuti
+  const slotsForShift = (shiftKey) => {
+    const all = getBookingSlots(date, shiftKey);
+    if (date !== getTodayDateString()) return all;
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const open = isRestaurantOpenOnDate(date, shiftKey).shiftHours?.open;
+    return all.filter((slot) => shiftMinutes(slot, open) > nowMin + 30);
+  };
+  const currentSlots = slotsForShift(shift);
 
-  // Keep time aligned with selected shift
+  // Orari reali del turno da mostrare sui pulsanti (es. "12:00 - 14:30")
+  const shiftHoursLabel = (shiftKey) => {
+    const check = isRestaurantOpenOnDate(date, shiftKey);
+    return check.isOpen && check.shiftHours ? `${check.shiftHours.open} - ${check.shiftHours.close}` : (tr.closedShort || 'chiuso');
+  };
+  const shiftName = (label, fallback) => (label ? label.replace(/[☀️🌙]/g, '').replace(/\s*\(.*\)\s*$/, '').trim() : fallback);
+
+  // Keep time aligned with selected shift and date
   useEffect(() => {
-    if (shift === 'pranzo' && !LUNCH_SLOTS.includes(time)) {
-      setTime('12:30');
-    } else if (shift === 'cena' && !DINNER_SLOTS.includes(time)) {
-      setTime('20:00');
+    if (currentSlots.length > 0 && !currentSlots.includes(time)) {
+      const preferred = shift === 'cena' ? '20:00' : '12:30';
+      setTime(currentSlots.includes(preferred) ? preferred : currentSlots[0]);
     }
-  }, [shift]);
+  }, [shift, date, currentSlots.join(',')]);
 
   // Weekdays & Months localizations
   const WEEKDAYS_MAP = {
@@ -93,7 +110,7 @@ export const ReservationSection = ({ isModal = false }) => {
 
   const upcomingDays = getUpcomingDays();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -109,35 +126,40 @@ export const ReservationSection = ({ isModal = false }) => {
       setErrorMessage(tr.errorName || 'Inserisci il tuo nome e cognome.');
       return;
     }
-    if (!phone.trim() || phone.trim().length < 6) {
+    if (!phone.trim() || phone.replace(/\D/g, '').length < 6) {
       setErrorMessage(tr.errorPhone || 'Inserisci un numero di telefono valido.');
+      return;
+    }
+    if (!currentSlots.includes(time)) {
+      setErrorMessage(tr.errorSlot || 'Scegli uno degli orari disponibili.');
+      return;
+    }
+    if (!privacyAccepted) {
+      setErrorMessage(t.legal?.consentRequired || "Per continuare accetta l'informativa privacy.");
       return;
     }
 
     setIsSubmitting(true);
+    const result = await createClientReservation({
+      name,
+      phone,
+      email,
+      date,
+      time,
+      guests: Number(guests),
+      notes,
+      shift,
+      privacyAccepted,
+    });
+    setIsSubmitting(false);
 
-    setTimeout(() => {
-      const result = createClientReservation({
-        name,
-        phone,
-        email,
-        date,
-        time,
-        guests: Number(guests),
-        notes,
-        shift,
-      });
-
-      setIsSubmitting(false);
-
-      if (result && result.success) {
-        setConfirmedBooking(result);
-      } else {
-        setErrorMessage(
-          result?.message || tr.errorNoTable || 'Nessun tavolo disponibile per la data e orario selezionati. Prova un altro orario.'
-        );
-      }
-    }, 450);
+    if (result && result.success) {
+      setConfirmedBooking(result);
+    } else {
+      setErrorMessage(
+        result?.message || tr.errorNoTable || 'Nessun tavolo disponibile per la data e orario selezionati. Prova un altro orario.'
+      );
+    }
   };
 
   const handleResetBooking = () => {
@@ -146,6 +168,7 @@ export const ReservationSection = ({ isModal = false }) => {
     setPhone('');
     setEmail('');
     setNotes('');
+    setPrivacyAccepted(false);
     setErrorMessage('');
   };
 
@@ -157,7 +180,9 @@ export const ReservationSection = ({ isModal = false }) => {
   };
 
   const currentOpenCheck = isRestaurantOpenOnDate ? isRestaurantOpenOnDate(date, shift) : { isOpen: true };
-  const activeHolidayBanner = holidays?.find((h) => h.bannerActive);
+  // Solo chiusure in corso o future: un periodo già finito non va più annunciato
+  const todayStr = getTodayDateString();
+  const activeHolidayBanner = holidays?.find((h) => h.bannerActive && (h.endDate || h.startDate) >= todayStr);
 
   const mainContent = (
     <div className={isModal ? "max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-6 relative z-10" : "max-w-[1240px] mx-auto px-4 sm:px-8 relative z-10"}>
@@ -165,16 +190,19 @@ export const ReservationSection = ({ isModal = false }) => {
       <div className={`flex flex-col items-center text-center ${isModal ? 'mb-6 sm:mb-8 pt-2 pr-8 sm:pr-0' : 'mb-14 sm:mb-16'}`}>
         <div className="flex items-center gap-2 mb-2 sm:mb-3">
           <span className="text-xs font-oswald tracking-[0.25em] text-[#ffa323] uppercase font-semibold">
-            {tr.badge || 'PRENOTA IL TUO TAVOLO'}
+            {tr.tag || 'PRENOTA IL TUO TAVOLO'}
           </span>
         </div>
 
-        <h2 className={`font-oswald ${isModal ? 'text-2xl sm:text-4xl' : 'text-3xl sm:text-5xl lg:text-6xl'} font-extrabold uppercase tracking-tight text-white mb-2 sm:mb-4`}>
-          {tr.title || 'RISERVA IL TUO POSTO DA SAPORE VERACE'}
+        <h2 className={`font-oswald ${isModal ? 'text-2xl sm:text-4xl' : 'text-3xl sm:text-5xl lg:text-6xl'} font-extrabold uppercase tracking-tight text-white mb-2 sm:mb-4 [text-shadow:0_4px_24px_rgba(0,0,0,0.85)]`}>
+          {tr.title || 'RISERVA IL TUO'}{' '}
+          <span className="bg-gradient-to-r from-[#ff7a45] via-[#ffa323] to-[#d2401e] bg-clip-text text-transparent">
+            {tr.titleHighlight || 'TAVOLO'}
+          </span>
         </h2>
 
-        <p className="text-white/70 text-xs sm:text-base font-sans max-w-2xl leading-relaxed">
-          {tr.subtitle ||
+        <p className={`${isModal ? 'text-white/70' : 'text-white/90 [text-shadow:0_2px_12px_rgba(0,0,0,0.9)]'} text-xs sm:text-base font-sans max-w-2xl leading-relaxed`}>
+          {tr.desc ||
             'Scegli data, orario e numero di ospiti. La conferma è immediata con assegnazione del tavolo in tempo reale.'}
         </p>
 
@@ -190,7 +218,7 @@ export const ReservationSection = ({ isModal = false }) => {
               </div>
               <div>
                 <span className="text-[10px] font-oswald tracking-widest text-amber-200 uppercase font-bold block">
-                  COMUNICAZIONE UFFICIALE CHIUSURE
+                  {tr.closureNotice || 'COMUNICAZIONE UFFICIALE CHIUSURE'}
                 </span>
                 <h4 className="font-oswald text-base font-bold uppercase tracking-wide">
                   {activeHolidayBanner.name}
@@ -213,62 +241,84 @@ export const ReservationSection = ({ isModal = false }) => {
         {/* ============================================================ */}
         {confirmedBooking ? (
           <div className="max-w-2xl mx-auto bg-[#181818] border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl text-center animate-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/30 shadow-lg shadow-emerald-500/20">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
+            {/* Coperti esauriti (pending): niente conferma immediata, lo staff richiama il cliente */}
+            {confirmedBooking.pending ? (
+              <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/30 shadow-lg shadow-amber-500/20">
+                <Phone className="w-8 h-8" />
+              </div>
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/30 shadow-lg shadow-emerald-500/20">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+            )}
 
-            <span className="text-xs font-oswald text-emerald-400 tracking-[0.2em] uppercase font-bold block mb-1">
-              {tr.successBadge || 'PRENOTAZIONE CONFERMATA CON SUCCESSO!'}
+            <span className={`text-xs font-sans tracking-wide uppercase font-bold block mb-1 ${confirmedBooking.pending ? 'text-amber-400' : 'text-emerald-400'}`}>
+              {confirmedBooking.pending
+                ? tr.pendingBadge || 'RICHIESTA DI PRENOTAZIONE RICEVUTA'
+                : tr.successTag || 'PRENOTAZIONE CONFERMATA CON SUCCESSO!'}
             </span>
 
             <h3 className="font-oswald text-2xl sm:text-3xl font-bold uppercase text-white mb-2">
-              {tr.welcomeGreeting || 'Ti aspettiamo'}, {confirmedBooking.reservation.name}!
+              {confirmedBooking.pending ? tr.pendingTitle || 'Grazie' : tr.successTitle || 'Ti aspettiamo'}, {confirmedBooking.reservation.name}!
             </h3>
 
-            <p className="text-xs text-white/60 mt-1 font-sans">
-              {tr.successDesc || 'La tua prenotazione è stata registrata istantaneamente nella planimetria della sala.'}
+            <p className={`mt-1 font-sans ${confirmedBooking.pending ? 'text-base text-white font-semibold' : 'text-xs text-white/85'}`}>
+              {confirmedBooking.pending
+                ? tr.pendingDesc || 'Sarai contattato a breve dal nostro staff per confermare la prenotazione.'
+                : tr.successDesc || 'La tua prenotazione è stata registrata e il tavolo è riservato per te. Ti aspettiamo!'}
             </p>
 
             {/* Receipt Summary Card */}
             <div className="bg-[#121212] border border-white/10 rounded-2xl p-6 mb-8 mt-6 space-y-4 font-sans text-sm text-left">
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <span className="text-white/60">{tr.bookingCode || 'Codice Prenotazione:'}</span>
-                <span className="font-oswald text-base text-[#ffa323] font-bold tracking-wider">
+                <span className="text-white/85">
+                  {confirmedBooking.pending ? tr.pendingCode || 'Codice Richiesta:' : tr.bookingCode || 'Codice Prenotazione:'}
+                </span>
+                <span className="font-sans text-base text-[#ffa323] font-bold tracking-wider">
                   #{confirmedBooking.bookingCode}
                 </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-xs text-white/50 block">{tr.dateLabel || 'Data'}</span>
-                  <span className="font-oswald text-base text-white font-bold">
+                  <span className="text-xs text-white/75 block">{tr.dateLabel || 'Data'}</span>
+                  <span className="font-sans text-base text-white font-bold">
                     {formatDisplayDate(confirmedBooking.date)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-xs text-white/50 block">{tr.timeShiftLabel || 'Orario & Turno'}</span>
-                  <span className="font-oswald text-base text-white font-bold">
+                  <span className="text-xs text-white/75 block">{tr.timeShiftLabel || 'Orario & Turno'}</span>
+                  <span className="font-sans text-base text-white font-bold">
                     {confirmedBooking.time} ({confirmedBooking.shift === 'cena' ? (tr.dinnerShift?.replace(/[☀️🌙]/g, '').trim().split(' ')[1] || 'Cena') : (tr.lunchShift?.replace(/[☀️🌙]/g, '').trim().split(' ')[1] || 'Pranzo')})
                   </span>
                 </div>
                 <div>
-                  <span className="text-xs text-white/50 block">{tr.guestsLabel || 'Numero di Persone'}</span>
-                  <span className="font-oswald text-base text-white font-bold flex items-center gap-1.5">
+                  <span className="text-xs text-white/75 block">{tr.guestsLabel || 'Numero di Persone'}</span>
+                  <span className="font-sans text-base text-white font-bold flex items-center gap-1.5">
                     <Users className="w-4 h-4 text-[#d2401e]" />
                     {confirmedBooking.reservation.guests} {tr.seatsWord || 'Coperti'}
                   </span>
                 </div>
-                <div>
-                  <span className="text-xs text-white/50 block">{tr.tableLabel || 'Tavolo Assegnato'}</span>
-                  <span className="font-oswald text-base text-[#ffa323] font-bold">
-                    {confirmedBooking.table?.name || tr.reservedTable || 'Tavolo Riservato'}
-                  </span>
-                </div>
+                {confirmedBooking.pending ? (
+                  <div>
+                    <span className="text-xs text-white/75 block">{tr.statusLabel || 'Stato'}</span>
+                    <span className="font-sans text-base text-amber-400 font-bold">
+                      {tr.pendingStatus || 'In attesa di conferma'}
+                    </span>
+                  </div>
+                ) : (
+                  <div>
+                    <span className="text-xs text-white/75 block">{tr.tableLabel || 'Tavolo Assegnato'}</span>
+                    <span className="font-sans text-base text-[#ffa323] font-bold">
+                      {confirmedBooking.table?.name || tr.reservedTable || 'Tavolo Riservato'}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {confirmedBooking.reservation.notes && (
                 <div className="pt-3 border-t border-white/10 text-xs text-stone-300">
-                  <span className="text-white/50 block mb-0.5">{tr.notesLabelShort || 'Note:'}</span>
+                  <span className="text-white/75 block mb-0.5">{tr.notesLabelShort || 'Note:'}</span>
                   {confirmedBooking.reservation.notes}
                 </div>
               )}
@@ -284,7 +334,7 @@ export const ReservationSection = ({ isModal = false }) => {
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="px-6 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-oswald text-xs tracking-wider uppercase font-semibold flex items-center gap-2 transition-all shadow-lg"
+                className="px-6 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-sans text-xs tracking-wide uppercase font-bold flex items-center gap-2 transition-all shadow-lg"
               >
                 <Share2 className="w-4 h-4" />
                 <span>{tr.shareWhatsApp || 'Condividi su WhatsApp'}</span>
@@ -292,7 +342,7 @@ export const ReservationSection = ({ isModal = false }) => {
 
               <button
                 onClick={handleResetBooking}
-                className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-oswald text-xs tracking-wider uppercase font-semibold flex items-center gap-2 transition-all cursor-pointer"
+                className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-sans text-xs tracking-wide uppercase font-bold flex items-center gap-2 transition-all cursor-pointer"
               >
                 <RefreshCw className="w-4 h-4" />
                 <span>{tr.newBookingBtn || 'Nuova Prenotazione'}</span>
@@ -305,7 +355,10 @@ export const ReservationSection = ({ isModal = false }) => {
           /* ============================================================ */
           <form
             onSubmit={handleSubmit}
-            className="max-w-4xl mx-auto bg-[#181818] border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl shadow-black/70"
+            className={`max-w-4xl mx-auto border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl shadow-black/70 ${
+              // semitrasparente: si intravede la foto della sala; la leggera sfocatura tiene leggibili le scritte
+              isModal ? 'bg-[#181818]' : 'bg-[#181818]/55 backdrop-blur-[3px]'
+            }`}
           >
             {errorMessage && (
               <div className="mb-6 p-4 rounded-xl bg-red-900/30 border border-red-500/40 text-red-200 text-sm flex items-center gap-3 animate-in shake">
@@ -318,7 +371,7 @@ export const ReservationSection = ({ isModal = false }) => {
               <div className="mb-6 p-4 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-white flex items-start gap-3 animate-in fade-in">
                 <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-oswald text-sm font-bold text-rose-300 uppercase tracking-wide">
+                  <h4 className="font-sans text-sm font-bold text-rose-300 uppercase tracking-wide">
                     Servizio non disponibile per questa data o turno
                   </h4>
                   <p className="text-xs text-white/80 font-sans mt-0.5">
@@ -330,7 +383,7 @@ export const ReservationSection = ({ isModal = false }) => {
 
             {/* STEP 1: DATE SELECTION */}
             <div className="mb-8">
-              <label className="block text-xs font-oswald tracking-[0.2em] text-white/70 uppercase font-semibold mb-3 flex items-center gap-2">
+              <label className="block text-[13px] font-sans tracking-wide text-white/90 uppercase font-bold mb-3 flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-[#ffa323]" />
                 {tr.step1 || '1. Scegli il Giorno'}
               </label>
@@ -350,13 +403,13 @@ export const ReservationSection = ({ isModal = false }) => {
                           : 'bg-[#121212] border-white/10 text-white/70 hover:border-white/30 hover:text-white'
                       }`}
                     >
-                      <span className="text-[10px] sm:text-[11px] uppercase font-oswald tracking-wider block opacity-80">
+                      <span className="text-[10px] sm:text-[11px] uppercase font-sans font-semibold tracking-wide block opacity-80">
                         {item.label}
                       </span>
-                      <span className="text-lg sm:text-xl font-oswald font-black leading-tight">
+                      <span className="text-lg sm:text-xl font-sans font-extrabold leading-tight">
                         {item.dayNum}
                       </span>
-                      <span className="text-[9px] sm:text-[10px] uppercase font-sans text-white/60">
+                      <span className="text-[9px] sm:text-[10px] uppercase font-sans text-white/85">
                         {item.month}
                       </span>
                     </button>
@@ -365,7 +418,7 @@ export const ReservationSection = ({ isModal = false }) => {
               </div>
 
               {/* Custom Date Input for Future Dates */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-2 text-xs text-white/60 font-sans mt-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-2 text-xs text-white/85 font-sans mt-2">
                 <span>{tr.customDateText || 'Oppure seleziona una data specifica:'}</span>
                 <input
                   type="date"
@@ -379,13 +432,13 @@ export const ReservationSection = ({ isModal = false }) => {
 
             {/* STEP 2: SHIFT & TIME SLOTS */}
             <div className="mb-8">
-              <label className="block text-xs font-oswald tracking-[0.2em] text-white/70 uppercase font-semibold mb-3 flex items-center gap-2">
+              <label className="block text-[13px] font-sans tracking-wide text-white/90 uppercase font-bold mb-3 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#ffa323]" />
                 {tr.step2 || '2. Seleziona Turno e Orario'}
               </label>
 
               {/* Shift Switcher */}
-              <div className="grid grid-cols-2 sm:inline-flex bg-[#202020] p-1.5 rounded-2xl border border-white/20 mb-4 font-oswald text-xs sm:text-sm tracking-wider uppercase w-full sm:w-auto gap-1.5 shadow-inner">
+              <div className="grid grid-cols-2 sm:inline-flex bg-[#202020] p-1.5 rounded-2xl border border-white/20 mb-4 font-sans text-sm font-semibold w-full sm:w-auto gap-1.5 shadow-inner">
                 <button
                   type="button"
                   onClick={() => setShift('pranzo')}
@@ -395,7 +448,7 @@ export const ReservationSection = ({ isModal = false }) => {
                       : 'bg-[#2a2a2a] text-white hover:bg-[#353535] border border-white/10 hover:border-white/25'
                   }`}
                 >
-                  <span>{tr.lunchShift ? tr.lunchShift.replace(/[☀️🌙]/g, '').trim() : 'Turno Pranzo (12:00 - 14:30)'}</span>
+                  <span>{shiftName(tr.lunchShift, 'Turno Pranzo')} ({shiftHoursLabel('pranzo')})</span>
                 </button>
                 <button
                   type="button"
@@ -406,20 +459,23 @@ export const ReservationSection = ({ isModal = false }) => {
                       : 'bg-[#2a2a2a] text-white hover:bg-[#353535] border border-white/10 hover:border-white/25'
                   }`}
                 >
-                  <span>{tr.dinnerShift ? tr.dinnerShift.replace(/[☀️🌙]/g, '').trim() : 'Turno Cena (19:00 - 23:00)'}</span>
+                  <span>{shiftName(tr.dinnerShift, 'Turno Cena')} ({shiftHoursLabel('cena')})</span>
                 </button>
               </div>
 
               {/* Time Slot Pills */}
               <div className="flex flex-wrap gap-2 sm:gap-2.5">
-                {(shift === 'cena' ? DINNER_SLOTS : LUNCH_SLOTS).map((slot) => {
+                {currentSlots.length === 0 && (
+                  <p className="text-xs text-white/85">{tr.noSlots || 'Nessun orario prenotabile per questo turno: scegli un altro giorno o turno.'}</p>
+                )}
+                {currentSlots.map((slot) => {
                   const isSelected = time === slot;
                   return (
                     <button
                       key={slot}
                       type="button"
                       onClick={() => setTime(slot)}
-                      className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-oswald text-xs sm:text-sm font-semibold tracking-wider transition-all cursor-pointer active:scale-95 ${
+                      className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-sans text-sm font-bold tabular-nums transition-all cursor-pointer active:scale-95 ${
                         isSelected
                           ? 'bg-[#ffa323] text-black border border-[#ffa323] shadow-md shadow-[#ffa323]/30 scale-105 font-bold'
                           : 'bg-[#242424] border border-white/15 text-white hover:border-white/40 hover:bg-[#303030]'
@@ -434,7 +490,7 @@ export const ReservationSection = ({ isModal = false }) => {
 
             {/* STEP 3: NUMBER OF GUESTS (COPERTI) */}
             <div className="mb-8">
-              <label className="block text-xs font-oswald tracking-[0.2em] text-white/70 uppercase font-semibold mb-3 flex items-center gap-2">
+              <label className="block text-[13px] font-sans tracking-wide text-white/90 uppercase font-bold mb-3 flex items-center gap-2">
                 <Users className="w-4 h-4 text-[#ffa323]" />
                 {tr.step3 || '3. Numero di Persone (Coperti)'}
               </label>
@@ -454,8 +510,8 @@ export const ReservationSection = ({ isModal = false }) => {
                           : 'bg-[#121212] border-white/10 text-white/70 hover:border-white/30 hover:text-white'
                       }`}
                     >
-                      <span className="font-oswald text-sm sm:text-base">{num}</span>
-                      <span className="text-[10px] sm:text-[11px] font-sans text-white/60">
+                      <span className="font-sans font-bold text-sm sm:text-base">{num}</span>
+                      <span className="text-[10px] sm:text-[11px] font-sans text-white/85">
                         {num === 1 ? (tr.personSingle || 'persona') : (tr.personPlural || 'persone')}
                       </span>
                     </button>
@@ -466,7 +522,7 @@ export const ReservationSection = ({ isModal = false }) => {
 
             {/* STEP 4: CONTACT DETAILS */}
             <div className="mb-8 pt-6 border-t border-white/10">
-              <label className="block text-xs font-oswald tracking-[0.2em] text-white/70 uppercase font-semibold mb-4 flex items-center gap-2">
+              <label className="block text-[13px] font-sans tracking-wide text-white/90 uppercase font-bold mb-4 flex items-center gap-2">
                 <User className="w-4 h-4 text-[#ffa323]" />
                 {tr.step4 || '4. I Tuoi Recapiti per la Conferma'}
               </label>
@@ -474,7 +530,7 @@ export const ReservationSection = ({ isModal = false }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 {/* Name */}
                 <div>
-                  <label className="block text-[11px] text-white/60 font-sans mb-1.5">
+                  <label className="block text-[11px] text-white/85 font-sans mb-1.5">
                     {tr.nameLabel || 'Nome e Cognome'} <span className="text-[#d2401e]">*</span>
                   </label>
                   <div className="relative">
@@ -492,7 +548,7 @@ export const ReservationSection = ({ isModal = false }) => {
 
                 {/* Phone */}
                 <div>
-                  <label className="block text-[11px] text-white/60 font-sans mb-1.5">
+                  <label className="block text-[11px] text-white/85 font-sans mb-1.5">
                     {tr.phoneLabel || 'Telefono / WhatsApp'} <span className="text-[#d2401e]">*</span>
                   </label>
                   <div className="relative">
@@ -512,7 +568,7 @@ export const ReservationSection = ({ isModal = false }) => {
               {/* Email & Notes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] text-white/60 font-sans mb-1.5">
+                  <label className="block text-[11px] text-white/85 font-sans mb-1.5">
                     {tr.emailLabel || 'Email (per ricevuta e promemoria)'}
                   </label>
                   <div className="relative">
@@ -528,7 +584,7 @@ export const ReservationSection = ({ isModal = false }) => {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] text-white/60 font-sans mb-1.5">
+                  <label className="block text-[11px] text-white/85 font-sans mb-1.5">
                     {tr.notesLabel || 'Note speciali / Allergie / Seggiolone'}
                   </label>
                   <div className="relative">
@@ -545,6 +601,10 @@ export const ReservationSection = ({ isModal = false }) => {
               </div>
             </div>
 
+            <div className="mb-6">
+              <PrivacyConsent id="reservation-privacy" checked={privacyAccepted} onChange={setPrivacyAccepted} />
+            </div>
+
             {/* SUBMIT BUTTON */}
             <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-xs text-stone-400 font-sans">
@@ -555,7 +615,7 @@ export const ReservationSection = ({ isModal = false }) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto px-10 py-4 rounded-full bg-gradient-to-r from-[#d2401e] via-[#e64a19] to-[#ff5722] hover:from-[#b83314] hover:to-[#d2401e] text-white font-oswald text-sm tracking-[0.2em] font-semibold uppercase shadow-xl shadow-[#d2401e]/40 hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer hover:-translate-y-0.5"
+                className="w-full sm:w-auto px-10 py-4 rounded-full bg-gradient-to-r from-[#d2401e] via-[#e64a19] to-[#ff5722] hover:from-[#b83314] hover:to-[#d2401e] text-white font-sans text-sm tracking-wide font-bold uppercase shadow-xl shadow-[#d2401e]/40 hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer hover:-translate-y-0.5"
               >
                 {isSubmitting ? (
                   <span>{tr.submittingBtn || 'Elaborazione in corso...'}</span>
@@ -582,6 +642,22 @@ export const ReservationSection = ({ isModal = false }) => {
 
   return (
     <section id="reservation" className="relative py-16 sm:py-24 bg-[#111111] overflow-hidden border-t border-white/10 scroll-mt-20">
+      {/* Foto della sala come sfondo, scurita perché titoli e modulo restino ben leggibili */}
+      <img
+        src="/images/prenota_sfondo.jpg"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover object-[50%_65%] pointer-events-none select-none"
+      />
+      <div className="absolute inset-0 bg-[#0d0d0d]/60 pointer-events-none" />
+      {/* raccordo con le sezioni sopra e sotto */}
+      <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#111111] to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#111111] to-transparent pointer-events-none" />
+      {/* zona del titolo un po' più scura, per la leggibilità */}
+      <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_at_50%_55%,rgba(13,13,13,0.7)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#d2401e]/15 via-transparent to-[#ffa323]/10 mix-blend-soft-light pointer-events-none" />
       {/* Warm Ambient Glow Backdrops */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-[#d2401e]/10 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-[#ffa323]/8 rounded-full blur-[140px] pointer-events-none" />

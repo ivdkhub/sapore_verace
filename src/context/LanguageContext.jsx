@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { EXTRA_TRANSLATIONS, mergeTranslations } from './extraTranslations';
 
 export const TRANSLATIONS = {
   it: {
@@ -111,7 +112,7 @@ export const TRANSLATIONS = {
       // Receipt
       successTag: 'PRENOTAZIONE CONFERMATA CON SUCCESSO',
       successTitle: 'Ti Aspettiamo',
-      successDesc: 'La tua prenotazione è stata registrata istantaneamente nella planimetria della sala.',
+      successDesc: 'La tua prenotazione è stata registrata e il tavolo è riservato per te. Ti aspettiamo!',
       bookingCode: 'Codice Prenotazione:',
       dateLabel: 'Data',
       timeShiftLabel: 'Orario & Turno',
@@ -269,11 +270,25 @@ export const TRANSLATIONS = {
         },
       },
     },
-    // Testimonials
+    // Testimonials / Quotes dello Chef e del Pizzaiolo
     testimonials: {
-      t1: 'Dimenticate le solite pizzerie commerciali: questo posto sforna il trancio di pizza più autentico e fragrante che possiate desiderare.',
-      t2: 'Un impasto a lievitazione naturale di 48 ore che regala una leggerezza straordinaria, croccante fuori e morbidissimo dentro.',
-      t3: 'La perfetta unione tra tradizione verace napoletana, materie prime d’eccellenza e passione artigianale senza compromessi.',
+      eyebrow: 'LA VOCE DEI NOSTRI MAESTRI',
+      title: 'LA NOSTRA FILOSOFIA TRA FORNO E CUCINA',
+      allTab: 'TUTTE LE CITAZIONI',
+      pizzaioloTab: 'MAESTRO PIZZAIOLO',
+      chefTab: 'EXECUTIVE CHEF',
+      t1: 'Non ci sono segreti o scorciatoie: solo farine selezionate, acqua pura, lievito madre e 48 ore di pazienza. Quando il forno a legna raggiunge i 450 gradi, la pizza prende vita in meno di novanta secondi.',
+      author1: 'IL MAESTRO PIZZAIOLO',
+      role1: 'Arte dell’Impasto & Forno a Legna',
+      t2: 'Il nostro pomodoro San Marzano DOP e il fior di latte fresco arrivano direttamente dai migliori produttori campani. In cucina non inventiamo nulla: rispettiamo la terra, la stagionalità e il vero gusto italiano.',
+      author2: 'L’EXECUTIVE CHEF',
+      role2: 'Selezione Materie Prime & Cucina',
+      t3: 'Una vera pizza napoletana deve parlarti: il cornicione alto e alveolato, il profumo di pane appena sfornato e quel tocco di croccantezza che custodisce un cuore soffice e leggero.',
+      author3: 'MAESTRO PIZZAIOLO & FORNAIO',
+      role3: 'Tradizione Verace & Alveolatura',
+      t4: 'Ogni ingrediente che entra nei nostri piatti racconta una storia di famiglia e territorio. Cucinare per noi significa farvi sentire a casa al primo boccone, con l’eccellenza delle cose semplici fatte a regola d’arte.',
+      author4: 'CHEF DI CUCINA',
+      role4: 'Passione, Famiglia & Ospitalità',
     },
     // Footer & Side Drawer
     footer: {
@@ -443,7 +458,7 @@ export const TRANSLATIONS = {
       // Receipt
       successTag: 'RESERVATION SUCCESSFULLY CONFIRMED',
       successTitle: 'We look forward to seeing you',
-      successDesc: 'Your table reservation has been instantly booked into the restaurant floor plan.',
+      successDesc: 'Your booking has been registered and your table is reserved. See you soon!',
       bookingCode: 'Booking Code:',
       dateLabel: 'Date',
       timeShiftLabel: 'Time & Shift',
@@ -601,11 +616,25 @@ export const TRANSLATIONS = {
         },
       },
     },
-    // Testimonials
+    // Testimonials / Quotes of Chef and Master Pizzaiolo
     testimonials: {
-      t1: 'Forget the trendy commercial pizza chains: this place bakes the most authentic, crispy, and flavorful slice in town.',
-      t2: 'A 48-hour slow fermented dough that creates incredible digestibility, airy crumb structure, and golden crust.',
-      t3: 'The ultimate harmony between genuine Neapolitan roots, top-tier ingredients, and passionate artisan craft.',
+      eyebrow: 'VOICES OF OUR MASTERS',
+      title: 'OUR PHILOSOPHY: FROM THE OVEN TO THE KITCHEN',
+      allTab: 'ALL QUOTES',
+      pizzaioloTab: 'MASTER PIZZAIOLO',
+      chefTab: 'EXECUTIVE CHEF',
+      t1: 'There are no shortcuts: only selected flours, pure water, mother yeast, and 48 hours of patience. When the wood-fired oven hits 450 degrees, the pizza comes to life in under ninety seconds.',
+      author1: 'THE MASTER PIZZAIOLO',
+      role1: 'The Art of Dough & Wood-Fired Oven',
+      t2: 'Our San Marzano DOP tomatoes and fresh fior di latte come directly from top Campanian producers. In our kitchen we honor the land, seasonality, and authentic Italian taste.',
+      author2: 'THE EXECUTIVE CHEF',
+      role2: 'Raw Ingredients Selection & Cuisine',
+      t3: 'A true Neapolitan pizza must speak to you: a tall, airy crust, the scent of freshly baked bread, and a delicate crispness embracing a soft, tender heart.',
+      author3: 'MASTER PIZZAIOLO & BAKER',
+      role3: 'Verace Tradition & Fermentation',
+      t4: 'Every single ingredient in our dishes tells a story of family and heritage. Cooking for us means making you feel right at home at the very first bite.',
+      author4: 'HEAD CHEF',
+      role4: 'Passion, Heritage & Hospitality',
     },
     // Footer & Side Drawer
     footer: {
@@ -775,7 +804,7 @@ export const TRANSLATIONS = {
       // Receipt
       successTag: 'RESERVIERUNG ERFOLGREICH BESTÄTIGT',
       successTitle: 'Wir freuen uns auf dich',
-      successDesc: 'Deine Tischreservierung wurde soeben im Restaurant-Saalplan eingetragen.',
+      successDesc: 'Deine Reservierung wurde registriert und dein Tisch ist reserviert. Wir freuen uns auf dich!',
       bookingCode: 'Buchungscode:',
       dateLabel: 'Datum',
       timeShiftLabel: 'Uhrzeit & Schicht',
@@ -842,11 +871,25 @@ export const TRANSLATIONS = {
       bottomNote1: 'Angebot nur gültig mittags von Montag bis Freitag (ausgenommen Feiertage).',
       bottomNote2: '14,00 € PRO PERSON',
     },
-    // Testimonials
+    // Testimonials / Zitate von Chef und Pizza-Meister
     testimonials: {
-      t1: 'Vergessen Sie gewöhnliche Pizzerien: Hier gibt es das knusprigste und leckerste Pizzastück nach neapolitanischer Art.',
-      t2: 'Ein 48 Stunden fermentierter Teig sorgt für unübertroffene Leichtigkeit und unvergleichlichen Geschmack.',
-      t3: 'Die vollendete Harmonie aus Tradition, erstklassigen Produkten und leidenschaftlicher Handwerkskunst.',
+      eyebrow: 'DIE STIMME UNSERER MEISTER',
+      title: 'UNSERE PHILOSOPHIE: ZWISCHEN OFEN UND KÜCHE',
+      allTab: 'ALLE ZITATE',
+      pizzaioloTab: 'PIZZA-MEISTER',
+      chefTab: 'EXECUTIVE CHEF',
+      t1: 'Es gibt keine Abkürzungen: nur ausgewählte Mehle, reines Wasser, Natursauerteig und 48 Stunden Geduld. Bei 450 Grad im Holzofen entsteht die Pizza in unter 90 Sekunden.',
+      author1: 'DER PIZZA-MEISTER',
+      role1: 'Teigkunst & Holzofen',
+      t2: 'Unsere San Marzano DOP Tomaten und frischer Fior di Latte stammen direkt aus Kampanien. In der Küche respektieren wir die Natur, Saisonalität und den echten Geschmack Italiens.',
+      author2: 'DER EXECUTIVE CHEF',
+      role2: 'Zutatenauswahl & Küche',
+      t3: 'Eine echte neapolitanische Pizza spricht für sich: ein hoher, luftiger Rand, der Duft von frischem Brot und eine feine Kruste mit unglaublich weichem Kern.',
+      author3: 'PIZZA-MEISTER & BÄCKER',
+      role3: 'Verace Tradition & Teigreife',
+      t4: 'Jede Zutat erzählt eine Geschichte von Herkunft und Leidenschaft. Kochen bedeutet für uns, dass Sie sich beim ersten Bissen wie zu Hause fühlen.',
+      author4: 'KÜCHENCHEF',
+      role4: 'Leidenschaft, Familie & Gastfreundschaft',
     },
     // Footer & Side Drawer
     footer: {
@@ -1016,7 +1059,7 @@ export const TRANSLATIONS = {
       // Receipt
       successTag: 'REZERVIMI U KONFIRMU ME SUKSES',
       successTitle: 'Ju Mirëpresim',
-      successDesc: 'Rezervimi i tavolinës suaj u regjistrua menjëherë në planimetrinë e restorantit.',
+      successDesc: 'Rezervimi juaj u regjistrua dhe tavolina është e rezervuar. Ju presim!',
       bookingCode: 'Kodi i Rezervimit:',
       dateLabel: 'Data',
       timeShiftLabel: 'Ora & Turni',
@@ -1174,11 +1217,25 @@ export const TRANSLATIONS = {
         },
       },
     },
-    // Testimonials
+    // Testimonials / Thënie nga Shefi dhe Mjeshtri i Picës
     testimonials: {
-      t1: 'Harroni piceritë e zakonshme komerciale: ky vend gatuan thelën më autentike dhe të shijshme të picës.',
-      t2: 'Një brumë i fermentuar për 48 orë që jep një tretshmëri të jashtëzakonshme dhe shije të pakrahasueshme.',
-      t3: 'Bashkimi i përsosur midis traditës napolitane, produkteve të zgjedhura dhe pasionit artizanal.',
+      eyebrow: 'ZËRI I MESTRAVE TANË',
+      title: 'FILOZOFIA JONË: MES FURRËS DHE KUZHINËS',
+      allTab: 'TË GJITHA THËNIET',
+      pizzaioloTab: 'MJESHTRI I PICËS',
+      chefTab: 'KUZHINIERI KRYESOR',
+      t1: 'Nuk ka sekrete apo shkurtresa: vetëm mielle të përzgjedhura, ujë i pastër, brumë nënë dhe 48 orë durim. Kur furra arrin 450 gradë, pica lind në më pak se nëntëdhjetë sekonda.',
+      author1: 'MJESHTRI I PICËS',
+      role1: 'Arti i Brumit & Furra me Dru',
+      t2: 'Domatet tona San Marzano DOP dhe fior di latte i freskët vijnë direkt nga prodhuesit më të mirë në Kampanja. Në kuzhinë respektojmë tokën, stinët dhe shijen e vërtetë italiane.',
+      author2: 'KUZHINIERI KRYESOR',
+      role2: 'Përzgjedhja e Përbërësve & Kuzhina',
+      t3: 'Një picë e vërtetë napolitane duhet të të flasë: anë të larta dhe të ajrosura, aroma e bukës së sapopjekur dhe kërcitja delikate me zemër të butë e të lehtë.',
+      author3: 'MJESHTËR PICAJOL & FURRËTAR',
+      role3: 'Traditë Verace & Fermentim',
+      t4: 'Çdo përbërës që hyn në pjatat tona tregon një histori familjare dhe pasioni. Të gatuash për ne do të thotë t’ju bëjmë të ndiheni si në shtëpi që në kafshatën e parë.',
+      author4: 'SHEFI I KUZHINËS',
+      role4: 'Pasion, Familje & Mikpritje',
     },
     // Footer & Side Drawer
     footer: {
@@ -1241,10 +1298,40 @@ export const TRANSLATIONS = {
 
 const LanguageContext = createContext();
 
-export const LanguageProvider = ({ children }) => {
-  const [lang, setLang] = useState('it');
+// Dizionari completi: base + testi aggiuntivi (vedi extraTranslations.js)
+const MERGED_TRANSLATIONS = Object.fromEntries(
+  Object.keys(TRANSLATIONS).map((code) => [code, mergeTranslations(TRANSLATIONS[code], EXTRA_TRANSLATIONS[code])])
+);
 
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.it;
+const LANG_STORAGE_KEY = 'sv_lang';
+
+const initialLang = () => {
+  try {
+    const saved = localStorage.getItem(LANG_STORAGE_KEY);
+    if (saved && TRANSLATIONS[saved]) return saved;
+  } catch {
+    // archiviazione non disponibile
+  }
+  return 'it';
+};
+
+export const LanguageProvider = ({ children }) => {
+  const [lang, setLangState] = useState(initialLang);
+
+  const setLang = (code) => {
+    setLangState(code);
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, code);
+    } catch {
+      // la lingua vale solo per questa visita
+    }
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  const t = MERGED_TRANSLATIONS[lang] || MERGED_TRANSLATIONS.it;
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

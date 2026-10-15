@@ -7,7 +7,7 @@ import { AnimatedLogoSvg } from '../common/AnimatedLogoSvg';
 
 export const HeroSection = () => {
   const { t } = useLanguage();
-  const { weeklyProducts } = useMenu();
+  const { weeklyProducts, isMenuLoaded } = useMenu();
   const { addToCart } = useCart();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -68,7 +68,7 @@ export const HeroSection = () => {
       id: slide.id,
       name: slide.name || `${slide.titlePrefix} ${slide.titleHighlight}`.trim(),
       price: slide.price,
-      numericPrice: slide.numericPrice || 11.5,
+      numericPrice: slide.numericPrice,
       image: slide.image,
       ingredients: slide.desc,
     }, 1);
@@ -89,7 +89,7 @@ export const HeroSection = () => {
       {addedToast && (
         <div className="fixed bottom-20 md:bottom-8 left-1/2 -translate-x-1/2 md:left-auto md:right-8 md:translate-x-0 z-50 flex items-center gap-3 bg-[#d2401e] text-white px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-5 font-oswald tracking-wider uppercase text-xs sm:text-sm border border-white/20 whitespace-nowrap">
           <Check className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-          <span>{addedToast} Aggiunto al Carrello!</span>
+          <span>{addedToast} {t.reservation?.addedToCart || 'Aggiunto al carrello!'}</span>
         </div>
       )}
 
@@ -101,8 +101,13 @@ export const HeroSection = () => {
       {/* Subtle vignette border gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0d0d0d]/80 via-transparent to-[#0d0d0d] pointer-events-none" />
 
-      {/* Main Content Container */}
-      <div className="max-w-[1440px] w-full mx-auto px-5 sm:px-12 relative z-10">
+      {/* Main Content Container (compare quando arrivano i prodotti veri dal server) */}
+      <div
+        className={`max-w-[1440px] w-full mx-auto px-5 sm:px-12 relative z-10 transition-opacity duration-500 ${
+          isMenuLoaded ? 'opacity-100' : 'opacity-0'
+        }`}
+        aria-busy={!isMenuLoaded}
+      >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center min-h-[520px] sm:min-h-[580px]">
           
           {/* ======================================================== */}
@@ -200,7 +205,7 @@ export const HeroSection = () => {
           {/* RIGHT COLUMN: FLOATING FOOD SHOWCASE (WITH EXACT EFFECT) */}
           {/* ======================================================== */}
           <div className="lg:col-span-5 relative flex items-center justify-center w-full my-2 lg:my-0">
-            <div className="relative w-full max-w-[340px] sm:max-w-[420px] lg:max-w-[460px] xl:max-w-[520px] aspect-square flex items-center justify-center mx-auto">
+            <div className="relative w-full max-w-[340px] sm:max-w-[440px] lg:max-w-[460px] xl:max-w-[560px] aspect-square flex items-center justify-center mx-auto">
               
               {/* Radial back glow */}
               <div className="absolute inset-4 rounded-full bg-[#d2401e]/20 blur-3xl pointer-events-none" />
@@ -216,7 +221,8 @@ export const HeroSection = () => {
                   />
                 </div>
               ) : (
-                <div className="w-64 sm:w-80 md:w-96 aspect-square flex items-center justify-center mx-auto relative z-10">
+                // foto ritagliate (PNG), di solito più larghe che alte: riquadro rettangolare e più ampio
+                <div className="w-[330px] sm:w-[440px] lg:w-[440px] xl:w-[560px] aspect-[16/11] flex items-center justify-center mx-auto relative z-10">
                   <img
                     key={`main-${slide.id}-${slide.image}`}
                     src={slide.image || '/images/hero_section_1.png'}

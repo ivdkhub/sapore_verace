@@ -43,6 +43,8 @@ export const PizzaCard = ({ pizza, onQuickView, onAddToCart }) => {
             !isAvailable ? 'grayscale opacity-60' : ''
           }`}>
             <img
+              loading="lazy"
+              decoding="async"
               src={pizza.image}
               alt={pizza.name}
               className="w-full h-full object-cover transform transition-transform duration-500 ease-out group-hover:scale-110 select-none"
@@ -50,6 +52,8 @@ export const PizzaCard = ({ pizza, onQuickView, onAddToCart }) => {
           </div>
         ) : (
           <img
+            loading="lazy"
+            decoding="async"
             src={pizza.image || '/images/menu_pizza_1.png'}
             alt={pizza.name}
             className={`w-full h-full object-contain filter drop-shadow-[0_15px_20px_rgba(0,0,0,0.7)] transform transition-transform duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 select-none ${

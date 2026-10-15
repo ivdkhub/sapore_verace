@@ -15,9 +15,22 @@ import {
 } from 'lucide-react';
 import { MoustacheIcon } from '../common/Icons';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAdmin } from '../../context/AdminContext';
+import { api } from '../../services/api';
+import { BUSINESS } from '../../config/business';
+import { summarizeOpeningHours } from '../../utils/schedule';
+import { PrivacyConsent } from '../Legal/PrivacyConsent';
+import { hasMapsConsent, setMapsConsent, openLegal } from '../Legal/legal';
 
 export const FindUsSection = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const { openingHours } = useAdmin();
+  const hoursSummary = summarizeOpeningHours(openingHours, lang);
+  const [showMap, setShowMap] = useState(hasMapsConsent);
+  const [geoError, setGeoError] = useState('');
+  const [contactPrivacy, setContactPrivacy] = useState(false);
+  const [contactError, setContactError] = useState('');
+  const [isSendingContact, setIsSendingContact] = useState(false);
 
   const [originInput, setOriginInput] = useState('');
   const [isLocating, setIsLocating] = useState(false);
@@ -39,8 +52,9 @@ export const FindUsSection = () => {
 
   // Geolocation trigger
   const handleUseCurrentLocation = () => {
+    setGeoError('');
     if (!navigator.geolocation) {
-      alert('La geolocalizzazione non è supportata dal tuo browser.');
+      setGeoError(t.findUs?.geoUnsupported || 'La geolocalizzazione non è supportata dal tuo browser: inserisci la partenza a mano.');
       return;
     }
 
@@ -73,17 +87,38 @@ export const FindUsSection = () => {
   };
 
   // Handle Contact Form Submit
-  const handleFormSubmit = (e) => {
+  // Il messaggio viene salvato sul server e notificato al ristorante (come le richieste eventi)
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setContactError('');
     if (!contactName.trim() || !contactContact.trim()) return;
-
+    if (!contactPrivacy) {
+      setContactError(t.legal?.consentRequired || "Per continuare accetta l'informativa privacy.");
+      return;
+    }
+    const isEmail = contactContact.includes('@');
+    setIsSendingContact(true);
+    try {
+      await api.post('inquiries.php', {
+        name: contactName,
+        phone: isEmail ? '' : contactContact,
+        email: isEmail ? contactContact.trim() : '',
+        eventType: `Messaggio dal sito: ${contactSubject}`,
+        notes: contactMessage,
+        privacyAccepted: true,
+      });
+    } catch (err) {
+      setContactError(err.message);
+      return;
+    } finally {
+      setIsSendingContact(false);
+    }
     setIsFormSubmitted(true);
-    setTimeout(() => {
-      setContactName('');
-      setContactContact('');
-      setContactMessage('');
-      setTimeout(() => setIsFormSubmitted(false), 5000);
-    }, 800);
+    setContactName('');
+    setContactContact('');
+    setContactMessage('');
+    setContactPrivacy(false);
+    setTimeout(() => setIsFormSubmitted(false), 6000);
   };
 
   return (
@@ -152,14 +187,37 @@ export const FindUsSection = () => {
 
               {/* Google Maps iFrame */}
               <div className="relative w-full h-[320px] sm:h-[380px] bg-[#121212]">
-                <iframe
-                  title="Mappa Sapore Verace Castellanza"
-                  src="https://maps.google.com/maps?q=Via%20Borsano%2044,%2021053%20Castellanza%20VA&t=&z=16&ie=UTF8&iwloc=&output=embed"
-                  className="w-full h-full border-0 filter contrast-[1.05] brightness-[0.95]"
-                  loading="lazy"
-                  allowFullScreen
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+                {showMap ? (
+                  <iframe
+                    title="Mappa Sapore Verace Castellanza"
+                    src="https://maps.google.com/maps?q=Via%20Borsano%2044,%2021053%20Castellanza%20VA&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                    className="w-full h-full border-0 filter contrast-[1.05] brightness-[0.95]"
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                ) : (
+                  // Google Maps imposta cookie di terze parti: la mappa si carica solo su richiesta
+                  <div className="w-full h-full flex flex-col items-center justify-start pt-16 sm:pt-20 text-center px-6 gap-3 bg-[radial-gradient(circle_at_center,#2a2a2a,#121212)]">
+                    <MapPin className="w-8 h-8 text-[#d2401e]" />
+                    <p className="text-xs text-white/70 max-w-sm">
+                      {t.findUs?.mapConsentText || 'La mappa è fornita da Google Maps, che può impostare cookie di terze parti.'}{' '}
+                      <button type="button" onClick={() => openLegal('cookie')} className="underline text-[#ffa323] cursor-pointer">
+                        {t.legal?.cookieLink || 'Cookie policy'}
+                      </button>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMapsConsent(true);
+                        setShowMap(true);
+                      }}
+                      className="px-5 py-2.5 rounded-xl bg-[#d2401e] hover:bg-[#b83314] text-white font-oswald text-xs font-bold tracking-widest uppercase cursor-pointer"
+                    >
+                      {t.findUs?.mapConsentBtn || 'Mostra mappa'}
+                    </button>
+                  </div>
+                )}
 
                 {/* Floating location card overlay */}
                 <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-xs bg-[#181818]/95 backdrop-blur-md border border-white/15 rounded-2xl p-4 shadow-2xl">
@@ -201,6 +259,11 @@ export const FindUsSection = () => {
                 <span className="block text-[11px] font-oswald text-[#ffa323] uppercase font-bold tracking-wider mb-2">
                   {t.findUs?.quickOrigins || 'Partenze Rapide:'}
                 </span>
+                {geoError && (
+                  <p role="alert" className="text-xs text-rose-300 mb-2">
+                    {geoError}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
@@ -319,13 +382,13 @@ export const FindUsSection = () => {
                   {t.findUs?.infoPhoneTitle || 'TELEFONO / WHATSAPP'}
                 </h4>
                 <a
-                  href="tel:03311081917"
+                  href={BUSINESS.phoneHref}
                   className="text-sm font-oswald font-bold text-white hover:text-[#ffa323] transition-colors block"
                 >
-                  0331 108 1917
+                  {BUSINESS.phone}
                 </a>
                 <a
-                  href="https://wa.me/3903311081917"
+                  href={BUSINESS.whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[10px] text-emerald-400 hover:underline block mt-1 font-bold"
@@ -343,9 +406,18 @@ export const FindUsSection = () => {
                   {t.findUs?.infoHoursTitle || 'ORARI DI APERTURA'}
                 </h4>
                 <div className="text-[11px] text-white/80 font-sans space-y-0.5">
-                  <p>{t.findUs?.infoHoursLunch || 'Pranzo: 12:00 - 14:30 (Mar - Dom)'}</p>
-                  <p>{t.findUs?.infoHoursDinner || 'Cena: 19:00 - 23:30 (Mar - Dom)'}</p>
-                  <p className="text-rose-400 font-semibold">{t.findUs?.infoHoursClosed || 'Lunedì: Chiuso'}</p>
+                  {/* Orari letti dalla configurazione admin (sempre coerenti con le prenotazioni) */}
+                  {hoursSummary.lunch.map((g) => (
+                    <p key={`l-${g.range}`}>{t.findUs?.lunchLabel || 'Pranzo'}: {g.range} ({g.days})</p>
+                  ))}
+                  {hoursSummary.dinner.map((g) => (
+                    <p key={`d-${g.range}`}>{t.findUs?.dinnerLabel || 'Cena'}: {g.range} ({g.days})</p>
+                  ))}
+                  {hoursSummary.closedDays.length > 0 && (
+                    <p className="text-rose-400 font-semibold">
+                      {hoursSummary.closedDays.join(', ')}: {t.findUs?.closedLabel || 'Chiuso'}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -450,9 +522,18 @@ export const FindUsSection = () => {
                     />
                   </div>
 
+                  <PrivacyConsent id="contact-privacy" checked={contactPrivacy} onChange={setContactPrivacy} />
+
+                  {contactError && (
+                    <p role="alert" className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2">
+                      {contactError}
+                    </p>
+                  )}
+
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[#d2401e] hover:bg-[#b83314] text-white font-oswald text-xs font-bold tracking-[0.2em] uppercase rounded-xl transition-all shadow-md shadow-[#d2401e]/30 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
+                    disabled={isSendingContact}
+                    className="disabled:opacity-50 w-full py-3 bg-[#d2401e] hover:bg-[#b83314] text-white font-oswald text-xs font-bold tracking-[0.2em] uppercase rounded-xl transition-all shadow-md shadow-[#d2401e]/30 flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{t.findUs?.formSubmit || 'INVIA MESSAGGIO'}</span>

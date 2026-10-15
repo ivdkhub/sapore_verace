@@ -1,11 +1,12 @@
 import React from 'react';
-import { Utensils, Calendar, ShoppingCart, Phone, Bike } from 'lucide-react';
+import { Utensils, Calendar, ShoppingCart, Phone } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAdmin } from '../../context/AdminContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { BUSINESS } from '../../config/business';
 
 export const MobileBottomNav = () => {
-  const { totalItemsCount, totalPrice, setIsCartOpen, activeOrder, setIsTrackingOpen } = useCart();
+  const { totalItemsCount, totalPrice, setIsCartOpen } = useCart();
   const { setIsBookingModalOpen } = useAdmin();
   const { t } = useLanguage();
 
@@ -68,32 +69,18 @@ export const MobileBottomNav = () => {
           </span>
         </button>
 
-        {/* 4. TRACKING ORDINE (se attivo) OPPURE CHIAMA */}
-        {activeOrder ? (
-          <button
-            onClick={() => setIsTrackingOpen(true)}
-            className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-white/70 hover:text-white active:scale-95 transition-all cursor-pointer animate-pulse"
-          >
-            <div className="w-9 h-9 rounded-full bg-[#d2401e] flex items-center justify-center mb-0.5 text-white shadow-lg shadow-[#d2401e]/50">
-              <Bike className="w-4 h-4" />
-            </div>
-            <span className="text-[10px] font-oswald uppercase tracking-wider font-bold text-[#ffa323]">
-              Tracking
-            </span>
-          </button>
-        ) : (
-          <a
-            href="tel:03311081917"
-            className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-white/70 hover:text-white active:scale-95 transition-all cursor-pointer"
-          >
-            <div className="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center mb-0.5 text-emerald-400">
-              <Phone className="w-4 h-4" />
-            </div>
-            <span className="text-[10px] font-oswald uppercase tracking-wider font-semibold text-white/80">
-              Chiama
-            </span>
-          </a>
-        )}
+        {/* 4. CONTATTI / CHIAMA SUBITO */}
+        <a
+          href={BUSINESS.phoneHref}
+          className="flex flex-col items-center justify-center py-1 px-1 rounded-xl text-white/70 hover:text-white active:scale-95 transition-all cursor-pointer"
+        >
+          <div className="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center mb-0.5 text-emerald-400">
+            <Phone className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] font-oswald uppercase tracking-wider font-semibold text-white/80">
+            {t.call || 'Chiama'}
+          </span>
+        </a>
 
       </div>
     </nav>

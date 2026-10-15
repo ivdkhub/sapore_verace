@@ -1,18 +1,32 @@
 import React from 'react';
-import { X, Phone, MapPin, Clock } from 'lucide-react';
-import { InstagramIcon, FacebookIcon, TwitterIcon } from '../common/Icons';
+import { X, Phone, MapPin, Clock, Lock } from 'lucide-react';
+import { InstagramIcon, FacebookIcon } from '../common/Icons';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAdmin } from '../../context/AdminContext';
+import { BUSINESS } from '../../config/business';
+import { summarizeOpeningHours } from '../../utils/schedule';
 import { LanguageSwitcher } from '../common/Flags';
 import { AnimatedLogoSvg } from '../common/AnimatedLogoSvg';
 
+const STAFF_LABELS = {
+  login: { it: 'Area riservata staff', en: 'Staff area', de: 'Mitarbeiterbereich', sq: 'Zona e stafit' },
+  open: { it: 'Apri pannello admin', en: 'Open admin panel', de: 'Admin-Bereich öffnen', sq: 'Hap panelin e administrimit' },
+};
+
 export const SideDrawer = ({ isOpen, onClose }) => {
-  const { t } = useLanguage();
-  const { setIsAdminView, setIsBookingModalOpen } = useAdmin();
+  const { t, lang } = useLanguage();
+  const { setIsBookingModalOpen, openingHours, setIsAdminView, isAuthenticated } = useAdmin();
+  const hours = summarizeOpeningHours(openingHours, lang);
 
   const handleOpenReservation = () => {
     onClose();
     setIsBookingModalOpen(true);
+  };
+
+  // Apre la dashboard se l'admin è già collegato, altrimenti la finestra di login
+  const handleOpenAdmin = () => {
+    onClose();
+    setIsAdminView(true);
   };
 
   return (
@@ -98,8 +112,8 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             <Phone className="w-5 h-5 text-[#d2401e] shrink-0 mt-0.5" />
             <div>
               <h4 className="font-oswald text-xs uppercase tracking-wider text-white">{t.drawer?.directOrder || 'Telefono / Ordini'}</h4>
-              <a href="tel:03311081917" className="text-sm text-[#d2401e] hover:underline font-bold font-oswald tracking-wider mt-0.5 block">
-                0331 108 1917
+              <a href={BUSINESS.phoneHref} className="text-sm text-[#d2401e] hover:underline font-bold font-oswald tracking-wider mt-0.5 block">
+                {BUSINESS.phone}
               </a>
             </div>
           </div>
@@ -108,7 +122,16 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             <Clock className="w-5 h-5 text-[#d2401e] shrink-0 mt-0.5" />
             <div>
               <h4 className="font-oswald text-xs uppercase tracking-wider text-white">{t.drawer?.hours || 'Orari di Apertura'}</h4>
-              <p className="text-xs text-white/70 mt-0.5">Mar - Dom: 12:00 - 14:30 / 19:00 - 23:00</p>
+              {[...hours.lunch, ...hours.dinner].map((g, i) => (
+                <p key={i} className="text-xs text-white/70 mt-0.5">
+                  {g.days}: {g.range}
+                </p>
+              ))}
+              {hours.closedDays.length > 0 && (
+                <p className="text-xs text-rose-400 mt-0.5">
+                  {hours.closedDays.join(', ')}: {t.footer?.closed || 'Chiuso'}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -128,22 +151,17 @@ export const SideDrawer = ({ isOpen, onClose }) => {
             >
               <InstagramIcon className="w-4 h-4" />
             </a>
-            <a
-              href="https://www.facebook.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-[#d2401e] hover:border-[#d2401e] transition-all duration-300"
-            >
-              <FacebookIcon className="w-4 h-4" />
-            </a>
-            <a
-              href="https://twitter.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-[#d2401e] hover:border-[#d2401e] transition-all duration-300"
-            >
-              <TwitterIcon className="w-4 h-4" />
-            </a>
+            {BUSINESS.facebookUrl && (
+              <a
+                href={BUSINESS.facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-[#d2401e] hover:border-[#d2401e] transition-all duration-300"
+              >
+                <FacebookIcon className="w-4 h-4" />
+              </a>
+            )}
           </div>
           <a
             href="https://www.instagram.com/sapore_verace/"
@@ -155,18 +173,18 @@ export const SideDrawer = ({ isOpen, onClose }) => {
           </a>
         </div>
 
-        {/* Admin Area Shortcut */}
-        <div className="mt-8 pt-6 border-t border-white/10 text-center">
+        {/* Accesso all'area admin per il personale (se non si è collegati chiede la password) */}
+        <div className="mt-10 pt-6 border-t border-white/10">
           <button
-            onClick={() => {
-              onClose();
-              setIsAdminView(true);
-            }}
-            className="w-full py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl border border-white/10 font-oswald text-xs tracking-widest uppercase flex items-center justify-center gap-2 transition-all cursor-pointer"
+            type="button"
+            onClick={handleOpenAdmin}
+            className="w-full py-3 px-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#ffa323]/50 text-white/70 hover:text-white font-oswald text-xs tracking-[0.2em] font-bold uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>{t.drawer?.adminBtn || 'DASHBOARD AMMINISTRATORE TAVOLI'}</span>
+            <Lock className="w-4 h-4 text-[#ffa323]" />
+            <span>{isAuthenticated ? STAFF_LABELS.open[lang] || STAFF_LABELS.open.it : STAFF_LABELS.login[lang] || STAFF_LABELS.login.it}</span>
           </button>
         </div>
+
       </div>
     </>
   );

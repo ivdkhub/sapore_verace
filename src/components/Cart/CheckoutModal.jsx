@@ -1,40 +1,102 @@
-import React, { useState } from 'react';
-import { X, MapPin, Phone, User, Store, Bike, Banknote, CreditCard, ShieldCheck } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
+import React, { useMemo, useState } from 'react';
+import { X, MapPin, Phone, User, Store, Bike, Banknote, CreditCard, ShieldCheck, Clock } from 'lucide-react';
+import { useCart, DELIVERY_FEE } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAdmin, getTodayDateString } from '../../context/AdminContext';
+import { timeToMinutes, minutesToTime } from '../../utils/schedule';
+import { PrivacyConsent } from '../Legal/PrivacyConsent';
 import { MoustacheIcon } from '../common/Icons';
+
+const PREP_MINUTES = 20; // come 'orders.prep_minutes' in api/config.php
+
+// Orari ordinabili per oggi, ogni 15 minuti, dalle fasce di apertura impostate in admin
+const useTodayOrderTimes = (isOpenModal) => {
+  const { isRestaurantOpenOnDate, openingHours, holidays } = useAdmin();
+  return useMemo(() => {
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const times = [];
+    let openNow = false;
+    // Turni di oggi + quello di ieri sera se chiude dopo mezzanotte (minuti dalla mezzanotte di oggi)
+    [[yesterday, -1440], [now, 0]].forEach(([day, offset]) => {
+      ['pranzo', 'cena'].forEach((shift) => {
+        const check = isRestaurantOpenOnDate(getTodayDateString(day), shift);
+        if (!check.isOpen) return;
+        let open = timeToMinutes(check.shiftHours?.open);
+        let close = timeToMinutes(check.shiftHours?.close);
+        if (open === null || close === null) return;
+        if (close <= open) close += 24 * 60;
+        open += offset;
+        close += offset;
+        if (close <= 0) return;
+        if (nowMin >= open && nowMin <= close - 15) openNow = true;
+        const start = Math.max(open, Math.ceil((nowMin + PREP_MINUTES) / 15) * 15);
+        for (let m = start; m <= close; m += 15) {
+          const label = minutesToTime(m);
+          if (!times.includes(label)) times.push(label);
+        }
+      });
+    });
+    return { times, openNow };
+    // ricalcolato a ogni apertura del checkout e quando cambiano orari/ferie
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpenModal, openingHours, holidays]);
+};
 
 export const CheckoutModal = () => {
   const { isCheckoutOpen, setIsCheckoutOpen, totalPrice, orderType, setOrderType, placeOrder } = useCart();
   const { t } = useLanguage();
+  const { times: orderTimes, openNow } = useTodayOrderTimes(isCheckoutOpen);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const tc = t.checkout || {};
 
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
-    address: 'Via Borsano, ',
+    address: '',
     city: 'Castellanza',
     postalCode: '21053',
     notes: '',
-    pickupTime: '20:00',
+    pickupTime: 'asap',
     deliveryTime: 'asap',
     paymentMethod: 'cash',
+    privacyAccepted: false,
   });
 
   if (!isCheckoutOpen) return null;
 
-  const handleSubmit = (e) => {
+  const timeKey = orderType === 'delivery' ? 'deliveryTime' : 'pickupTime';
+  // Se adesso siamo chiusi, "prima possibile" non vale: si usa il primo orario disponibile
+  const selectedTime = !openNow && formData[timeKey] === 'asap' ? orderTimes[0] || 'asap' : formData[timeKey];
+  const noTimesToday = !openNow && orderTimes.length === 0;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.phone) {
-      alert(tc.alertContact || 'Per favore compila il tuo nome e numero di telefono.');
+    setErrorMessage('');
+    if (!formData.fullName.trim() || !formData.phone.trim()) {
+      setErrorMessage(tc.alertContact || 'Per favore compila il tuo nome e numero di telefono.');
       return;
     }
-    if (orderType === 'delivery' && !formData.address) {
-      alert(tc.alertAddress || "Per favore inserisci l'indirizzo di consegna.");
+    if (orderType === 'delivery' && !/[0-9]/.test(formData.address)) {
+      setErrorMessage(tc.alertAddress || "Per favore inserisci l'indirizzo di consegna con il numero civico.");
       return;
     }
-    placeOrder({ ...formData, orderType });
+    if (!formData.privacyAccepted) {
+      setErrorMessage(t.legal?.consentRequired || "Per continuare accetta l'informativa privacy.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await placeOrder({ ...formData, [timeKey]: selectedTime, orderType });
+    } catch (err) {
+      setErrorMessage(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -201,16 +263,52 @@ export const CheckoutModal = () => {
             />
           </div>
 
-          {/* Payment Method */}
+          {/* Orario di consegna / ritiro (solo oggi, durante l'apertura) */}
           <div>
-            <label className="block text-xs font-oswald tracking-wider uppercase text-white/70 mb-2">
-              {tc.paymentLabel || 'METODO DI PAGAMENTO'}
+            <label htmlFor="order-time" className="block text-xs font-oswald tracking-wider uppercase text-white/70 mb-1.5 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#d2401e]" />
+              {orderType === 'delivery' ? (tc.deliveryTimeLabel || 'ORARIO DI CONSEGNA') : (tc.pickupTimeLabel || 'ORARIO DI RITIRO')}
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            {noTimesToday ? (
+              <p className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+                {tc.closedToday || 'Per oggi gli ordini online sono chiusi. Puoi prenotare un tavolo o chiamarci.'}
+              </p>
+            ) : (
+              <select
+                id="order-time"
+                value={selectedTime}
+                onChange={(e) => setFormData({ ...formData, [timeKey]: e.target.value })}
+                className="w-full px-4 py-3 bg-[#242424] text-white border border-white/15 rounded-xl text-base sm:text-sm focus:outline-none focus:border-[#d2401e]"
+              >
+                {openNow && <option value="asap">{tc.asap || 'Prima possibile'}</option>}
+                {orderTimes.map((time) => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Payment Method - Only to Courier (Cash or Card) */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-oswald tracking-wider uppercase text-white/90 font-bold">
+                {tc.paymentLabel || 'PAGAMENTO ALLA CONSEGNA AL CORRIERE'}
+              </label>
+              <span className="text-[11px] font-oswald text-[#ffa323] uppercase font-semibold">
+                ● Nessun anticipo online
+              </span>
+            </div>
+            <p className="text-xs text-white/50 font-sans mb-3">
+              {orderType === 'delivery'
+                ? 'Pagherai comodamente al nostro corriere all’arrivo a domicilio. Scegli come preferisci pagare:'
+                : 'Pagherai al momento del ritiro direttamente alla cassa della pizzeria:'}
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label
-                className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                   formData.paymentMethod === 'cash'
-                    ? 'border-[#d2401e] bg-[#d2401e]/10 text-white'
+                    ? 'border-[#ffa323] bg-[#ffa323]/10 text-white shadow-md shadow-[#ffa323]/10'
                     : 'border-white/15 bg-[#242424] text-white/70 hover:border-white/30'
                 }`}
               >
@@ -222,16 +320,23 @@ export const CheckoutModal = () => {
                   onChange={() => setFormData({ ...formData, paymentMethod: 'cash' })}
                   className="hidden"
                 />
-                <Banknote className="w-5 h-5 text-[#ffa323]" />
-                <span className="font-oswald text-xs tracking-wider uppercase font-bold">
-                  {orderType === 'delivery' ? (tc.cashDelivery || 'CONTANTI AL RIDER') : (tc.cashPickup || 'CONTANTI ALLA CASSA')}
-                </span>
+                <div className="w-8 h-8 rounded-lg bg-[#ffa323]/20 flex items-center justify-center text-[#ffa323] shrink-0 mt-0.5">
+                  <Banknote className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-oswald text-xs tracking-wider uppercase font-bold text-white block">
+                    {orderType === 'delivery' ? 'Contanti al Corriere' : 'Contanti alla Cassa'}
+                  </span>
+                  <span className="text-[11px] text-white/50 font-sans block mt-0.5">
+                    {orderType === 'delivery' ? 'Paga in contanti all’arrivo del rider' : 'Paga in contanti al ritiro'}
+                  </span>
+                </div>
               </label>
 
               <label
-                className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                   formData.paymentMethod === 'card'
-                    ? 'border-[#d2401e] bg-[#d2401e]/10 text-white'
+                    ? 'border-[#d2401e] bg-[#d2401e]/10 text-white shadow-md shadow-[#d2401e]/10'
                     : 'border-white/15 bg-[#242424] text-white/70 hover:border-white/30'
                 }`}
               >
@@ -243,22 +348,40 @@ export const CheckoutModal = () => {
                   onChange={() => setFormData({ ...formData, paymentMethod: 'card' })}
                   className="hidden"
                 />
-                <CreditCard className="w-5 h-5 text-[#d2401e]" />
-                <span className="font-oswald text-xs tracking-wider uppercase font-bold">
-                  {orderType === 'delivery' ? (tc.cardDelivery || 'POS / CARTA AL DOMICILIO') : (tc.cardPickup || 'CARTA / BANCOMAT IN CASSA')}
-                </span>
+                <div className="w-8 h-8 rounded-lg bg-[#d2401e]/20 flex items-center justify-center text-[#d2401e] shrink-0 mt-0.5">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-oswald text-xs tracking-wider uppercase font-bold text-white block">
+                    {orderType === 'delivery' ? 'Carta / POS al Corriere' : 'Carta / POS in Cassa'}
+                  </span>
+                  <span className="text-[11px] text-white/50 font-sans block mt-0.5">
+                    {orderType === 'delivery' ? 'Il rider ha con sé il POS portatile' : 'Bancomat, carte o contactless'}
+                  </span>
+                </div>
               </label>
             </div>
           </div>
+
+          <PrivacyConsent
+            checked={formData.privacyAccepted}
+            onChange={(v) => setFormData({ ...formData, privacyAccepted: v })}
+          />
+
+          {errorMessage && (
+            <p role="alert" className="text-sm text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3">
+              {errorMessage}
+            </p>
+          )}
 
           {/* Total Bar & Submit Button */}
           <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <div className="text-[11px] font-oswald text-white/50 tracking-wider uppercase">
-                {orderType === 'delivery' ? (tc.subtotalDelivery || 'Subtotale + Consegna (€2.50)') : (tc.subtotalPickup || 'Subtotale (Ritiro Gratuito)')}
+                {orderType === 'delivery' ? (tc.subtotalDelivery || `Subtotale + Consegna (€${DELIVERY_FEE.toFixed(2)})`) : (tc.subtotalPickup || 'Subtotale (Ritiro Gratuito)')}
               </div>
               <span className="block text-xs font-oswald tracking-widest text-white/70 uppercase">
-                {tc.totalToPay || 'TOTALE DA PAGARE:'}
+                {tc.totalToPay || 'TOTALE DA PAGARE AL CORRIERE:'}
               </span>
               <span className="text-2xl font-oswald font-black text-[#d2401e]">
                 €{totalPrice.toFixed(2)}
@@ -267,10 +390,15 @@ export const CheckoutModal = () => {
 
             <button
               type="submit"
-              className="w-full sm:w-auto px-8 py-4 bg-[#d2401e] hover:bg-[#b83314] text-white font-oswald text-sm tracking-[0.2em] font-bold uppercase transition-all duration-300 rounded-xl shadow-xl shadow-[#d2401e]/30 cursor-pointer flex items-center justify-center gap-2 hover:scale-105"
+              disabled={isSubmitting || noTimesToday}
+              className="disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#d2401e] to-[#ffa323] hover:from-[#b83314] hover:to-[#e68e17] text-white font-oswald text-sm tracking-[0.2em] font-black uppercase transition-all duration-300 rounded-xl shadow-xl shadow-[#d2401e]/30 cursor-pointer flex items-center justify-center gap-2 hover:scale-105 active:scale-95"
             >
-              <ShieldCheck className="w-5 h-5" />
-              <span>{orderType === 'delivery' ? (tc.confirmDeliveryBtn || 'CONFERMA E AVVIA TRACKING') : (tc.confirmPickupBtn || 'CONFERMA ORDINE RITIRO')}</span>
+              <ShieldCheck className="w-5 h-5 stroke-[2.5]" />
+              <span>
+                {isSubmitting
+                  ? (tc.sending || 'INVIO IN CORSO...')
+                  : orderType === 'delivery' ? (tc.submitDelivery || 'CONFERMA E INVIA ORDINE') : (tc.submitPickup || 'CONFERMA ORDINE RITIRO')}
+              </span>
             </button>
           </div>
         </form>

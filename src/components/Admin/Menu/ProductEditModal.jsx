@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Upload, Image as ImageIcon, Sparkles, AlertCircle, Check, Trash2, RefreshCw } from 'lucide-react';
 import { parseNumericPrice, formatPriceString } from '../../../context/MenuContext';
+import { api } from '../../../services/api';
+import { compressImage } from '../../../utils/image';
 
 const PRESET_IMAGES = [
   { label: 'Pizza Margherita / Classica 1', url: '/images/menu_pizza_1.png', type: 'pizza' },
@@ -81,28 +83,33 @@ export const ProductEditModal = ({ isOpen, onClose, productToEdit, onSave }) => 
 
   if (!isOpen) return null;
 
-  // Handle local PC file selection and convert to Base64
-  const processImageFile = (file) => {
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
+  // Foto scelta dal PC/telefono: ridotta nel browser e poi caricata sul server
+  const processImageFile = async (original) => {
+    if (!original) return;
+    if (!original.type.startsWith('image/')) {
       setErrorMessage('Il file selezionato non è un\'immagine valida (PNG, JPG, JPEG, WEBP).');
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      setErrorMessage('L\'immagine è troppo grande (max 8MB). Scegli una foto più leggera.');
+    setImageFileName(`Ottimizzazione di ${original.name}...`);
+    const file = await compressImage(original);
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('L\'immagine è troppo grande (max 5MB). Scegli una foto più leggera.');
       return;
     }
 
+    // L'immagine viene caricata sul server: nel menu resta solo il percorso del file
     setErrorMessage('');
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImage(e.target.result);
-      setImageFileName(file.name);
-    };
-    reader.onerror = () => {
-      setErrorMessage('Errore durante la lettura del file dal PC.');
-    };
-    reader.readAsDataURL(file);
+    setImageFileName(`Caricamento di ${file.name}...`);
+    api
+      .upload('upload.php', file)
+      .then(({ url }) => {
+        setImage(url);
+        setImageFileName(file.name);
+      })
+      .catch((err) => {
+        setImageFileName('');
+        setErrorMessage(`Caricamento immagine non riuscito: ${err.message}`);
+      });
   };
 
   const handleFileChange = (e) => {
